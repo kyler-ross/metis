@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "weekly update",
+      "status report",
+      "team update",
+      "progress"
+    ],
+    "semantic_tags": [
+      "status-communication",
+      "weekly-updates",
+      "progress-reporting",
+      "formatting"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "team-updates",
+      "progress-notes",
+      "weekly-summary-request"
+    ],
+    "output_types": [
+      "formatted-update",
+      "status-report"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2000,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [
+      "properly-formatted",
+      "all-sections-filled",
+      "clear-communication"
+    ],
+    "failure_modes": [
+      "poor-formatting",
+      "missing-sections",
+      "unclear-writing"
+    ]
+  },
+  "required_context": [
+    "update-examples.md",
+    "weekly-updates/"
+  ],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "pm-ai-starter-kit-scripts",
+  "version": "1.0.0",
+  "description": "Integration scripts for PM AI Starter Kit",
+  "private": true,
+  "dependencies": {
+    "dotenv": "^16.3.0",
+    "googleapis": "^130.0.0",
+    "node-fetch": "^2.7.0"
+  }
+}

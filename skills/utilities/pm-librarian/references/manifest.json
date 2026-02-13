@@ -1,0 +1,107 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "cleanup",
+      "organize files",
+      "file system",
+      "stale data",
+      "duplicates",
+      "knowledge index",
+      "audit repo",
+      "disk space",
+      "cross reference",
+      "consistency check",
+      "drift detection",
+      "backup cleanup",
+      "where should I put this",
+      "store this information",
+      "clean up repo"
+    ],
+    "semantic_tags": [
+      "file-management",
+      "data-hygiene",
+      "index-maintenance",
+      "duplicate-detection",
+      "staleness-detection",
+      "cross-referencing",
+      "backup-management",
+      "system-maintenance",
+      "organization",
+      "archival"
+    ],
+    "confidence_threshold": 0.75,
+    "auto_dispatch": true
+  },
+  "io": {
+    "input_types": [
+      "cleanup-request",
+      "organization-request",
+      "audit-request",
+      "consistency-check",
+      "file-placement-query"
+    ],
+    "output_types": [
+      "audit-report",
+      "cleanup-proposal",
+      "organization-plan",
+      "cross-reference-report"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 3000,
+    "mcp_tools": [],
+    "cli_tools": [
+      "scripts/confluence-sync.cjs",
+      "scripts/validate-skills.cjs",
+      "scripts/generate-index.cjs"
+    ],
+    "can_orchestrate": true,
+    "compatible_skills": [
+      "self-improvement"
+    ]
+  },
+  "quality": {
+    "success_signals": [
+      "issues-identified-with-evidence",
+      "proposals-shown-before-execution",
+      "indexes-updated-after-changes",
+      "no-data-loss",
+      "space-recovered"
+    ],
+    "failure_modes": [
+      "deleting-without-approval",
+      "missing-index-updates",
+      "breaking-references",
+      "false-positive-stale-detection",
+      "touching-credentials"
+    ]
+  },
+  "required_context": [
+    "pm-ai-architecture.md",
+    "maintenance-guide.md"
+  ],
+  "modes": {
+    "audit": {
+      "file": "audit-mode.md",
+      "description": "Full system health check across all managed directories"
+    },
+    "clean": {
+      "file": "clean-mode.md",
+      "description": "Propose and execute cleanup of duplicates, backups, stale data"
+    },
+    "organize": {
+      "file": "organize-mode.md",
+      "description": "File placement, naming conventions, index maintenance"
+    },
+    "cross-reference": {
+      "file": "cross-reference-mode.md",
+      "description": "Detect inconsistencies and drift across datasets and indexes"
+    }
+  },
+  "meta": {
+    "author": "pm-system",
+    "version": "1.0",
+    "status": "active"
+  }
+}

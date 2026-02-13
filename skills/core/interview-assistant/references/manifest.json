@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "interview",
+      "candidate",
+      "hiring",
+      "feedback",
+      "prep for interview"
+    ],
+    "semantic_tags": [
+      "interview-prep",
+      "candidate-evaluation",
+      "hiring-process",
+      "feedback-writing"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "job-listing",
+      "resume",
+      "interview-notes",
+      "candidate-feedback-request"
+    ],
+    "output_types": [
+      "interview-questions",
+      "candidate-feedback",
+      "evaluation-rubric"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 3000,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [
+    "about-me.md",
+    "about-company.md",
+    "team-glossary.md"
+  ],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

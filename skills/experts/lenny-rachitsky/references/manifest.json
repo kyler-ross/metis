@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "lenny perspective",
+      "plg view",
+      "consumer product"
+    ],
+    "semantic_tags": [
+      "product-led-growth",
+      "consumer-product",
+      "newsletter-wisdom"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "plg-question",
+      "consumer-product-review"
+    ],
+    "output_types": [
+      "plg-advice",
+      "product-recommendation"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "expert-persona",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

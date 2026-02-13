@@ -1,0 +1,130 @@
+# Product Overview
+
+> Copy this file to `product-overview.md` and replace the bracketed sections with your actual product information. The more specific you are, the better Claude performs. Vague context produces vague answers.
+
+## Product
+
+**Name**: [Your Product Name]
+
+**One-liner**: [One sentence that explains what your product does and for whom]
+
+**Category**: [B2B SaaS / B2C / Marketplace / Developer Tool / etc.]
+
+**Stage**: [Pre-launch / Early / Growth / Scale / Mature]
+
+**Founded**: [Year]
+
+**Team Size**: [Number]
+
+## Target Audience
+
+**Primary users**: [Who uses your product daily? Be specific about role and company size.]
+
+**Buyer (if different from user)**: [Who makes the purchase decision?]
+
+**ICP (Ideal Customer Profile)**: [Company size, industry, tech stack, budget range]
+
+**User segments by value**:
+1. [Segment 1] - [% of users] - [Why they use your product]
+2. [Segment 2] - [% of users] - [Why they use your product]
+3. [Segment 3] - [% of users] - [Why they use your product]
+
+## Value Propositions
+
+What do users get that they can't get elsewhere?
+
+1. **[Value Prop 1]**: [One sentence explanation]
+2. **[Value Prop 2]**: [One sentence explanation]
+3. **[Value Prop 3]**: [One sentence explanation]
+
+## Core Features
+
+List your features in order of user adoption (most used first):
+
+| Feature | Adoption | Description | Status |
+|---------|----------|-------------|--------|
+| [Feature 1] | [~X% of users] | [What it does] | Stable |
+| [Feature 2] | [~X% of users] | [What it does] | Growing |
+| [Feature 3] | [~X% of users] | [What it does] | Beta |
+| [Feature 4] | [~X% of users] | [What it does] | Launching soon |
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | [React / Vue / etc.] |
+| Backend | [Django / Rails / Node / etc.] |
+| Database | [PostgreSQL / etc.] |
+| Data Warehouse | [Redshift / BigQuery / Snowflake / etc.] |
+| Mobile | [iOS native / Android native / React Native / Flutter] |
+| Infrastructure | [AWS / GCP / Azure] |
+| Analytics | [PostHog / Amplitude / Mixpanel / etc.] |
+| Experimentation | [PostHog / LaunchDarkly / etc.] |
+
+## Key Metrics
+
+**North Star Metric**: [The single metric that best captures the value you deliver]
+
+**Business health**:
+- Total users: [Number]
+- Monthly active users: [Number]
+- ARR / MRR: [$X]
+- Growth rate: [X% MoM or YoY]
+
+**Key conversion rates**:
+- Signup to activation: [X%]
+- Free to paid: [X%]
+- Monthly churn: [X%]
+- NPS: [Score]
+
+See `metrics-catalog.md` for authoritative metric definitions and SQL queries.
+
+## Pricing
+
+| Plan | Price | What's included |
+|------|-------|----------------|
+| [Free / Trial] | $0 | [Features included] |
+| [Pro / Growth] | $[X]/mo | [Features included] |
+| [Enterprise] | $[X]/mo | [Features included] |
+
+**Billing model**: [Monthly / Annual / Usage-based / Per-seat]
+
+## Competitive Landscape
+
+| Competitor | Positioning | Key Differentiator | Our Advantage |
+|-----------|-------------|-------------------|---------------|
+| [Competitor 1] | [How they position] | [Their strength] | [Why we win] |
+| [Competitor 2] | [How they position] | [Their strength] | [Why we win] |
+| [Competitor 3] | [How they position] | [Their strength] | [Why we win] |
+
+## Current Priorities (This Quarter)
+
+1. **[Priority 1]**: [Why this matters now. What success looks like.]
+2. **[Priority 2]**: [Why this matters now. What success looks like.]
+3. **[Priority 3]**: [Why this matters now. What success looks like.]
+
+## Known Pain Points
+
+Things we know are broken or suboptimal:
+
+1. [Pain point 1] - [Impact on users/business]
+2. [Pain point 2] - [Impact on users/business]
+3. [Pain point 3] - [Impact on users/business]
+
+## Recent Decisions
+
+Decisions made in the last 30-60 days that affect current work:
+
+- [Date]: [Decision] - [Rationale]
+- [Date]: [Decision] - [Rationale]
+- [Date]: [Decision] - [Rationale]
+
+## User Acquisition
+
+**Primary channels**: [Organic / Paid / PLG / Sales-led / Partner]
+
+**Top of funnel**: [How users find you]
+
+**Activation criteria**: [What counts as an "activated" user]
+
+**Onboarding flow**: [Brief description of the new user journey]

@@ -1,0 +1,28 @@
+{
+  "name": "research-to-doc",
+  "version": "1.0.0",
+  "description": "Gather data from multiple sources in parallel and synthesize into a structured document",
+  "category": "workflows",
+  "routing_keywords": [
+    "research and document",
+    "gather and write",
+    "research brief",
+    "research topic",
+    "compile research"
+  ],
+  "semantic_tags": [
+    "multi-source-research",
+    "document-synthesis",
+    "data-gathering",
+    "parallel-collection",
+    "source-attribution"
+  ],
+  "mcp_tools": [],
+  "estimated_tokens": 4000,
+  "required_context": [],
+  "triggers": [
+    "research and document",
+    "gather information about",
+    "create a research brief"
+  ]
+}

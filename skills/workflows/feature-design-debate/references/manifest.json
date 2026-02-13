@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "feature debate",
+      "design debate",
+      "adversarial review",
+      "stress test feature"
+    ],
+    "semantic_tags": [
+      "adversarial-review",
+      "feature-evaluation",
+      "risk-surfacing",
+      "design-improvement"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [],
+    "output_types": []
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [
+    "knowledge/product-overview.md",
+    "knowledge/product-principles.md"
+  ],
+  "meta": {
+    "author": "pm-system",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "workflows",
+    "migrated_from": "",
+    "migration_date": "2026-02-03"
+  }
+}

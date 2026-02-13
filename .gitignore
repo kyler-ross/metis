@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Environment and credentials
+scripts/.env
+scripts/.google-token.json
+scripts/.google-credentials.json
+
+# Private data
+local/
+work/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# MCP configs (contain real credentials)
+.mcp.json
+.claude/mcp.json
+.cursor/mcp.json
+
+# Keep .example versions tracked
+!.mcp.json.example
+!.claude/mcp.json.example
+!.cursor/mcp.json.example

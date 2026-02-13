@@ -1,0 +1,74 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "feed structure",
+      "show feed",
+      "visualize feed",
+      "feed flow",
+      "what unlocks after",
+      "feed items",
+      "questionnaire flow",
+      "feed design"
+    ],
+    "semantic_tags": [
+      "feed-visualization",
+      "feed-structure",
+      "parent-child-relationships",
+      "trigger-events",
+      "feed-flow-design",
+      "google-sheets-cli",
+      "mermaid-graphs"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "feed-structure-query",
+      "flow-design-request",
+      "feed-state-query",
+      "visualization-request"
+    ],
+    "output_types": [
+      "mermaid-graph",
+      "feed-structure-summary",
+      "flow-design",
+      "feed-item-list"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 3000,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": [
+      "content-creator"
+    ]
+  },
+  "quality": {
+    "success_signals": [
+      "feed-visualized",
+      "flow-explained",
+      "structure-documented",
+      "relationships-clarified"
+    ],
+    "failure_modes": [
+      "outdated-feed-map",
+      "missing-parent-child-links",
+      "unclear-trigger-logic"
+    ]
+  },
+  "required_context": [
+    "feed-system/feed-overview.md",
+    "feed-system/feed-triggers.md",
+    "feed-system/feed-destinations.md",
+    "feed-system/GOOGLE-SHEETS-STRUCTURE.md",
+    "google-sheets-api.md"
+  ],
+  "meta": {
+    "author": "alice",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

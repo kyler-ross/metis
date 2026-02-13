@@ -1,0 +1,76 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "write blog",
+      "transform article",
+      "blog post",
+      "rewrite article",
+      "content transformation",
+      "blog article",
+      "product guide"
+    ],
+    "semantic_tags": [
+      "blog-transformation",
+      "brand-voice-compliance",
+      "reading-level-optimization",
+      "content-structure",
+      "cta-insertion",
+      "image-extraction",
+      "confluence-publishing"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "article-url",
+      "draft-content",
+      "news-article",
+      "how-to-guide"
+    ],
+    "output_types": [
+      "blog-article",
+      "confluence-page",
+      "3d-glass-icon-json"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 4500,
+    "mcp_tools": [
+      "confluence"
+    ],
+    "can_orchestrate": false,
+    "compatible_skills": [
+      "content-creator"
+    ]
+  },
+  "quality": {
+    "success_signals": [
+      "on-brand-voice",
+      "6th-grade-reading-level",
+      "proper-structure",
+      "cta-included",
+      "images-attributed",
+      "confluence-published"
+    ],
+    "failure_modes": [
+      "off-brand-voice",
+      "wrong-reading-level",
+      "missing-cta",
+      "fabricated-image-urls",
+      "fear-mongering-tone",
+      "confluence-truncation"
+    ]
+  },
+  "required_context": [
+    "product-copy-guidelines.md",
+    "product-features.md"
+  ],
+  "meta": {
+    "author": "alice",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

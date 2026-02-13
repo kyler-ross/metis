@@ -1,0 +1,73 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "pm document",
+      "document work",
+      "update context",
+      "log today",
+      "capture decisions",
+      "update documentation"
+    ],
+    "semantic_tags": [
+      "context-updates",
+      "daily-logging",
+      "rolling-context",
+      "documentation-maintenance",
+      "jira-linking",
+      "confluence-updates",
+      "decision-capture"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "conversation-context",
+      "decisions-made",
+      "actions-taken",
+      "jira-activity",
+      "confluence-changes"
+    ],
+    "output_types": [
+      "daily-log",
+      "rolling-context-updates",
+      "documentation-suggestions",
+      "jira-updates"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 4000,
+    "mcp_tools": [
+      "jira",
+      "confluence"
+    ],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [
+      "daily-log-created",
+      "rolling-context-updated",
+      "decisions-captured",
+      "documentation-current"
+    ],
+    "failure_modes": [
+      "missing-context",
+      "duplicate-entries",
+      "stale-rolling-context",
+      "over-documenting"
+    ]
+  },
+  "required_context": [
+    "team-glossary.md",
+    "pm-workflow-context.md",
+    "weekly-updates/"
+  ],
+  "meta": {
+    "author": "alice",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

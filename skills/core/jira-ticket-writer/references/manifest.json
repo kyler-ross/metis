@@ -1,0 +1,103 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "create ticket",
+      "jira",
+      "jql",
+      "search jira",
+      "create epic",
+      "acceptance criteria",
+      "ticket description",
+      "file a bug",
+      "write a ticket",
+      "new ticket",
+      "find tickets",
+      "link to epic",
+      "bulk create"
+    ],
+    "semantic_tags": [
+      "ticket-creation",
+      "jql-queries",
+      "epic-management",
+      "bulk-operations",
+      "mandatory-fields",
+      "rest-api-integration",
+      "fast-reliable"
+    ],
+    "confidence_threshold": 0.75,
+    "auto_dispatch": true
+  },
+  "io": {
+    "input_types": [
+      "ticket-request",
+      "feature-description",
+      "bug-report",
+      "task-specification",
+      "jql-query",
+      "epic-request"
+    ],
+    "output_types": [
+      "jira-ticket",
+      "jira-epic",
+      "formatted-ticket-description",
+      "acceptance-criteria",
+      "jql-search-results"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "cli_tools": ["scripts/atlassian-api.cjs"],
+    "can_orchestrate": false,
+    "compatible_skills": ["confluence-manager"]
+  },
+  "quality": {
+    "success_signals": [
+      "ticket-created-in-jira",
+      "response-time-under-3s",
+      "mandatory-fields-populated",
+      "clear-acceptance-criteria",
+      "proper-formatting"
+    ],
+    "failure_modes": [
+      "missing-mandatory-fields",
+      "unclear-descriptions",
+      "missing-acceptance-criteria",
+      "improper-jira-structure",
+      "invalid-jql-syntax"
+    ]
+  },
+  "required_context": [
+    "jira-integration.md",
+    "jira-components-labels.md",
+    "jira-adf-formatting.md",
+    "product-features.md",
+    "product-overview.md"
+  ],
+  "resources": {
+    "ticket-templates": {
+      "file": "ticket-templates.md",
+      "description": "Bug, feature, task templates with mandatory fields"
+    },
+    "workflow-steps": {
+      "file": "workflow-steps.md",
+      "description": "Full 6-step workflow for ticket creation"
+    },
+    "api-reference": {
+      "file": "api-reference.md",
+      "description": "CLI commands, ADF formatting, field mappings"
+    },
+    "common-workflows": {
+      "file": "common-workflows.md",
+      "description": "Epic management, bulk ops, Confluence linking"
+    }
+  },
+  "meta": {
+    "author": "starter-kit",
+    "version": "2.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-02"
+  }
+}

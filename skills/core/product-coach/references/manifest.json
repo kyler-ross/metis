@@ -1,0 +1,100 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "design feature",
+      "product strategy",
+      "prioritize",
+      "validate idea",
+      "go to market",
+      "user story",
+      "which should we build",
+      "coaching",
+      "how should we approach"
+    ],
+    "semantic_tags": [
+      "feature-design",
+      "product-strategy",
+      "user-story-creation",
+      "prioritization-frameworks",
+      "product-thinking",
+      "go-to-market",
+      "coaching",
+      "decision-making",
+      "validation"
+    ],
+    "confidence_threshold": 0.75
+  },
+  "io": {
+    "input_types": [
+      "feature-request",
+      "design-challenge",
+      "prioritization-problem",
+      "strategy-question",
+      "coaching-request",
+      "product-analysis"
+    ],
+    "output_types": [
+      "feature-specification",
+      "design-document",
+      "prioritization-framework",
+      "strategic-recommendation",
+      "coaching-insight"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 4000,
+    "mcp_tools": ["jira", "confluence", "figma", "posthog"],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [
+      "clear-design-emerges",
+      "assumptions-validated",
+      "stakeholder-alignment",
+      "actionable-next-steps",
+      "frameworks-applied"
+    ],
+    "failure_modes": [
+      "pattern-matching-without-validation",
+      "recommending-before-understanding",
+      "not-asking-clarifying-questions",
+      "generic-frameworks-without-context"
+    ]
+  },
+  "required_context": [
+    "product-principles.md",
+    "product-analysis-methodology.md",
+    "product-copy-guidelines.md",
+    "user-expectations-marketing.md",
+    "product-overview.md",
+    "product-features.md",
+    "metrics-catalog.md"
+  ],
+  "modes": {
+    "coaching": {
+      "file": "coaching-mode.md",
+      "description": "Strategic thinking, problem-solving, emotional support"
+    },
+    "copy-review": {
+      "file": "copy-review-mode.md",
+      "description": "Product copy review and writing guidance"
+    },
+    "analysis": {
+      "file": "analysis-mode.md",
+      "description": "Product feature/experiment/journey analysis"
+    },
+    "frameworks": {
+      "file": "frameworks.md",
+      "description": "Strategic framework reference"
+    }
+  },
+  "meta": {
+    "author": "starter-kit",
+    "version": "2.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-02"
+  }
+}

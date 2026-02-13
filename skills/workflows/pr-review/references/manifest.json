@@ -1,0 +1,28 @@
+{
+  "name": "pr-review",
+  "version": "1.0.0",
+  "description": "Multi-dimensional PR review with parallel analysis agents (security, quality, tests, docs, edge cases)",
+  "category": "workflows",
+  "routing_keywords": [
+    "review pr",
+    "code review",
+    "pr review",
+    "check my pr",
+    "review pull request"
+  ],
+  "semantic_tags": [
+    "code-review",
+    "pull-request",
+    "security-audit",
+    "quality-check",
+    "parallel-review"
+  ],
+  "mcp_tools": ["github"],
+  "estimated_tokens": 3500,
+  "required_context": [],
+  "triggers": [
+    "review PR",
+    "check this PR",
+    "code review"
+  ]
+}

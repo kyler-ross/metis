@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "find chat",
+      "find conversation",
+      "find session",
+      "search sessions",
+      "search chats",
+      "resume session",
+      "which chat",
+      "that conversation",
+      "big PR",
+      "huge deletion",
+      "long session"
+    ],
+    "semantic_tags": [
+      "session-search",
+      "conversation-finder",
+      "chat-history",
+      "dimensional-routing",
+      "multi-source-search"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "natural-language-query",
+      "temporal-reference",
+      "topic-description",
+      "magnitude-query",
+      "artifact-query"
+    ],
+    "output_types": [
+      "session-list",
+      "resume-command",
+      "session-details"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [
+      "correct-dimension-classification",
+      "1-3-queries-to-result",
+      "user-finds-correct-session"
+    ],
+    "failure_modes": [
+      "wrong-dimension-classification",
+      "fts-for-non-content-queries",
+      "iterative-keyword-guessing"
+    ]
+  },
+  "required_context": [
+    "chat-search-guide.md",
+    "conversation-data-schema.md"
+  ],
+  "meta": {
+    "author": "starter-kit",
+    "version": "2.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

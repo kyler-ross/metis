@@ -1,0 +1,78 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "dovetail",
+      "user research",
+      "research insights",
+      "qualitative data",
+      "research notes",
+      "participant feedback",
+      "interview notes",
+      "research project",
+      "search research",
+      "summarize findings"
+    ],
+    "semantic_tags": [
+      "research-management",
+      "insights-tracking",
+      "note-organization",
+      "ai-search",
+      "user-research",
+      "qualitative-data",
+      "participant-management",
+      "research-repository"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "research-query",
+      "insight-creation",
+      "note-management",
+      "project-organization",
+      "search-request",
+      "export-request"
+    ],
+    "output_types": [
+      "research-insights",
+      "project-list",
+      "search-results",
+      "ai-summary",
+      "exported-data"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 3500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": [
+      "jira-ticket-writer",
+      "confluence-manager"
+    ]
+  },
+  "quality": {
+    "success_signals": [
+      "data-retrieved",
+      "insight-created",
+      "search-completed",
+      "export-generated",
+      "project-organized"
+    ],
+    "failure_modes": [
+      "missing-api-token",
+      "rate-limiting",
+      "invalid-project-id",
+      "empty-search-results"
+    ]
+  },
+  "required_context": [],
+  "meta": {
+    "author": "pm-system",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "specialized",
+    "migrated_from": "",
+    "migration_date": "2026-02-03"
+  }
+}

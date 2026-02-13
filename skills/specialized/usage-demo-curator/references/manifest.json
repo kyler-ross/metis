@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "find demos",
+      "curate conversations",
+      "export sessions",
+      "demo examples"
+    ],
+    "semantic_tags": [
+      "demo-curation",
+      "conversation-export",
+      "training-data",
+      "quality-sessions"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [],
+    "output_types": []
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [],
+  "meta": {
+    "author": "pm-system",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "specialized",
+    "migrated_from": "",
+    "migration_date": "2026-02-03"
+  }
+}

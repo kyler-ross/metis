@@ -1,0 +1,97 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "sql query",
+      "database",
+      "query",
+      "redshift",
+      "data extraction",
+      "write a query",
+      "what is",
+      "how many",
+      "breakdown by",
+      "segment users",
+      "count distinct",
+      "churn",
+      "retention",
+      "cohort"
+    ],
+    "semantic_tags": [
+      "sql-generation",
+      "database-queries",
+      "schema-knowledge",
+      "analytics-queries",
+      "data-exploration"
+    ],
+    "confidence_threshold": 0.7,
+    "auto_dispatch": true
+  },
+  "io": {
+    "input_types": [
+      "business-question",
+      "data-question",
+      "sql-request",
+      "metric-query"
+    ],
+    "output_types": [
+      "sql-query",
+      "query-explanation",
+      "data-schema"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [
+      "syntactically-valid-sql",
+      "correct-schema-used",
+      "question-answered",
+      "self-review-passed"
+    ],
+    "failure_modes": [
+      "syntax-errors",
+      "wrong-schema",
+      "misunderstanding-question",
+      "missing-joins",
+      "no-is_temporary-filter"
+    ]
+  },
+  "required_context": [
+    "redshift-schema.md",
+    "business-metrics-and-logic.md",
+    "metrics-catalog.md",
+    "churned-users-guide.md",
+    "query-examples.md",
+    "TABLE_SCHEMA_REFERENCE.md"
+  ],
+  "resources": {
+    "schema-first-approach": {
+      "file": "schema-first-approach.md",
+      "description": "ALWAYS load first - schema validation methodology"
+    },
+    "critical-rules": {
+      "file": "critical-rules.md",
+      "description": "Data filters, date windows, Redshift limitations"
+    },
+    "query-patterns": {
+      "file": "query-patterns.md",
+      "description": "Templates for churn, adoption, time-series"
+    },
+    "output-format": {
+      "file": "output-format.md",
+      "description": "Response formatting and safety checks"
+    }
+  },
+  "meta": {
+    "author": "starter-kit",
+    "version": "2.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-02"
+  }
+}

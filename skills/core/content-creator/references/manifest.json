@@ -1,0 +1,84 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "create feed item",
+      "write blog article",
+      "transform article",
+      "feed content",
+      "blog post",
+      "news item",
+      "product guide",
+      "create content"
+    ],
+    "semantic_tags": [
+      "feed-item-creation",
+      "blog-article-writing",
+      "content-transformation",
+      "brand-voice",
+      "cta-matching",
+      "confluence-publishing",
+      "google-sheets-cli",
+      "two-step-approval"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "article-url",
+      "content-idea",
+      "news-item",
+      "product-guide"
+    ],
+    "output_types": [
+      "feed-item",
+      "blog-article",
+      "confluence-page",
+      "spreadsheet-row",
+      "3d-glass-icon-json"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 5000,
+    "mcp_tools": [
+      "confluence"
+    ],
+    "can_orchestrate": false,
+    "compatible_skills": [
+      "feed-manager",
+      "blog-content-writer"
+    ]
+  },
+  "quality": {
+    "success_signals": [
+      "feed-item-created",
+      "blog-published-to-confluence",
+      "spreadsheet-updated",
+      "user-approved-content",
+      "images-generated"
+    ],
+    "failure_modes": [
+      "skipping-approval-step",
+      "fabricating-image-urls",
+      "wrong-reading-level",
+      "off-brand-voice",
+      "missing-cta",
+      "confluence-truncation"
+    ]
+  },
+  "required_context": [
+    "feed-system/feed-overview.md",
+    "feed-system/feed-triggers.md",
+    "feed-system/feed-destinations.md",
+    "feed-system/GOOGLE-SHEETS-STRUCTURE.md",
+    "google-sheets-api.md",
+    "product-copy-guidelines.md"
+  ],
+  "meta": {
+    "author": "alice",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "growth perspective",
+      "acquisition",
+      "retention strategy"
+    ],
+    "semantic_tags": [
+      "growth-strategy",
+      "acquisition",
+      "retention",
+      "metrics"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "growth-question",
+      "metrics-analysis"
+    ],
+    "output_types": [
+      "growth-strategy",
+      "metrics-recommendation"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "expert-persona",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

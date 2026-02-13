@@ -1,0 +1,174 @@
+# PM AI System - Claude Code
+
+> Copy this file to `CLAUDE.md` and fill in the [bracketed] sections with your product details.
+
+## Overview
+
+This is an AI-powered product management system built on Claude Code. It uses skills (structured instruction files), integration scripts (CLI tools for external services), and knowledge files (persistent product context) to give Claude deep PM expertise.
+
+**Launch**: `cd pm-ai-starter-kit && claude .`
+
+## Tool Priority
+
+1. **CLI scripts over browser** - Never open a browser when `scripts/` CLI exists for that service
+2. **Local files first** - Check `knowledge/` before querying external services
+3. **Scripts over MCP** - Use CLI scripts for Jira/Confluence (MCP often unreliable for these)
+
+## External Service CLI Commands
+
+| Service | Command |
+|---------|---------|
+| Jira | `node scripts/atlassian-api.cjs jira search "JQL"` |
+| Confluence | `node scripts/atlassian-api.cjs confluence search "CQL"` |
+| Google Calendar | `node scripts/google-calendar-api.js [today\|events\|search\|freebusy\|find-slot\|create]` |
+| Gmail | `node scripts/google-gmail-api.cjs [today\|list\|read\|send\|draft]` |
+| Google Sheets | `node scripts/google-sheets-api.cjs [read\|write\|info]` |
+| Google Drive | `node scripts/google-drive-api.js [list\|search\|download]` |
+| Google Docs | `node scripts/google-docs-creator.cjs [create\|read\|update\|append]` |
+| Slack | `node scripts/slack-api.cjs [channels\|messages\|send]` |
+
+## Credentials
+
+**The Rule:** All secrets go in their designated location, never in code.
+
+| File | Purpose | Used By |
+|------|---------|---------|
+| `~/.pm-ai-env.sh` | MCP + shell env vars (PostHog, GitHub, Figma) | Sourced by shell, inherited by MCP servers |
+| `scripts/.env` | Script credentials (Google OAuth, Jira, Slack) | Loaded via dotenv in each script |
+
+**Standard Locations:**
+
+| Credential | Location | Example |
+|------------|----------|---------|
+| MCP keys (PostHog, GitHub, Figma) | `~/.pm-ai-env.sh` | `export POSTHOG_API_KEY=...` |
+| Script keys (Jira, Slack, etc.) | `scripts/.env` | `JIRA_API_KEY=...` |
+| OAuth tokens (Google) | `scripts/.google-token.json` | Auto-managed |
+
+**When Writing New Scripts:**
+1. Load env: `require('dotenv').config({ path: path.join(__dirname, '.env') })`
+2. Validate keys exist before using
+3. Fail fast: `if (!process.env.X) throw new Error('X required in .env')`
+
+## Scheduling and Calendar
+
+When asked about scheduling, availability, or meeting conflicts:
+1. Check calendar: `node scripts/google-calendar-api.js today`
+2. Convert timezones - User is in [YOUR_TIMEZONE]
+3. Check free/busy: `node scripts/google-calendar-api.js freebusy`
+4. Find open slots: `node scripts/google-calendar-api.js find-slot`
+
+## Knowledge Discovery
+
+- **Team members**: `knowledge/team-members.json` - names, roles, scopes
+- **Product context**: `knowledge/product-overview.md` - features, users, strategy
+- **Metrics definitions**: `knowledge/metrics-catalog.md` - authoritative metric definitions
+
+## Hallucination Prevention
+
+- When user mentions a **name** - check `knowledge/team-members.json`
+- When unsure about product - read `knowledge/product-overview.md`
+- When asked about metrics - read `knowledge/metrics-catalog.md`
+- **NEVER guess** file paths, ticket IDs, or names - look them up
+- **Trust user over training data** - assume your knowledge may be outdated
+
+## Jira Defaults
+
+- **Project key**: [YOUR_PROJECT_KEY]
+- **Validation-first**: Always preview ticket before creating - get user confirmation
+
+## Git Operations
+
+- Prefer `git pull origin main` over cherry-picking
+- Avoid complex git state management - if stuck, ask rather than force
+- Never commit credentials, .env files, or knowledge/local/ directories
+
+## Bash Command Safety
+
+**Never execute without user approval:**
+- `rm`, `rm -rf`, `rmdir` (deletion)
+- `DROP`, `DELETE`, `TRUNCATE` (database)
+- `sudo`, `chmod 777` (system)
+- Mass API calls or unbounded loops
+
+**Safe patterns (auto-approved):**
+- `jq`, `grep`, `cat`, `ls`, `wc`, `head`, `tail` (analysis)
+- `git log`, `git status`, `git diff` (read-only git)
+- Read-only script calls
+
+## Output Style
+
+- Direct. Bottom line first.
+- Avoid: "delve," "robust," "seamless," "leverage," "furthermore"
+- When drafting messages: digest and rewrite in user's voice, don't copy verbatim
+- Never use horizontal dividers or em-dashes in generated documents (obvious AI tells)
+
+## Skills System
+
+Skills follow the [SKILL.md standard](https://agentskills.io).
+
+- **Router**: `/pm-ai [task]` - analyzes and routes to appropriate skill
+- **Direct access**: `/pm-coach`, `/pm-daily`, `/pm-jira`, etc.
+- **Registry**: `skills/_index.json` - central index for routing
+
+```
+skills/
+├── _index.json          # Routing registry
+├── core/                # Core PM skills (17)
+├── experts/             # Expert personas (13)
+├── specialized/         # Specialized tools (10)
+├── workflows/           # Multi-skill workflows (5)
+├── personas/            # Customer personas (4)
+└── utilities/           # System utilities (5)
+```
+
+## Slash Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/pm-ai` | Main router - analyzes and routes to skill |
+| `/pm-daily` | Morning briefing, daily priorities |
+| `/pm-coach` | Product strategy and design coaching |
+| `/pm-analyze` | SQL queries and data analysis |
+| `/pm-jira` | Create and manage Jira tickets |
+| `/pm-weekly` | Weekly status updates |
+| `/pm-transcript` | Organize meeting transcripts |
+| `/pm-document` | Documentation and context logging |
+| `/pm-interview` | Interview prep and feedback |
+| `/pm-status` | System health check |
+| `/pm-improve` | System self-improvement |
+| `/pm-search` | Search past AI sessions |
+| `/expert-panel` | Multi-expert panel discussion |
+| `/pm-coach` | Product coaching |
+| `/pm-prototype` | Build interactive UI prototypes |
+| `/pm-slack-chats` | Triage Slack conversations |
+| `/eng-fullstack` | Engineering debugging and review |
+| `/pdf-processor` | PDF to markdown |
+| `/video-processor` | Video to timeline |
+| `/pr-review` | Multi-dimensional PR review |
+| `/research-to-doc` | Multi-source research to document |
+| `/env-health` | Credential health check |
+| `/question` | PM AI help |
+
+## MCP Integrations
+
+| Service | Use Case |
+|---------|----------|
+| **GitHub** | Repository access, PRs, issues |
+| **PostHog** | Analytics queries, feature flags |
+| **Figma** | Design file access (read-only) |
+
+**CLI only (no MCP):** Google Workspace, Jira, Confluence, Slack - use `scripts/` CLI tools.
+
+## Architecture
+
+```
+pm-ai-starter-kit/
+├── CLAUDE.md              # This file (your AI's instructions)
+├── skills/                # 54 skills across 6 categories
+├── .claude/commands/      # 23 slash commands
+├── scripts/               # Integration scripts + credentials
+├── knowledge/             # Your product context (customize these)
+└── examples/              # Guides and references
+```
+
+**Flow:** `/pm-ai [task]` -> Router checks `skills/_index.json` -> Loads skill -> Skill uses scripts + knowledge -> Answer

@@ -1,0 +1,89 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "create confluence page",
+      "confluence",
+      "wiki page",
+      "documentation",
+      "search confluence",
+      "cql",
+      "update page",
+      "find page",
+      "product spec",
+      "tech spec"
+    ],
+    "semantic_tags": [
+      "page-creation",
+      "page-update",
+      "cql-search",
+      "space-management",
+      "confluence-integration",
+      "rest-api-integration"
+    ],
+    "confidence_threshold": 0.75,
+    "auto_dispatch": true
+  },
+  "io": {
+    "input_types": [
+      "page-request",
+      "documentation-request",
+      "search-query",
+      "cql-query",
+      "space-query"
+    ],
+    "output_types": [
+      "confluence-page",
+      "page-url",
+      "search-results",
+      "space-list"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "cli_tools": ["scripts/atlassian-api.cjs"],
+    "can_orchestrate": false,
+    "compatible_skills": ["jira-ticket-writer"]
+  },
+  "quality": {
+    "success_signals": [
+      "page-created-in-confluence",
+      "response-time-under-3s",
+      "page-linked-to-jira",
+      "search-results-found",
+      "proper-hierarchy"
+    ],
+    "failure_modes": [
+      "missing-space-key",
+      "version-mismatch-on-update",
+      "invalid-cql-syntax",
+      "wrong-content-format",
+      "missing-parent-page"
+    ]
+  },
+  "required_context": [
+    "jira-integration.md"
+  ],
+  "resources": {
+    "cql-queries": {
+      "file": "cql-queries.md",
+      "description": "CQL query syntax and examples"
+    },
+    "rest-api-reference": {
+      "file": "rest-api-reference.md",
+      "description": "REST API endpoints and usage"
+    },
+    "templates": {
+      "file": "templates.md",
+      "description": "Product specs, Jira linking, batch operations"
+    }
+  },
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-02"
+  }
+}

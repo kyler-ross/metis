@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "self improve",
+      "knowledge gap",
+      "remember this",
+      "should know about"
+    ],
+    "semantic_tags": [
+      "knowledge-gap-detection",
+      "improvement-proposals",
+      "system-learning"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "knowledge-gap",
+      "improvement-request"
+    ],
+    "output_types": [
+      "improvement-proposal",
+      "knowledge-update"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [
+      "gap-identified",
+      "proposal-generated",
+      "improvement-committed"
+    ],
+    "failure_modes": [
+      "not-detecting-gaps",
+      "poor-proposals"
+    ]
+  },
+  "required_context": [
+    "all"
+  ],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

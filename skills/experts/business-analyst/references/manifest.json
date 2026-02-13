@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "analyst perspective",
+      "unit economics",
+      "financial model"
+    ],
+    "semantic_tags": [
+      "unit-economics",
+      "financial-modeling",
+      "data-analysis"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "financial-question",
+      "metrics-data"
+    ],
+    "output_types": [
+      "financial-analysis",
+      "economic-model"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "expert-persona",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

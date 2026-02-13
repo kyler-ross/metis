@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "last_updated": "2026-01-15",
+    "description": "Team structure for PM operations. Claude uses this to resolve names, understand reporting lines, and route questions to the right people."
+  },
+
+  "team": [
+    {
+      "name": "Alice Chen",
+      "role": "Head of Product",
+      "email": "alice@company.com",
+      "scope": "Product strategy, roadmap, stakeholder management",
+      "reports_to": null,
+      "slack_id": "U0EXAMPLE1",
+      "direct_reports": ["Bob Martinez", "Carol Kim", "David Okafor"],
+      "notes": "Final call on roadmap priorities. Prefers async updates."
+    },
+    {
+      "name": "Bob Martinez",
+      "role": "Senior Product Manager",
+      "email": "bob@company.com",
+      "scope": "Growth and activation, onboarding funnel, conversion experiments",
+      "reports_to": "Alice Chen",
+      "slack_id": "U0EXAMPLE2",
+      "direct_reports": [],
+      "notes": "Owns the free-to-paid conversion funnel. Data-driven, runs weekly experiments."
+    },
+    {
+      "name": "Carol Kim",
+      "role": "Product Manager",
+      "email": "carol@company.com",
+      "scope": "Core product experience, retention, feature adoption",
+      "reports_to": "Alice Chen",
+      "slack_id": "U0EXAMPLE3",
+      "direct_reports": ["Eve Nakamura"],
+      "notes": "Strong design sense. Leads the design review cadence."
+    },
+    {
+      "name": "David Okafor",
+      "role": "Associate Product Manager",
+      "email": "david@company.com",
+      "scope": "Platform and infrastructure, API, integrations",
+      "reports_to": "Alice Chen",
+      "slack_id": "U0EXAMPLE4",
+      "direct_reports": [],
+      "notes": "Former engineer. Great at scoping technical work and estimating effort."
+    }
+  ],
+
+  "engineering_leads": {
+    "frontend": "Sarah Park",
+    "backend": "James Liu",
+    "mobile": "Priya Sharma",
+    "infra": "Marcus Johnson"
+  },
+
+  "design_team": {
+    "head": "Rachel Torres",
+    "members": [
+      {"name": "Kyle Adams", "role": "Lead Product Designer", "focus": "Core product"},
+      {"name": "Mia Wang", "role": "Product Designer", "focus": "Growth and onboarding"}
+    ]
+  },
+
+  "executive_team": {
+    "ceo": "Jordan Wells",
+    "cto": "Alex Rivera",
+    "cmo": "Nadia Petrov",
+    "vp_customer_success": "Sam Greenfield"
+  }
+}

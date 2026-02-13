@@ -1,0 +1,28 @@
+{
+  "name": "env-health-check",
+  "version": "1.0.0",
+  "description": "Validate credential files, service connectivity, and overall system health with auto-fix",
+  "category": "utilities",
+  "routing_keywords": [
+    "env health",
+    "check credentials",
+    "system health",
+    "check env",
+    "credential check"
+  ],
+  "semantic_tags": [
+    "environment-validation",
+    "credential-check",
+    "service-connectivity",
+    "system-health",
+    "troubleshooting"
+  ],
+  "mcp_tools": [],
+  "estimated_tokens": 3000,
+  "required_context": [],
+  "triggers": [
+    "check env",
+    "env health",
+    "system health check"
+  ]
+}

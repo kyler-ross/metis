@@ -1,0 +1,215 @@
+# Metrics Catalog
+
+> Copy this file to `metrics-catalog.md` and replace with your actual metrics. This is Claude's authoritative source for metric definitions. When Claude is asked "what's our churn rate?" or "how do we measure activation?", it reads this file.
+
+## Purpose
+
+Consistent metric definitions across all reporting and analysis. When in doubt about how a metric is calculated, this file is the source of truth.
+
+## North Star Metric
+
+**[Your North Star Metric Name]**
+
+- **Definition**: [Precise definition. What counts and what doesn't.]
+- **Formula**: [How it's calculated]
+- **Data source**: [Table or system]
+- **Owner**: [Person responsible for this metric]
+- **Dashboard**: [Link to where this is tracked]
+- **Current value**: [Latest value as of last update]
+- **Target**: [Quarterly/annual target]
+
+## Acquisition Metrics
+
+### New Users
+
+- **Definition**: [Count of users who completed signup on a given date. Specify what "completed signup" means -- email verified? First login? Payment?]
+- **Formula**: `COUNT(DISTINCT user_id) WHERE signup_date = [date] AND [conditions]`
+- **Data source**: `[schema].[table]`
+- **Refresh frequency**: [Daily / Hourly / Real-time]
+- **Owner**: [Name]
+- **Dashboard**: [Link]
+
+### Cost Per Acquisition (CPA)
+
+- **Definition**: [Total marketing spend divided by new paying users in the period]
+- **Formula**: `SUM(marketing_spend) / COUNT(new_paying_users)`
+- **Data source**: [Marketing platform + payment system]
+- **Refresh frequency**: [Weekly]
+- **Owner**: [Name]
+- **Dashboard**: [Link]
+
+### [Additional Acquisition Metric]
+
+- **Definition**: [Precise definition]
+- **Formula**: [SQL or calculation]
+- **Data source**: [Table]
+- **Owner**: [Name]
+
+## Activation Metrics
+
+### Activation Rate
+
+- **Definition**: [Percentage of new users who complete the activation criteria within X days of signup. Define activation criteria precisely.]
+- **Formula**: `COUNT(activated_users) / COUNT(new_users) * 100`
+- **Data source**: `[schema].[table]`
+- **Refresh frequency**: [Daily]
+- **Owner**: [Name]
+- **Dashboard**: [Link]
+- **Activation criteria**: [List the specific actions that qualify a user as "activated"]
+
+### Time to Value
+
+- **Definition**: [Median time from signup to first meaningful action. Define "meaningful action" precisely.]
+- **Formula**: `MEDIAN(first_value_event_timestamp - signup_timestamp)`
+- **Data source**: `[schema].[events_table]`
+- **Owner**: [Name]
+
+## Engagement Metrics
+
+### Monthly Active Users (MAU)
+
+- **Definition**: [Count of unique users who performed at least one qualifying action in the last 30 days. Define "qualifying action".]
+- **Formula**: `COUNT(DISTINCT user_id) WHERE last_action_date >= DATEADD(day, -30, CURRENT_DATE)`
+- **Data source**: `[schema].[table]`
+- **Refresh frequency**: [Daily]
+- **Owner**: [Name]
+- **Dashboard**: [Link]
+
+### Daily Active Users (DAU)
+
+- **Definition**: [Count of unique users who performed at least one qualifying action on a given day]
+- **Formula**: `COUNT(DISTINCT user_id) WHERE action_date = [date]`
+- **Data source**: `[schema].[table]`
+- **Owner**: [Name]
+
+### DAU/MAU Ratio (Stickiness)
+
+- **Definition**: [Ratio of daily to monthly active users. Higher = stickier product.]
+- **Formula**: `DAU / MAU`
+- **Target**: [X% -- note: 20%+ is considered good for most SaaS]
+- **Owner**: [Name]
+
+### [Feature-Specific Engagement]
+
+- **Definition**: [Adoption rate or usage frequency for your most important feature]
+- **Formula**: [SQL or calculation]
+- **Data source**: [Table]
+- **Owner**: [Name]
+
+## Retention Metrics
+
+### Monthly Churn Rate
+
+- **Definition**: [Percentage of paying users at the start of the month who are no longer paying at the end. Specify: does a paused subscription count as churned? What about downgrades?]
+- **Formula**: `COUNT(churned_users_in_month) / COUNT(active_users_at_month_start) * 100`
+- **Data source**: `[schema].[table]`
+- **Refresh frequency**: [Monthly, calculated on 1st of each month]
+- **Owner**: [Name]
+- **Dashboard**: [Link]
+- **Caveats**: [Any edge cases in your churn definition -- refunds, plan changes, grace periods]
+
+### Net Revenue Retention (NRR)
+
+- **Definition**: [Revenue from existing customers this period vs. same cohort last period. Includes expansion, contraction, and churn.]
+- **Formula**: `(Starting MRR + Expansion - Contraction - Churn) / Starting MRR * 100`
+- **Data source**: [Billing system]
+- **Owner**: [Name]
+- **Target**: [X% -- note: 100%+ means you're growing from existing customers]
+
+### Cohort Retention
+
+- **Definition**: [Percentage of a signup cohort still active after N days/months]
+- **Cohort definition**: [What groups users into a cohort -- signup week? signup month?]
+- **Data source**: `[schema].[table]`
+- **Standard intervals**: [Day 1, Day 7, Day 30, Month 3, Month 6, Month 12]
+- **Owner**: [Name]
+
+## Revenue Metrics
+
+### Monthly Recurring Revenue (MRR)
+
+- **Definition**: [Sum of all recurring revenue normalized to a monthly amount. Exclude one-time charges, include discounts.]
+- **Formula**: `SUM(monthly_plan_amount) for all active subscriptions`
+- **Data source**: `[schema].[table]`
+- **Refresh frequency**: [Daily]
+- **Owner**: [Name]
+- **Dashboard**: [Link]
+
+### Annual Recurring Revenue (ARR)
+
+- **Definition**: [MRR * 12. Simple annualization of current MRR.]
+- **Formula**: `MRR * 12`
+- **Owner**: [Name]
+
+### Average Revenue Per User (ARPU)
+
+- **Definition**: [MRR divided by active paying users]
+- **Formula**: `MRR / COUNT(active_paying_users)`
+- **Data source**: `[schema].[table]`
+- **Owner**: [Name]
+
+### Lifetime Value (LTV)
+
+- **Definition**: [Average revenue per user divided by monthly churn rate. Or use your preferred calculation method.]
+- **Formula**: `ARPU / monthly_churn_rate`
+- **Data source**: [Derived metric]
+- **Owner**: [Name]
+- **Caveats**: [LTV estimates are sensitive to churn assumptions. State your methodology.]
+
+### LTV:CAC Ratio
+
+- **Definition**: [Lifetime value divided by customer acquisition cost]
+- **Formula**: `LTV / CPA`
+- **Target**: [3:1 or higher]
+- **Owner**: [Name]
+
+## Data Sources Reference
+
+| Source | System | Access | Refresh |
+|--------|--------|--------|---------|
+| `[schema].[users]` | [Redshift/BigQuery/etc.] | [SQL / API] | [Daily] |
+| `[schema].[events]` | [Redshift/BigQuery/etc.] | [SQL / API] | [Hourly] |
+| `[schema].[subscriptions]` | [Billing system] | [API] | [Real-time] |
+| [Analytics platform] | [PostHog/Amplitude/etc.] | [API / Dashboard] | [Real-time] |
+
+## Common Queries
+
+### Active users for a date range
+
+```sql
+-- Replace with your actual query
+SELECT
+    date_trunc('day', activity_date) as day,
+    COUNT(DISTINCT user_id) as active_users
+FROM [schema].[activity_table]
+WHERE activity_date BETWEEN '[start_date]' AND '[end_date]'
+GROUP BY 1
+ORDER BY 1;
+```
+
+### MRR trend
+
+```sql
+-- Replace with your actual query
+SELECT
+    date_trunc('month', report_date) as month,
+    SUM(mrr_amount) as total_mrr
+FROM [schema].[subscription_table]
+WHERE status = 'active'
+GROUP BY 1
+ORDER BY 1;
+```
+
+### Cohort retention
+
+```sql
+-- Replace with your actual query
+SELECT
+    cohort_month,
+    months_since_signup,
+    COUNT(DISTINCT user_id) as retained_users,
+    retained_users / cohort_size * 100 as retention_pct
+FROM [schema].[cohort_view]
+GROUP BY 1, 2
+ORDER BY 1, 2;
+```

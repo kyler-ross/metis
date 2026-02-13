@@ -1,0 +1,1613 @@
+{
+  "version": "1.0",
+  "updated": "2026-02-13",
+  "description": "PM AI Skills Registry - Central index for routing and discovery",
+  "schema": {
+    "skill": {
+      "path": "Relative path to SKILL.md",
+      "description": "Brief description from SKILL.md frontmatter",
+      "category": "core|experts|specialized|workflows|personas|utilities",
+      "routing_keywords": "Keywords that trigger this skill",
+      "semantic_tags": "Capability tags for semantic matching",
+      "mcp_tools": "MCP integrations used",
+      "estimated_tokens": "Approximate context size"
+    }
+  },
+  "skills": {
+    "blog-content-writer": {
+      "path": "core/blog-content-writer/SKILL.md",
+      "description": "Transform articles and drafts into [Your Company]-branded blog posts for the app news feed",
+      "category": "core",
+      "routing_keywords": [
+        "write blog",
+        "transform article",
+        "blog post",
+        "rewrite article",
+        "content transformation"
+      ],
+      "semantic_tags": [
+        "blog-transformation",
+        "brand-voice-compliance",
+        "reading-level-optimization",
+        "content-structure",
+        "cta-insertion"
+      ],
+      "mcp_tools": [
+        "confluence"
+      ],
+      "estimated_tokens": 4500
+    },
+    "chat-search": {
+      "path": "core/chat-search/SKILL.md",
+      "description": "Expert at finding Claude Code and Cursor sessions using dimensional routing across multiple data sources",
+      "category": "core",
+      "routing_keywords": [
+        "find chat",
+        "find conversation",
+        "find session",
+        "search sessions",
+        "search chats"
+      ],
+      "semantic_tags": [
+        "session-search",
+        "conversation-finder",
+        "chat-history",
+        "dimensional-routing",
+        "multi-source-search"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "confluence-manager": {
+      "path": "core/confluence-manager/SKILL.md",
+      "description": "Manage Confluence pages - create, read, update, organize, search. Fast REST API operations with CQL search support.",
+      "category": "core",
+      "routing_keywords": [
+        "create confluence page",
+        "confluence",
+        "wiki page",
+        "documentation",
+        "search confluence"
+      ],
+      "semantic_tags": [
+        "page-creation",
+        "page-update",
+        "cql-search",
+        "space-management",
+        "confluence-integration"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "content-creator": {
+      "path": "core/content-creator/SKILL.md",
+      "description": "Create feed items + blog articles for [Your Company]'s user feed system",
+      "category": "core",
+      "routing_keywords": [
+        "create feed item",
+        "write blog article",
+        "transform article",
+        "feed content",
+        "blog post"
+      ],
+      "semantic_tags": [
+        "feed-item-creation",
+        "blog-article-writing",
+        "content-transformation",
+        "brand-voice",
+        "cta-matching"
+      ],
+      "mcp_tools": [
+        "confluence"
+      ],
+      "estimated_tokens": 5000
+    },
+    "daily-chief-of-staff": {
+      "path": "core/daily-chief-of-staff/SKILL.md",
+      "description": "Daily operations partner for product management. Organizes priorities, surfaces blockers, reviews Jira and transcripts, maintains rolling context, and helps decide what work to do.",
+      "category": "core",
+      "routing_keywords": [
+        "daily sync",
+        "daily chief",
+        "today's priorities",
+        "what needs my attention",
+        "daily operations"
+      ],
+      "semantic_tags": [
+        "daily-operations",
+        "priority-management",
+        "decision-logging",
+        "team-context",
+        "action-orchestration"
+      ],
+      "mcp_tools": [
+        "jira",
+        "confluence"
+      ],
+      "estimated_tokens": 5000
+    },
+    "feed-manager": {
+      "path": "core/feed-manager/SKILL.md",
+      "description": "Manage, visualize, and modify [Your Company]'s user feed system",
+      "category": "core",
+      "routing_keywords": [
+        "feed structure",
+        "show feed",
+        "visualize feed",
+        "feed flow",
+        "what unlocks after"
+      ],
+      "semantic_tags": [
+        "feed-visualization",
+        "feed-structure",
+        "parent-child-relationships",
+        "trigger-events",
+        "feed-flow-design"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 3000
+    },
+    "interview-assistant": {
+      "path": "core/interview-assistant/SKILL.md",
+      "description": "Interview guidance and candidate feedback - prep questions, live coaching, and post-interview debriefs",
+      "category": "core",
+      "routing_keywords": [
+        "interview",
+        "candidate",
+        "hiring",
+        "feedback",
+        "prep for interview"
+      ],
+      "semantic_tags": [
+        "interview-prep",
+        "candidate-evaluation",
+        "hiring-process",
+        "feedback-writing"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 3000
+    },
+    "investor-relations": {
+      "path": "core/investor-relations/SKILL.md",
+      "description": "Investor Relations Partner - VC comms, board decks, investor updates",
+      "category": "core",
+      "routing_keywords": [
+        "investor",
+        "board",
+        "fundraising",
+        "pitch",
+        "series b"
+      ],
+      "semantic_tags": [
+        "investor-updates",
+        "board-decks",
+        "pitch-prep",
+        "vc-communication"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 4000
+    },
+    "jira-ticket-writer": {
+      "path": "core/jira-ticket-writer/SKILL.md",
+      "description": "Create and update Jira tickets using mandatory formats. Turns vague problems into crisp, actionable tickets. States WHAT and WHY, never HOW. Use for bug reports, feature requests, tasks, epics, and bu",
+      "category": "core",
+      "routing_keywords": [
+        "create ticket",
+        "jira",
+        "jql",
+        "search jira",
+        "create epic"
+      ],
+      "semantic_tags": [
+        "ticket-creation",
+        "jql-queries",
+        "epic-management",
+        "bulk-operations",
+        "mandatory-fields"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "pm-document": {
+      "path": "core/pm-document/SKILL.md",
+      "description": "Documentation partner - daily logs, rolling context, Jira/Confluence updates",
+      "category": "core",
+      "routing_keywords": [
+        "pm document",
+        "document work",
+        "update context",
+        "log today",
+        "capture decisions"
+      ],
+      "semantic_tags": [
+        "context-updates",
+        "daily-logging",
+        "rolling-context",
+        "documentation-maintenance",
+        "jira-linking"
+      ],
+      "mcp_tools": [
+        "jira",
+        "confluence"
+      ],
+      "estimated_tokens": 4000
+    },
+    "product-coach": {
+      "path": "core/product-coach/SKILL.md",
+      "description": "Product strategy and design coach for Heads of Product. Combines therapist empathy, mentor wisdom, and strategic thought partner rigor. Use for feature evaluation, competitive analysis, roadmap planni",
+      "category": "core",
+      "routing_keywords": [
+        "design feature",
+        "product strategy",
+        "prioritize",
+        "validate idea",
+        "go to market"
+      ],
+      "semantic_tags": [
+        "feature-design",
+        "product-strategy",
+        "user-story-creation",
+        "prioritization-frameworks",
+        "product-thinking"
+      ],
+      "mcp_tools": [
+        "jira",
+        "confluence",
+        "figma",
+        "posthog"
+      ],
+      "estimated_tokens": 4000
+    },
+    "self-improvement": {
+      "path": "core/self-improvement/SKILL.md",
+      "description": "Staff AI Systems Architect - improve, refactor, and maintain the PM AI system",
+      "category": "core",
+      "routing_keywords": [
+        "self improve",
+        "knowledge gap",
+        "remember this",
+        "should know about"
+      ],
+      "semantic_tags": [
+        "knowledge-gap-detection",
+        "improvement-proposals",
+        "system-learning"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "slack-inbox-triage": {
+      "path": "core/slack-inbox-triage/SKILL.md",
+      "description": "Triage Slack conversations, identify where responses are owed, draft replies",
+      "category": "core",
+      "routing_keywords": [
+        "slack triage",
+        "slack inbox",
+        "draft reply",
+        "responses owed",
+        "slack messages"
+      ],
+      "semantic_tags": [
+        "slack-triage",
+        "message-drafting",
+        "inbox-management",
+        "response-tracking"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "sql-query-builder": {
+      "path": "core/sql-query-builder/SKILL.md",
+      "description": "Transform natural language questions into production-ready Redshift SQL queries. Use for metric queries, data extraction, cohort analysis, churn analysis, and business intelligence questions.",
+      "category": "core",
+      "routing_keywords": [
+        "sql query",
+        "database",
+        "query",
+        "redshift",
+        "data extraction"
+      ],
+      "semantic_tags": [
+        "sql-generation",
+        "database-queries",
+        "schema-knowledge",
+        "analytics-queries",
+        "data-exploration"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "status-update-writer": {
+      "path": "core/status-update-writer/SKILL.md",
+      "description": "Guide PMs through writing status updates that meet guardrail standards",
+      "category": "core",
+      "routing_keywords": [
+        "daily status",
+        "what did you do",
+        "status"
+      ],
+      "semantic_tags": [
+        "daily-status",
+        "progress-tracking",
+        "status-documentation"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 1500
+    },
+    "webapp-pm": {
+      "path": "core/webapp-pm/SKILL.md",
+      "description": "Staff+ Product Manager for the PM AI Analytics Web App",
+      "category": "core",
+      "routing_keywords": [
+        "webapp",
+        "pm ai webapp",
+        "analytics app",
+        "desktop app features"
+      ],
+      "semantic_tags": [
+        "webapp-management",
+        "pm-ai-app",
+        "feature-planning",
+        "analytics-dashboard"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "weekly-update-writer": {
+      "path": "core/weekly-update-writer/SKILL.md",
+      "description": "Extract from [Transcript Tool] meetings and help write team/manager weekly updates",
+      "category": "core",
+      "routing_keywords": [
+        "weekly update",
+        "status report",
+        "team update",
+        "progress"
+      ],
+      "semantic_tags": [
+        "status-communication",
+        "weekly-updates",
+        "progress-reporting",
+        "formatting"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2000
+    },
+    "ai-systems-engineer": {
+      "path": "experts/ai-systems-engineer/SKILL.md",
+      "description": "AI/ML infrastructure, LLM integration, prompt engineering, and AI product development expertise",
+      "category": "experts",
+      "routing_keywords": [
+        "ai perspective",
+        "ml view",
+        "model selection"
+      ],
+      "semantic_tags": [
+        "ai-integration",
+        "ml-models",
+        "ai-product",
+        "llm"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "business-analyst": {
+      "path": "experts/business-analyst/SKILL.md",
+      "description": "Unit economics, pricing strategy, competitive positioning, and business model expertise",
+      "category": "experts",
+      "routing_keywords": [
+        "analyst perspective",
+        "unit economics",
+        "financial model"
+      ],
+      "semantic_tags": [
+        "unit-economics",
+        "financial-modeling",
+        "data-analysis"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "design-lead": {
+      "path": "experts/design-lead/SKILL.md",
+      "description": "Product design craft, user experience, interaction design, and design systems expertise",
+      "category": "experts",
+      "routing_keywords": [
+        "design perspective",
+        "ux view",
+        "design craft"
+      ],
+      "semantic_tags": [
+        "design-craft",
+        "ux-patterns",
+        "design-systems",
+        "user-flows"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "devils-advocate": {
+      "path": "experts/devils-advocate/SKILL.md",
+      "description": "Professional contrarian who stress-tests ideas by finding the strongest counterarguments",
+      "category": "experts",
+      "routing_keywords": [
+        "devil's advocate",
+        "challenge",
+        "critique",
+        "stress test"
+      ],
+      "semantic_tags": [
+        "critical-thinking",
+        "stress-testing",
+        "weakness-finding",
+        "skepticism"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "elena-verna": {
+      "path": "experts/elena-verna/SKILL.md",
+      "description": "B2B growth strategy, product-led growth, product-led sales, freemium models, and go-to-market motions",
+      "category": "experts",
+      "routing_keywords": [
+        "elena verna",
+        "plg strategy",
+        "product-led growth",
+        "freemium",
+        "go-to-market"
+      ],
+      "semantic_tags": [
+        "product-led-growth",
+        "b2b-growth",
+        "freemium-models",
+        "gtm-strategy"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "engineering-lead": {
+      "path": "experts/engineering-lead/SKILL.md",
+      "description": "Technical feasibility, system architecture, tech debt, and implementation reality expertise",
+      "category": "experts",
+      "routing_keywords": [
+        "engineering perspective",
+        "technical view",
+        "feasibility"
+      ],
+      "semantic_tags": [
+        "technical-feasibility",
+        "architecture",
+        "engineering-trade-offs"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "growth-strategist": {
+      "path": "experts/growth-strategist/SKILL.md",
+      "description": "Revenue optimization, user acquisition, retention mechanics, and market expansion expertise",
+      "category": "experts",
+      "routing_keywords": [
+        "growth perspective",
+        "acquisition",
+        "retention strategy"
+      ],
+      "semantic_tags": [
+        "growth-strategy",
+        "acquisition",
+        "retention",
+        "metrics"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "lenny-rachitsky": {
+      "path": "experts/lenny-rachitsky/SKILL.md",
+      "description": "Product leadership wisdom from Lenny's Newsletter - growth, product sense, team building, and startup advice",
+      "category": "experts",
+      "routing_keywords": [
+        "lenny perspective",
+        "plg view",
+        "consumer product"
+      ],
+      "semantic_tags": [
+        "product-led-growth",
+        "consumer-product",
+        "newsletter-wisdom"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "principal-pm": {
+      "path": "experts/principal-pm/SKILL.md",
+      "description": "Seasoned startup-to-scale product leader with 15+ years of launches, team building, and pattern recognition",
+      "category": "experts",
+      "routing_keywords": [
+        "pm perspective",
+        "product craft",
+        "execution"
+      ],
+      "semantic_tags": [
+        "product-craft",
+        "pm-expertise",
+        "execution",
+        "prioritization"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "serial-ceo": {
+      "path": "experts/serial-ceo/SKILL.md",
+      "description": "3x tech founder with one failure, one $3B acquisition, and one IPO - brings strategic and leadership perspective",
+      "category": "experts",
+      "routing_keywords": [
+        "ceo perspective",
+        "founder view",
+        "business strategy"
+      ],
+      "semantic_tags": [
+        "business-strategy",
+        "market-timing",
+        "org-design",
+        "founder-perspective"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "ux-psychologist": {
+      "path": "experts/ux-psychologist/SKILL.md",
+      "description": "Behavioral science, cognitive load, user psychology, and friction analysis expertise",
+      "category": "experts",
+      "routing_keywords": [
+        "psychology perspective",
+        "behavior",
+        "habits",
+        "motivation"
+      ],
+      "semantic_tags": [
+        "behavioral-psychology",
+        "cognitive-biases",
+        "habit-formation",
+        "motivation"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "vc-investor": {
+      "path": "experts/vc-investor/SKILL.md",
+      "description": "Venture capital perspective on fundability, market sizing, competitive moats, and what makes companies investable",
+      "category": "experts",
+      "routing_keywords": [
+        "vc perspective",
+        "investor view",
+        "fundability"
+      ],
+      "semantic_tags": [
+        "investment-perspective",
+        "fundability",
+        "market-size",
+        "venture"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "viral-growth-expert": {
+      "path": "experts/viral-growth-expert/SKILL.md",
+      "description": "Viral mechanics, product-market fit, word-of-mouth growth, and building products people love to share",
+      "category": "experts",
+      "routing_keywords": [
+        "viral perspective",
+        "network effects",
+        "referral"
+      ],
+      "semantic_tags": [
+        "viral-loops",
+        "network-effects",
+        "referral",
+        "organic-growth"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "dovetail-manager": {
+      "path": "specialized/dovetail-manager/SKILL.md",
+      "description": "Manage Dovetail research insights, projects, notes, and AI-powered search",
+      "category": "specialized",
+      "routing_keywords": [
+        "dovetail",
+        "user research",
+        "research insights",
+        "qualitative data",
+        "research notes"
+      ],
+      "semantic_tags": [
+        "research-management",
+        "insights-tracking",
+        "note-organization",
+        "ai-search",
+        "user-research"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 3500
+    },
+    "eng-fullstack": {
+      "path": "specialized/eng-fullstack/SKILL.md",
+      "description": "Principal engineer (striving for Distinguished) with deep system mastery across all [Your Product] platforms",
+      "category": "specialized",
+      "routing_keywords": [
+        "engineering help",
+        "debug code",
+        "architecture review",
+        "fullstack",
+        "technical guidance"
+      ],
+      "semantic_tags": [
+        "fullstack-engineering",
+        "debugging",
+        "code-review",
+        "architecture",
+        "technical-guidance"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "granola-transcript-agent": {
+      "path": "specialized/granola-transcript-agent/SKILL.md",
+      "description": "Fetch and organize Granola meeting transcripts with natural language queries",
+      "category": "specialized",
+      "routing_keywords": [
+        "granola",
+        "fetch transcript",
+        "meeting transcript",
+        "granola meetings"
+      ],
+      "semantic_tags": [
+        "transcript-fetching",
+        "granola-integration",
+        "meeting-data",
+        "natural-language-query"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "local-ocr": {
+      "path": "specialized/local-ocr/SKILL.md",
+      "description": "Privacy-first text extraction using local Tesseract OCR and TOON format conversion",
+      "category": "specialized",
+      "routing_keywords": [
+        "ocr",
+        "extract text",
+        "tesseract",
+        "image to text",
+        "local ocr"
+      ],
+      "semantic_tags": [
+        "ocr-processing",
+        "text-extraction",
+        "product-first",
+        "local-processing"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "pdf-processor": {
+      "path": "specialized/pdf-processor/SKILL.md",
+      "description": "Convert PDFs and images to Markdown using Gemini",
+      "category": "specialized",
+      "routing_keywords": [
+        "pdf to markdown",
+        "convert pdf",
+        "process pdf",
+        "pdf extraction"
+      ],
+      "semantic_tags": [
+        "pdf-conversion",
+        "markdown-generation",
+        "document-processing",
+        "gemini-integration"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "prototype-builder": {
+      "path": "specialized/prototype-builder/SKILL.md",
+      "description": "Build interactive UI prototypes using your product's component libraries",
+      "category": "specialized",
+      "routing_keywords": [
+        "build prototype",
+        "ui prototype",
+        "interactive prototype",
+        "mockup"
+      ],
+      "semantic_tags": [
+        "prototype-building",
+        "ui-design",
+        "interactive-mockup",
+        "component-library"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "transcript-organizer": {
+      "path": "specialized/transcript-organizer/SKILL.md",
+      "description": "Transform raw meeting transcripts into structured, clear documents",
+      "category": "specialized",
+      "routing_keywords": [
+        "organize transcript",
+        "clean transcript",
+        "structure meeting notes",
+        "extract action items"
+      ],
+      "semantic_tags": [
+        "transcript-organization",
+        "meeting-summarization",
+        "action-extraction",
+        "document-structuring"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "usage-demo-curator": {
+      "path": "specialized/usage-demo-curator/SKILL.md",
+      "description": "Find, curate, and export high-quality PM AI conversations for demos and training",
+      "category": "specialized",
+      "routing_keywords": [
+        "find demos",
+        "curate conversations",
+        "export sessions",
+        "demo examples"
+      ],
+      "semantic_tags": [
+        "demo-curation",
+        "conversation-export",
+        "training-data",
+        "quality-sessions"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "video-processor": {
+      "path": "specialized/video-processor/SKILL.md",
+      "description": "Convert videos to Markdown timelines using frame analysis with Gemini",
+      "category": "specialized",
+      "routing_keywords": [
+        "video to markdown",
+        "process video",
+        "frame analysis",
+        "video timeline"
+      ],
+      "semantic_tags": [
+        "video-processing",
+        "frame-extraction",
+        "timeline-generation",
+        "gemini-vision"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "visual-designer": {
+      "path": "specialized/visual-designer/SKILL.md",
+      "description": "Batch image editing and style transfer using Gemini",
+      "category": "specialized",
+      "routing_keywords": [
+        "batch edit images",
+        "style transfer",
+        "image editing",
+        "visual design"
+      ],
+      "semantic_tags": [
+        "image-editing",
+        "batch-processing",
+        "style-transfer",
+        "visual-design"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "expert-panel-orchestrator": {
+      "path": "workflows/expert-panel-orchestrator/SKILL.md",
+      "description": "Orchestrates multi-expert panel discussions with structured opening and organic follow-up",
+      "category": "workflows",
+      "routing_keywords": [
+        "expert panel",
+        "multi-expert",
+        "panel discussion",
+        "get perspectives"
+      ],
+      "semantic_tags": [
+        "panel-orchestration",
+        "multi-expert-analysis",
+        "structured-discussion",
+        "perspective-gathering"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "feature-design-debate": {
+      "path": "workflows/feature-design-debate/SKILL.md",
+      "description": "Two agents debate a feature to surface risks and improve design",
+      "category": "workflows",
+      "routing_keywords": [
+        "feature debate",
+        "design debate",
+        "adversarial review",
+        "stress test feature"
+      ],
+      "semantic_tags": [
+        "adversarial-review",
+        "feature-evaluation",
+        "risk-surfacing",
+        "design-improvement"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "jira-confluence-sync": {
+      "path": "workflows/jira-confluence-sync/SKILL.md",
+      "description": "Common patterns for creating and managing linked Jira tickets and Confluence pages",
+      "category": "workflows",
+      "routing_keywords": [
+        "jira confluence",
+        "linked docs",
+        "sync ticket",
+        "create with docs"
+      ],
+      "semantic_tags": [
+        "jira-confluence-integration",
+        "document-linking",
+        "workflow-patterns",
+        "ticket-documentation"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "pr-review": {
+      "path": "workflows/pr-review/SKILL.md",
+      "description": "Multi-dimensional PR review with parallel analysis agents",
+      "category": "workflows",
+      "routing_keywords": [],
+      "semantic_tags": [],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "research-to-doc": {
+      "path": "workflows/research-to-doc/SKILL.md",
+      "description": "Gather data from multiple sources and synthesize into a structured document",
+      "category": "workflows",
+      "routing_keywords": [],
+      "semantic_tags": [],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "casual-user": {
+      "path": "personas/casual-user/SKILL.md",
+      "description": "[Your Product] user who doesn't fully understand the product value proposition and finds it kind of boring",
+      "category": "personas",
+      "routing_keywords": [
+        "casual user",
+        "mainstream perspective",
+        "jordan"
+      ],
+      "semantic_tags": [
+        "casual-user",
+        "low-understanding",
+        "low-urgency",
+        "mainstream"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2000
+    },
+    "pragmatic-user": {
+      "path": "personas/pragmatic-user/SKILL.md",
+      "description": "[Your Product] user who fully understands the product value proposition but treats it as boring maintenance, like insurance",
+      "category": "personas",
+      "routing_keywords": [
+        "pragmatic user",
+        "maintenance perspective",
+        "sam"
+      ],
+      "semantic_tags": [
+        "pragmatic-user",
+        "high-understanding",
+        "low-urgency",
+        "maintenance-mindset"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2000
+    },
+    "privacy-advocate": {
+      "path": "personas/privacy-advocate/SKILL.md",
+      "description": "[Your Product] power user who deeply understands the product and is passionately committed to its mission",
+      "category": "personas",
+      "routing_keywords": [
+        "power-user",
+        "expert user",
+        "morgan",
+        "product-expertise"
+      ],
+      "semantic_tags": [
+        "product-first",
+        "expert-user",
+        "high-understanding",
+        "power-user"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2000
+    },
+    "urgent-user": {
+      "path": "personas/urgent-user/SKILL.md",
+      "description": "[Your Product] user with urgent product needs who doesn't understand the technical details but desperately needs help",
+      "category": "personas",
+      "routing_keywords": [
+        "urgent user",
+        "safety perspective",
+        "alex",
+        "urgent-need",
+        "critical-situation"
+      ],
+      "semantic_tags": [
+        "urgent-user",
+        "safety-needs",
+        "high-urgency",
+        "anxiety"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2000
+    },
+    "auto-pull-manager": {
+      "path": "utilities/auto-pull-manager/SKILL.md",
+      "description": "Manage the [your company] repos auto-pull automation system",
+      "category": "utilities",
+      "routing_keywords": [
+        "auto pull",
+        "repo sync",
+        "git automation",
+        "auto update repos"
+      ],
+      "semantic_tags": [
+        "git-automation",
+        "repo-sync",
+        "auto-pull",
+        "repository-management"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "desktop-launcher": {
+      "path": "utilities/desktop-launcher/SKILL.md",
+      "description": "Helps users launch PMDesktop native macOS app based on setup state",
+      "category": "utilities",
+      "routing_keywords": [
+        "launch",
+        "open",
+        "start",
+        "pmdesktop",
+        "swift"
+      ],
+      "semantic_tags": [
+        "app-launch",
+        "pmdesktop",
+        "desktop-app",
+        "macos"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "electron-launcher": {
+      "path": "utilities/electron-launcher/SKILL.md",
+      "description": "Helps users launch PM AI desktop app based on setup state",
+      "category": "utilities",
+      "routing_keywords": [
+        "launch",
+        "open",
+        "start",
+        "electron",
+        "desktop app"
+      ],
+      "semantic_tags": [
+        "app-launch",
+        "electron-app",
+        "desktop-app"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "env-health-check": {
+      "path": "utilities/env-health-check/SKILL.md",
+      "description": "Validate credential files, service connectivity, and system health",
+      "category": "utilities",
+      "routing_keywords": [],
+      "semantic_tags": [],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    },
+    "pm-librarian": {
+      "path": "utilities/pm-librarian/SKILL.md",
+      "description": "Use when the repo needs cleanup, files are disorganized, knowledge is stale or duplicated, indexes are out of sync, or you need to find and fix inconsistencies across datasets. Also use proactively af",
+      "category": "utilities",
+      "routing_keywords": [
+        "cleanup",
+        "organize files",
+        "file system",
+        "stale data",
+        "duplicates"
+      ],
+      "semantic_tags": [
+        "file-management",
+        "data-hygiene",
+        "index-maintenance",
+        "duplicate-detection",
+        "staleness-detection"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 3000
+    },
+    "ralph-manager": {
+      "path": "utilities/ralph-manager/SKILL.md",
+      "description": "Manage Ralph autonomous AI agent sessions - setup, configuration, prompts, and monitoring",
+      "category": "utilities",
+      "routing_keywords": [
+        "ralph",
+        "autonomous agent",
+        "ralph session",
+        "background agent"
+      ],
+      "semantic_tags": [
+        "autonomous-agent",
+        "ralph-management",
+        "agent-configuration",
+        "background-tasks"
+      ],
+      "mcp_tools": [],
+      "estimated_tokens": 2500
+    }
+  },
+  "categories": {
+    "core": {
+      "description": "Core product management skills",
+      "skills": [
+        "blog-content-writer",
+        "chat-search",
+        "confluence-manager",
+        "content-creator",
+        "daily-chief-of-staff",
+        "feed-manager",
+        "interview-assistant",
+        "investor-relations",
+        "jira-ticket-writer",
+        "pm-document",
+        "product-coach",
+        "self-improvement",
+        "slack-inbox-triage",
+        "sql-query-builder",
+        "status-update-writer",
+        "webapp-pm",
+        "weekly-update-writer"
+      ]
+    },
+    "experts": {
+      "description": "Expert personas for multi-perspective analysis",
+      "skills": [
+        "ai-systems-engineer",
+        "business-analyst",
+        "design-lead",
+        "devils-advocate",
+        "elena-verna",
+        "engineering-lead",
+        "growth-strategist",
+        "lenny-rachitsky",
+        "principal-pm",
+        "serial-ceo",
+        "ux-psychologist",
+        "vc-investor",
+        "viral-growth-expert"
+      ]
+    },
+    "specialized": {
+      "description": "Specialized tools (PDF, video, OCR, etc.)",
+      "skills": [
+        "dovetail-manager",
+        "eng-fullstack",
+        "granola-transcript-agent",
+        "local-ocr",
+        "pdf-processor",
+        "prototype-builder",
+        "transcript-organizer",
+        "usage-demo-curator",
+        "video-processor",
+        "visual-designer"
+      ]
+    },
+    "workflows": {
+      "description": "Multi-skill orchestration workflows",
+      "skills": [
+        "expert-panel-orchestrator",
+        "feature-design-debate",
+        "jira-confluence-sync",
+        "pr-review",
+        "research-to-doc"
+      ]
+    },
+    "personas": {
+      "description": "Customer personas for user testing",
+      "skills": [
+        "casual-user",
+        "pragmatic-user",
+        "privacy-advocate",
+        "urgent-user"
+      ]
+    },
+    "utilities": {
+      "description": "System utilities and helpers",
+      "skills": [
+        "auto-pull-manager",
+        "desktop-launcher",
+        "electron-launcher",
+        "env-health-check",
+        "pm-librarian",
+        "ralph-manager"
+      ]
+    }
+  },
+  "routing_index": {
+    "description": "Quick lookup by keyword for fast routing",
+    "write blog": [
+      "blog-content-writer"
+    ],
+    "transform article": [
+      "blog-content-writer",
+      "content-creator"
+    ],
+    "blog post": [
+      "blog-content-writer"
+    ],
+    "find chat": [
+      "chat-search"
+    ],
+    "find conversation": [
+      "chat-search"
+    ],
+    "find session": [
+      "chat-search"
+    ],
+    "create confluence page": [
+      "confluence-manager"
+    ],
+    "confluence": [
+      "confluence-manager"
+    ],
+    "wiki page": [
+      "confluence-manager"
+    ],
+    "create feed item": [
+      "content-creator"
+    ],
+    "write blog article": [
+      "content-creator"
+    ],
+    "daily sync": [
+      "daily-chief-of-staff"
+    ],
+    "daily chief": [
+      "daily-chief-of-staff"
+    ],
+    "today's priorities": [
+      "daily-chief-of-staff"
+    ],
+    "feed structure": [
+      "feed-manager"
+    ],
+    "show feed": [
+      "feed-manager"
+    ],
+    "visualize feed": [
+      "feed-manager"
+    ],
+    "interview": [
+      "interview-assistant"
+    ],
+    "candidate": [
+      "interview-assistant"
+    ],
+    "hiring": [
+      "interview-assistant"
+    ],
+    "investor": [
+      "investor-relations"
+    ],
+    "board": [
+      "investor-relations"
+    ],
+    "fundraising": [
+      "investor-relations"
+    ],
+    "create ticket": [
+      "jira-ticket-writer"
+    ],
+    "jira": [
+      "jira-ticket-writer"
+    ],
+    "jql": [
+      "jira-ticket-writer"
+    ],
+    "pm document": [
+      "pm-document"
+    ],
+    "document work": [
+      "pm-document"
+    ],
+    "update context": [
+      "pm-document"
+    ],
+    "design feature": [
+      "product-coach"
+    ],
+    "product strategy": [
+      "product-coach"
+    ],
+    "prioritize": [
+      "product-coach"
+    ],
+    "self improve": [
+      "self-improvement"
+    ],
+    "knowledge gap": [
+      "self-improvement"
+    ],
+    "remember this": [
+      "self-improvement"
+    ],
+    "slack triage": [
+      "slack-inbox-triage"
+    ],
+    "slack inbox": [
+      "slack-inbox-triage"
+    ],
+    "draft reply": [
+      "slack-inbox-triage"
+    ],
+    "sql query": [
+      "sql-query-builder"
+    ],
+    "database": [
+      "sql-query-builder"
+    ],
+    "query": [
+      "sql-query-builder"
+    ],
+    "daily status": [
+      "status-update-writer"
+    ],
+    "what did you do": [
+      "status-update-writer"
+    ],
+    "status": [
+      "status-update-writer"
+    ],
+    "webapp": [
+      "webapp-pm"
+    ],
+    "pm ai webapp": [
+      "webapp-pm"
+    ],
+    "analytics app": [
+      "webapp-pm"
+    ],
+    "weekly update": [
+      "weekly-update-writer"
+    ],
+    "status report": [
+      "weekly-update-writer"
+    ],
+    "team update": [
+      "weekly-update-writer"
+    ],
+    "ai perspective": [
+      "ai-systems-engineer"
+    ],
+    "ml view": [
+      "ai-systems-engineer"
+    ],
+    "model selection": [
+      "ai-systems-engineer"
+    ],
+    "analyst perspective": [
+      "business-analyst"
+    ],
+    "unit economics": [
+      "business-analyst"
+    ],
+    "financial model": [
+      "business-analyst"
+    ],
+    "design perspective": [
+      "design-lead"
+    ],
+    "ux view": [
+      "design-lead"
+    ],
+    "design craft": [
+      "design-lead"
+    ],
+    "devil's advocate": [
+      "devils-advocate"
+    ],
+    "challenge": [
+      "devils-advocate"
+    ],
+    "critique": [
+      "devils-advocate"
+    ],
+    "elena verna": [
+      "elena-verna"
+    ],
+    "plg strategy": [
+      "elena-verna"
+    ],
+    "product-led growth": [
+      "elena-verna"
+    ],
+    "engineering perspective": [
+      "engineering-lead"
+    ],
+    "technical view": [
+      "engineering-lead"
+    ],
+    "feasibility": [
+      "engineering-lead"
+    ],
+    "growth perspective": [
+      "growth-strategist"
+    ],
+    "acquisition": [
+      "growth-strategist"
+    ],
+    "retention strategy": [
+      "growth-strategist"
+    ],
+    "lenny perspective": [
+      "lenny-rachitsky"
+    ],
+    "plg view": [
+      "lenny-rachitsky"
+    ],
+    "consumer product": [
+      "lenny-rachitsky"
+    ],
+    "pm perspective": [
+      "principal-pm"
+    ],
+    "product craft": [
+      "principal-pm"
+    ],
+    "execution": [
+      "principal-pm"
+    ],
+    "ceo perspective": [
+      "serial-ceo"
+    ],
+    "founder view": [
+      "serial-ceo"
+    ],
+    "business strategy": [
+      "serial-ceo"
+    ],
+    "psychology perspective": [
+      "ux-psychologist"
+    ],
+    "behavior": [
+      "ux-psychologist"
+    ],
+    "habits": [
+      "ux-psychologist"
+    ],
+    "vc perspective": [
+      "vc-investor"
+    ],
+    "investor view": [
+      "vc-investor"
+    ],
+    "fundability": [
+      "vc-investor"
+    ],
+    "viral perspective": [
+      "viral-growth-expert"
+    ],
+    "network effects": [
+      "viral-growth-expert"
+    ],
+    "referral": [
+      "viral-growth-expert"
+    ],
+    "dovetail": [
+      "dovetail-manager"
+    ],
+    "user research": [
+      "dovetail-manager"
+    ],
+    "research insights": [
+      "dovetail-manager"
+    ],
+    "engineering help": [
+      "eng-fullstack"
+    ],
+    "debug code": [
+      "eng-fullstack"
+    ],
+    "architecture review": [
+      "eng-fullstack"
+    ],
+    "granola": [
+      "granola-transcript-agent"
+    ],
+    "fetch transcript": [
+      "granola-transcript-agent"
+    ],
+    "meeting transcript": [
+      "granola-transcript-agent"
+    ],
+    "ocr": [
+      "local-ocr"
+    ],
+    "extract text": [
+      "local-ocr"
+    ],
+    "tesseract": [
+      "local-ocr"
+    ],
+    "pdf to markdown": [
+      "pdf-processor"
+    ],
+    "convert pdf": [
+      "pdf-processor"
+    ],
+    "process pdf": [
+      "pdf-processor"
+    ],
+    "build prototype": [
+      "prototype-builder"
+    ],
+    "ui prototype": [
+      "prototype-builder"
+    ],
+    "interactive prototype": [
+      "prototype-builder"
+    ],
+    "organize transcript": [
+      "transcript-organizer"
+    ],
+    "clean transcript": [
+      "transcript-organizer"
+    ],
+    "structure meeting notes": [
+      "transcript-organizer"
+    ],
+    "find demos": [
+      "usage-demo-curator"
+    ],
+    "curate conversations": [
+      "usage-demo-curator"
+    ],
+    "export sessions": [
+      "usage-demo-curator"
+    ],
+    "video to markdown": [
+      "video-processor"
+    ],
+    "process video": [
+      "video-processor"
+    ],
+    "frame analysis": [
+      "video-processor"
+    ],
+    "batch edit images": [
+      "visual-designer"
+    ],
+    "style transfer": [
+      "visual-designer"
+    ],
+    "image editing": [
+      "visual-designer"
+    ],
+    "expert panel": [
+      "expert-panel-orchestrator"
+    ],
+    "multi-expert": [
+      "expert-panel-orchestrator"
+    ],
+    "panel discussion": [
+      "expert-panel-orchestrator"
+    ],
+    "feature debate": [
+      "feature-design-debate"
+    ],
+    "design debate": [
+      "feature-design-debate"
+    ],
+    "adversarial review": [
+      "feature-design-debate"
+    ],
+    "jira confluence": [
+      "jira-confluence-sync"
+    ],
+    "linked docs": [
+      "jira-confluence-sync"
+    ],
+    "sync ticket": [
+      "jira-confluence-sync"
+    ],
+    "casual user": [
+      "casual-user"
+    ],
+    "mainstream perspective": [
+      "casual-user"
+    ],
+    "jordan": [
+      "casual-user"
+    ],
+    "pragmatic user": [
+      "pragmatic-user"
+    ],
+    "maintenance perspective": [
+      "pragmatic-user"
+    ],
+    "sam": [
+      "pragmatic-user"
+    ],
+    "power-user": [
+      "privacy-advocate"
+    ],
+    "expert user": [
+      "privacy-advocate"
+    ],
+    "morgan": [
+      "privacy-advocate"
+    ],
+    "urgent user": [
+      "urgent-user"
+    ],
+    "safety perspective": [
+      "urgent-user"
+    ],
+    "alex": [
+      "urgent-user"
+    ],
+    "auto pull": [
+      "auto-pull-manager"
+    ],
+    "repo sync": [
+      "auto-pull-manager"
+    ],
+    "git automation": [
+      "auto-pull-manager"
+    ],
+    "launch": [
+      "desktop-launcher",
+      "electron-launcher"
+    ],
+    "open": [
+      "desktop-launcher",
+      "electron-launcher"
+    ],
+    "start": [
+      "desktop-launcher",
+      "electron-launcher"
+    ],
+    "cleanup": [
+      "pm-librarian"
+    ],
+    "organize files": [
+      "pm-librarian"
+    ],
+    "file system": [
+      "pm-librarian"
+    ],
+    "ralph": [
+      "ralph-manager"
+    ],
+    "autonomous agent": [
+      "ralph-manager"
+    ],
+    "ralph session": [
+      "ralph-manager"
+    ]
+  }
+}

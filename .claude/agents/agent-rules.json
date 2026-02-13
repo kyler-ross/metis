@@ -1,0 +1,171 @@
+{
+    "agents": {
+        "jira-ticket-writer": {
+            "enforcement": "suggest",
+            "promptTriggers": {
+                "keywords": ["ticket", "jira", "bug", "create"],
+                "intentPatterns": [
+                    "(create|file|open|make).*?(ticket|bug)",
+                    "^jira",
+                    "update.*?PROJ-\\d+"
+                ]
+            },
+            "antiPatterns": [
+                "how (do i|to).*?create",
+                "what('s| is) a (jira )?ticket",
+                "teach me.*?ticket"
+            ],
+            "confidenceThreshold": 0.85,
+            "skillPath": "skills/core/jira-ticket-writer/SKILL.md",
+            "message": "Loading Jira ticket writer agent..."
+        },
+
+        "sql-query-builder": {
+            "enforcement": "suggest",
+            "promptTriggers": {
+                "keywords": ["query", "sql", "data", "metrics", "users", "revenue"],
+                "intentPatterns": [
+                    "how many.*?(users|people|customers)",
+                    "^sql",
+                    "analyze.*?data",
+                    "(show|tell) me.*?(numbers|metrics|stats)"
+                ]
+            },
+            "antiPatterns": [
+                "how (do i|to).*?query",
+                "learn sql",
+                "what is sql"
+            ],
+            "confidenceThreshold": 0.80,
+            "skillPath": "skills/core/sql-query-builder/SKILL.md",
+            "message": "Loading SQL query builder agent..."
+        },
+
+        "product-coach": {
+            "enforcement": "inform",
+            "promptTriggers": {
+                "keywords": ["should we build", "feature evaluation", "strategy", "decide"],
+                "intentPatterns": [
+                    "should (we|i) build",
+                    "evaluate.*?feature",
+                    "what do you think about",
+                    "review this (copy|design|feature)",
+                    "is this a good idea"
+                ]
+            },
+            "antiPatterns": [
+                "how (do i|to).*?decide",
+                "teach me.*?strategy"
+            ],
+            "confidenceThreshold": 0.75,
+            "skillPath": "skills/core/product-coach/SKILL.md",
+            "message": "Loading product coach agent..."
+        },
+
+        "daily-chief-of-staff": {
+            "enforcement": "suggest",
+            "promptTriggers": {
+                "keywords": ["morning", "daily", "priorities", "briefing", "standup"],
+                "intentPatterns": [
+                    "morning sync",
+                    "what should i do today",
+                    "today('s| s) priorities",
+                    "catch me up",
+                    "what('s| is) new"
+                ]
+            },
+            "confidenceThreshold": 0.90,
+            "skillPath": "skills/core/daily-chief-of-staff/SKILL.md",
+            "message": "Loading daily chief of staff agent..."
+        },
+
+        "pm-document": {
+            "enforcement": "suggest",
+            "promptTriggers": {
+                "keywords": ["document", "log", "record", "capture", "write down"],
+                "intentPatterns": [
+                    "document this",
+                    "update (log|context)",
+                    "capture this decision",
+                    "(write|log|record|save) this"
+                ]
+            },
+            "antiPatterns": [
+                "how (do i|to).*?document",
+                "what should i document"
+            ],
+            "confidenceThreshold": 0.85,
+            "skillPath": "skills/core/pm-document/SKILL.md",
+            "message": "Loading documentation agent..."
+        },
+
+        "weekly-update-writer": {
+            "enforcement": "block",
+            "promptTriggers": {
+                "keywords": ["weekly update", "status update", "team update"],
+                "intentPatterns": [
+                    "weekly (update|status)",
+                    "write.*?update",
+                    "(team|manager) update"
+                ]
+            },
+            "confidenceThreshold": 0.90,
+            "skillPath": "skills/core/weekly-update-writer/SKILL.md",
+            "message": "Activating weekly update writer\n\nThis agent will guide you through writing a structured weekly update."
+        },
+
+        "confluence-manager": {
+            "enforcement": "suggest",
+            "promptTriggers": {
+                "keywords": ["confluence", "page", "prd", "spec", "documentation"],
+                "intentPatterns": [
+                    "confluence",
+                    "(create|update).*?page",
+                    "write.*?(prd|spec)"
+                ]
+            },
+            "antiPatterns": [
+                "how to use confluence",
+                "what is confluence"
+            ],
+            "confidenceThreshold": 0.85,
+            "skillPath": "skills/core/confluence-manager/SKILL.md",
+            "message": "Loading Confluence manager agent..."
+        },
+
+        "transcript-organizer": {
+            "enforcement": "inform",
+            "promptTriggers": {
+                "keywords": ["transcript", "meeting notes", "action items"],
+                "intentPatterns": [
+                    "organize.*?transcript",
+                    "clean.*?transcript",
+                    "extract.*?action items"
+                ]
+            },
+            "confidenceThreshold": 0.85,
+            "skillPath": "skills/core/transcript-organizer/SKILL.md",
+            "message": "Loading transcript organizer agent..."
+        },
+
+        "desktop-launcher": {
+            "enforcement": "suggest",
+            "promptTriggers": {
+                "keywords": ["launch app", "open app", "start app", "desktop app", "pm ai app", "open pm ai"],
+                "intentPatterns": [
+                    "(launch|open|start|run).*(app|desktop)",
+                    "(how (do i|to)|can i).*(launch|open|start).*(app)",
+                    "where.*(app)"
+                ]
+            },
+            "antiPatterns": [
+                "(build|config|code|source)",
+                "fix.*(app)",
+                "debug.*(app)"
+            ],
+            "confidenceThreshold": 0.7,
+            "skillPath": "skills/utilities/desktop-launcher/SKILL.md",
+            "message": "Detecting launch intent - checking your setup state..."
+        }
+    }
+}

@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "daily sync",
+      "daily chief",
+      "today's priorities",
+      "what needs my attention",
+      "daily operations",
+      "morning sync",
+      "start my day"
+    ],
+    "semantic_tags": [
+      "daily-operations",
+      "priority-management",
+      "decision-logging",
+      "team-context",
+      "action-orchestration"
+    ],
+    "confidence_threshold": 0.75
+  },
+  "io": {
+    "input_types": [
+      "meeting-transcripts",
+      "jira-updates",
+      "daily-activity"
+    ],
+    "output_types": [
+      "priority-list",
+      "daily-log",
+      "rolling-context-updates"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 5000,
+    "mcp_tools": ["jira", "confluence"],
+    "can_orchestrate": false,
+    "compatible_skills": ["product-coach", "jira-ticket-writer", "pm-document"]
+  },
+  "quality": {
+    "success_signals": [
+      "priorities-surfaced",
+      "actions-completed",
+      "decisions-documented",
+      "context-maintained"
+    ],
+    "failure_modes": [
+      "information-overload",
+      "missing-critical-items",
+      "poor-prioritization",
+      "stale-context",
+      "acting-without-approval"
+    ]
+  },
+  "required_context": [
+    "about-me.md",
+    "about-company.md",
+    "team-glossary.md",
+    "pm-workflow-context.md",
+    "meeting_transcripts/",
+    "metrics-catalog.md"
+  ],
+  "resources": {
+    "initialization": {
+      "file": "initialization.md",
+      "description": "Starting daily sync, setting up context"
+    },
+    "daily-sync": {
+      "file": "daily-sync.md",
+      "description": "Morning briefing, priority review"
+    },
+    "analysis-framework": {
+      "file": "analysis-framework.md",
+      "description": "Analyzing blockers, risks, priorities"
+    },
+    "output-templates": {
+      "file": "output-templates.md",
+      "description": "Formatting updates, logs, summaries"
+    }
+  },
+  "meta": {
+    "author": "alice",
+    "version": "2.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-02"
+  }
+}

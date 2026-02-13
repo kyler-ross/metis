@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "viral perspective",
+      "network effects",
+      "referral"
+    ],
+    "semantic_tags": [
+      "viral-loops",
+      "network-effects",
+      "referral",
+      "organic-growth"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "virality-question",
+      "growth-mechanism"
+    ],
+    "output_types": [
+      "viral-strategy",
+      "network-effect-analysis"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "expert-persona",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

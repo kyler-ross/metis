@@ -1,0 +1,51 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "investor",
+      "board",
+      "fundraising",
+      "pitch",
+      "series b"
+    ],
+    "semantic_tags": [
+      "investor-updates",
+      "board-decks",
+      "pitch-prep",
+      "vc-communication"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "metrics-data",
+      "product-update",
+      "board-request"
+    ],
+    "output_types": [
+      "investor-update",
+      "board-deck",
+      "pitch-narrative"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 4000,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [
+    "business-metrics-and-logic.md"
+  ],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

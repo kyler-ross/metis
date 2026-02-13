@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "casual user",
+      "mainstream perspective",
+      "jordan"
+    ],
+    "semantic_tags": [
+      "casual-user",
+      "low-understanding",
+      "low-urgency",
+      "mainstream"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "feature-feedback-request",
+      "user-perspective"
+    ],
+    "output_types": [
+      "user-feedback",
+      "persona-reaction"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2000,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [],
+  "meta": {
+    "author": "pm-system",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "personas",
+    "migrated_from": "",
+    "migration_date": "2026-02-03"
+  }
+}

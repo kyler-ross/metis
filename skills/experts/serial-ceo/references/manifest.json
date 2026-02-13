@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "ceo perspective",
+      "founder view",
+      "business strategy"
+    ],
+    "semantic_tags": [
+      "business-strategy",
+      "market-timing",
+      "org-design",
+      "founder-perspective"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "strategy-question",
+      "business-model-review"
+    ],
+    "output_types": [
+      "strategic-advice",
+      "business-critique"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 2500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [],
+    "failure_modes": []
+  },
+  "required_context": [],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "agent_type": "expert-persona",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}

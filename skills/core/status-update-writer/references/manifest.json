@@ -1,0 +1,52 @@
+{
+  "version": "1.0",
+  "routing": {
+    "keywords": [
+      "daily status",
+      "what did you do",
+      "status"
+    ],
+    "semantic_tags": [
+      "daily-status",
+      "progress-tracking",
+      "status-documentation"
+    ],
+    "confidence_threshold": 0.7
+  },
+  "io": {
+    "input_types": [
+      "daily-status-request",
+      "progress-notes"
+    ],
+    "output_types": [
+      "status-document"
+    ]
+  },
+  "execution": {
+    "estimated_tokens": 1500,
+    "mcp_tools": [],
+    "can_orchestrate": false,
+    "compatible_skills": []
+  },
+  "quality": {
+    "success_signals": [
+      "clear-daily-status",
+      "properly-documented"
+    ],
+    "failure_modes": [
+      "unclear-status",
+      "missing-details"
+    ]
+  },
+  "required_context": [
+    "update-examples.md",
+    "weekly-updates/"
+  ],
+  "meta": {
+    "author": "starter-kit",
+    "version": "1.0",
+    "status": "active",
+    "migrated_from": "legacy",
+    "migration_date": "2026-02-03"
+  }
+}
