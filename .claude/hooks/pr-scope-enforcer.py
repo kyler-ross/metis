@@ -17,11 +17,19 @@ from collections import defaultdict
 
 # Scope patterns - files matching these patterns belong to specific scopes.
 # Ordered most-specific first: a file matches the FIRST pattern it hits.
-# Customize these patterns to match your project structure.
+# This means specific patterns (like 'telemetry' or 'sheets-api') take
+# priority over the broader 'ai-system' catch-all for .ai/ paths.
 SCOPE_PATTERNS = {
-    'scripts': [
-        'scripts/lib/',
-        'scripts/',
+    'telemetry': [
+        '.ai/scripts/lib/telemetry',
+        '.ai/scripts/lib/auth-',
+        '.ai/scripts/lib/service-definitions',
+        '.ai/scripts/lib/error-categories',
+        '.ai/scripts/lib/script-init',
+    ],
+    'sheets-api': [
+        '.ai/scripts/google-sheets',
+        '.ai/tools/lib/sheets-',
     ],
     'ci': [
         '.github/workflows/',
@@ -30,19 +38,24 @@ SCOPE_PATTERNS = {
     'skills': [
         'skills/',
     ],
-    'knowledge': [
-        'knowledge/',
+    'electron': [
+        'electron-app/',
+    ],
+    'evals': [
+        '.ai/evals/',
     ],
     'hooks': [
         '.claude/hooks/',
         '.claude/settings',
     ],
+    # ai-system groups scripts, tools, knowledge, and config together.
+    # These are all part of the PM AI system and commonly change together
+    # (e.g., fixing a script + updating its docs + adjusting config).
+    'ai-system': [
+        '.ai/',
+    ],
     'config': [
         '.claude/commands/',
-        'config/',
-    ],
-    'docs': [
-        'docs/',
     ],
 }
 
@@ -56,13 +69,15 @@ COMPANION_SCOPES = {'config', 'hooks', 'ci'}
 
 # Branch name suggestions for each scope
 BRANCH_PREFIXES = {
-    'scripts': 'refactor/scripts-',
+    'telemetry': 'refactor/telemetry-',
+    'sheets-api': 'refactor/sheets-api-',
     'ci': 'feat/ci-',
     'skills': 'feat/skills-',
-    'knowledge': 'docs/knowledge-',
+    'electron': 'feat/electron-',
+    'ai-system': 'fix/ai-',
+    'evals': 'test/evals-',
     'hooks': 'feat/hooks-',
     'config': 'chore/config-',
-    'docs': 'docs/',
 }
 
 
@@ -122,7 +137,7 @@ def analyze_pr_scope(files):
         scopes = ['other']
 
     # Primary scopes are the ones that actually determine if a PR is multi-scope.
-    # Companion scopes (config, hooks) are allowed to accompany code changes
+    # Companion scopes (knowledge, config) are allowed to accompany code changes
     # without forcing a split - docs/config should travel with related code.
     primary_scopes = [s for s in scopes if s not in COMPANION_SCOPES]
     # Only count companions as primary if the PR is *only* companion scopes

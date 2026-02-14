@@ -48,7 +48,7 @@
   "execution": {
     "estimated_tokens": 2500,
     "mcp_tools": [],
-    "cli_tools": ["scripts/atlassian-api.cjs"],
+    "cli_tools": [".ai/scripts/atlassian-api.cjs"],
     "can_orchestrate": false,
     "compatible_skills": ["confluence-manager"]
   },
@@ -72,8 +72,8 @@
     "jira-integration.md",
     "jira-components-labels.md",
     "jira-adf-formatting.md",
-    "product-features.md",
-    "product-overview.md"
+    "cloaked-features.md",
+    "cloaked-product-overview.md"
   ],
   "resources": {
     "ticket-templates": {
@@ -94,10 +94,10 @@
     }
   },
   "meta": {
-    "author": "starter-kit",
+    "author": "kyler",
     "version": "2.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/jira-ticket-writer.md",
     "migration_date": "2026-02-02"
   }
 }

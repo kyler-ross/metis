@@ -30,14 +30,14 @@
     "failure_modes": []
   },
   "required_context": [
-    "knowledge/jira-integration.md"
+    ".ai/knowledge/jira-integration.md"
   ],
   "meta": {
-    "author": "pm-system",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
     "agent_type": "workflows",
-    "migrated_from": "",
+    "migrated_from": ".ai/agents/workflows/jira-confluence-sync.md",
     "migration_date": "2026-02-03"
   }
 }

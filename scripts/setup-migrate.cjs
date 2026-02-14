@@ -1,4 +1,3 @@
-// PM AI Starter Kit - setup-migrate.cjs
 #!/usr/bin/env node
 /**
  * PM AI Auth Migration Script
@@ -8,20 +7,17 @@
  * should be centralized in .env.
  *
  * Usage:
- *   node scripts/setup-migrate.cjs
- *   node scripts/setup-migrate.cjs --dry-run
- *   node scripts/setup-migrate.cjs --force
+ *   node .ai/scripts/setup-migrate.cjs
+ *   node .ai/scripts/setup-migrate.cjs --dry-run
+ *   node .ai/scripts/setup-migrate.cjs --force
  */
 
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
-// Load env before telemetry (telemetry requires env for PostHog key)
-require('dotenv').config({ path: path.join(__dirname, '.env') });
-
-const { initScript, trackComplete, trackError, flush } = require('./lib/telemetry.cjs');
-// No auth check needed for migration script (it needs to run when auth is broken)
+const { run } = require('./lib/script-runner.cjs');
+const { track } = require('./lib/telemetry.cjs');
 
 const ENV_PATH = path.join(__dirname, '.env');
 const ENV_EXAMPLE_PATH = path.join(__dirname, '.env.example');
@@ -83,19 +79,19 @@ function log(msg) {
 }
 
 function success(msg) {
-  console.log(`${colors.green}OK${colors.reset} ${msg}`);
+  console.log(`${colors.green}✓${colors.reset} ${msg}`);
 }
 
 function warn(msg) {
-  console.log(`${colors.yellow}WARN${colors.reset} ${msg}`);
+  console.log(`${colors.yellow}⚠${colors.reset} ${msg}`);
 }
 
 function error(msg) {
-  console.log(`${colors.red}ERR${colors.reset} ${msg}`);
+  console.log(`${colors.red}✗${colors.reset} ${msg}`);
 }
 
 function info(msg) {
-  console.log(`${colors.blue}INFO${colors.reset} ${msg}`);
+  console.log(`${colors.blue}ℹ${colors.reset} ${msg}`);
 }
 
 /**
@@ -268,7 +264,9 @@ async function migrate(options = {}) {
   const { dryRun = false, force = false } = options;
 
   log('');
-  log(`${colors.bold}PM AI Auth Migration Tool${colors.reset}`);
+  log(`${colors.bold}╔══════════════════════════════════════════════════════════════╗${colors.reset}`);
+  log(`${colors.bold}║              PM AI Auth Migration Tool                       ║${colors.reset}`);
+  log(`${colors.bold}╚══════════════════════════════════════════════════════════════╝${colors.reset}`);
   log('');
 
   // Step 1: Scan shell environment
@@ -290,8 +288,7 @@ async function migrate(options = {}) {
       info('Will create from .env.example template');
       envContent = fs.readFileSync(ENV_EXAMPLE_PATH, 'utf8');
     } else {
-      error('No .env.example found. Run /pm-setup instead.');
-      process.exit(1);
+      throw new Error('No .env.example found. Run /pm-setup instead.');
     }
   }
 
@@ -303,6 +300,7 @@ async function migrate(options = {}) {
   // Report findings
   log('');
   log(`${colors.bold}Analysis Results:${colors.reset}`);
+  log(`${colors.dim}─────────────────────────────────────${colors.reset}`);
 
   if (Object.keys(comparison.inBoth).length > 0) {
     success(`${Object.keys(comparison.inBoth).length} credentials already in sync`);
@@ -380,12 +378,16 @@ async function migrate(options = {}) {
   // Step 6: Recommendations
   log('');
   log(`${colors.bold}Recommendations:${colors.reset}`);
+  log(`${colors.dim}─────────────────────────────────────${colors.reset}`);
 
   if (Object.keys(comparison.shellOnly).length > 0 && !dryRun) {
     info('You can now remove these from your ~/.zshrc:');
     for (const varName of Object.keys(comparison.shellOnly)) {
       log(`      export ${varName}=...`);
     }
+    log('');
+    info('Your shell already sources .env via:');
+    log('      source ~/Documents/code/cloaked/work/.ai/scripts/.env');
   }
 
   if (comparison.missingRequired.length > 0) {
@@ -393,7 +395,7 @@ async function migrate(options = {}) {
     warn('To configure missing required credentials, run:');
     log('      /pm-setup');
     log('');
-    log('   Or manually add to scripts/.env:');
+    log('   Or manually add to .ai/scripts/.env:');
     for (const varName of comparison.missingRequired) {
       const config = KNOWN_VARS[varName];
       log(`      ${varName}=your_value`);
@@ -408,46 +410,24 @@ async function migrate(options = {}) {
   log('');
 }
 
-// CLI
-const args = process.argv.slice(2);
-const dryRun = args.includes('--dry-run');
-const force = args.includes('--force');
-
-if (args.includes('--help') || args.includes('-h')) {
-  log(`
-PM AI Auth Migration Script
+// CLI - wrapped by script-runner
+run({
+  name: 'setup-migrate',
+  mode: 'operational',
+  services: [],
+  args: { required: [], optional: ['--dry-run', '--force'] },
+  description: `PM AI Auth Migration Script
 
 Migrates credentials from shell environment into .env file.
 
-Usage:
-  node scripts/setup-migrate.cjs [options]
-
 Options:
   --dry-run   Show what would be migrated without making changes
-  --force     Keep .env values when they differ from shell
-  --help      Show this help message
+  --force     Keep .env values when they differ from shell`,
+}, async (ctx) => {
+  const dryRun = ctx.args.flags['dry-run'] || false;
+  const force = ctx.args.flags.force || false;
 
-Examples:
-  node scripts/setup-migrate.cjs
-  node scripts/setup-migrate.cjs --dry-run
-`);
-  process.exit(0);
-}
+  track('setup_migrate_start', { dry_run: dryRun, force });
 
-// Track script execution (no auth check needed for migration tool)
-const startTime = Date.now();
-const { track } = require('./lib/telemetry.cjs');
-track('setup_migrate_start', { dry_run: dryRun, force });
-
-migrate({ dryRun, force })
-  .then(async () => {
-    trackComplete('setup-migrate', startTime, { success: true, dry_run: dryRun });
-    await flush();
-  })
-  .catch(async err => {
-    error(`Migration failed: ${err.message}`);
-    trackError('migration_error', { error_type: err.code || 'unknown' });
-    trackComplete('setup-migrate', startTime, { success: false });
-    await flush();
-    process.exit(1);
-  });
+  await migrate({ dryRun, force });
+});

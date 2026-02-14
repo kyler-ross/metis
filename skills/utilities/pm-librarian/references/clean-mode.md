@@ -16,7 +16,7 @@ Propose and execute cleanup operations. Every action requires user approval. Gro
 
 **Detection**:
 ```bash
-find . -name "* 2.*" -o -name "* 2"
+find .ai/ -name "* 2.*" -o -name "* 2"
 ```
 
 **Action**: For each duplicate:
@@ -26,18 +26,18 @@ find . -name "* 2.*" -o -name "* 2"
 4. If the " 2" version is newer/better: propose renaming it to replace original
 
 **Known locations** (from audit):
-- `knowledge/` - 11+ " 2.md" files
-- `config/` - 3 duplicate sync configs
-- `knowledge/meeting_transcripts/` - 5 scrum duplicates
+- `.ai/knowledge/` - 11+ " 2.md" files
+- `.ai/config/` - 3 duplicate sync configs
+- `.ai/knowledge/meeting_transcripts/` - 5 scrum duplicates
 
-### 2. Backup Pruning (local/)
+### 2. Backup Pruning (.ai/local/)
 
 **Policy**: Keep the 2 most recent backups per type. Archive or delete older ones.
 
 **Detection**:
 ```bash
-ls -lt local/context-enrichment.db*.json
-ls -lt local/temporal-db*.json
+ls -lt .ai/local/context-enrichment.db*.json
+ls -lt .ai/local/temporal-db*.json
 ```
 
 **Action**:
@@ -57,7 +57,7 @@ ls -lt local/temporal-db*.json
 
 **Detection**:
 ```bash
-find local/ -name "*.log" -size +100k
+find .ai/local/ -name "*.log" -size +100k
 ```
 
 **Action**:
@@ -65,24 +65,24 @@ find local/ -name "*.log" -size +100k
 2. Propose truncating to last 500 lines
 3. For completed/old logs, propose archival or deletion
 
-### 4. Work Directory Archival (work/)
+### 4. Work Directory Archival (.ai/work/)
 
 **Policy**: Work items older than 30 days should be reviewed for archival.
 
 **Detection**:
 ```bash
-find work/ -maxdepth 1 -mtime +30 -type f -o -mtime +30 -type d
+find .ai/work/ -maxdepth 1 -mtime +30 -type f -o -mtime +30 -type d
 ```
 
 **Action**:
 1. List items older than 30 days with sizes
 2. Categorize: still relevant vs. safely archivable
-3. Propose moving to `work/_archive/` or deletion
+3. Propose moving to `.ai/work/_archive/` or deletion
 4. For project directories, check if they have active references
 
 ### 5. Script Archive Compression
 
-**Pattern**: `scripts/_archive/` accumulates old scripts.
+**Pattern**: `.ai/scripts/_archive/` accumulates old scripts.
 
 **Action**:
 1. Count and size the archive directory
@@ -112,8 +112,8 @@ find work/ -maxdepth 1 -mtime +30 -type f -o -mtime +30 -type d
 
 ## What NOT to Clean
 
-- `local/private_transcripts/` - Never touch content
-- `local/granola-tokens.json` - Active OAuth tokens
-- `scripts/.env` - Credentials file
-- `~/.pm-ai-env.sh` - Shell environment
+- `.ai/local/private_transcripts/` - Never touch content
+- `.ai/local/granola-tokens.json` - Active OAuth tokens
+- `.ai/scripts/.env` - Credentials file
+- `~/.cloaked-env.sh` - Shell environment
 - Any file with active git modifications (check `git status` first)

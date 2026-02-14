@@ -8,7 +8,7 @@ type: resource
 
 ## Get Page
 ```javascript
-const { confluence } = require('./scripts/atlassian-api.js');
+const { confluence } = require('./.ai/scripts/atlassian-api.js');
 const page = await confluence.getPage('123456');
 ```
 

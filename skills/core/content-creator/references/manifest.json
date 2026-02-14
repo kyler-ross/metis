@@ -8,7 +8,7 @@
       "feed content",
       "blog post",
       "news item",
-      "product guide",
+      "privacy guide",
       "create content"
     ],
     "semantic_tags": [
@@ -28,7 +28,7 @@
       "article-url",
       "content-idea",
       "news-item",
-      "product-guide"
+      "privacy-guide"
     ],
     "output_types": [
       "feed-item",
@@ -75,10 +75,10 @@
     "product-copy-guidelines.md"
   ],
   "meta": {
-    "author": "alice",
+    "author": "lucas",
     "version": "1.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/content-creator.md",
     "migration_date": "2026-02-03"
   }
 }

@@ -12,18 +12,18 @@ Detect inconsistencies, drift, and conflicts across datasets. This mode compares
 
 ### 1. Knowledge Index vs File System
 
-**What**: Verify `config/knowledge-index.json` matches actual files in `knowledge/`.
+**What**: Verify `.ai/config/knowledge-index.json` matches actual files in `.ai/knowledge/`.
 
 **How**:
 ```bash
 # Files in index but not on disk
-jq -r '.knowledge_files[].file' config/knowledge-index.json | while read f; do
-  [ ! -f "knowledge/$f" ] && echo "MISSING: $f"
+jq -r '.knowledge_files[].file' .ai/config/knowledge-index.json | while read f; do
+  [ ! -f ".ai/knowledge/$f" ] && echo "MISSING: $f"
 done
 
 # Files on disk but not in index
-find knowledge -type f -name "*.md" | sed 's|knowledge/||' | while read f; do
-  jq -e --arg f "$f" '.knowledge_files[] | select(.file == $f)' config/knowledge-index.json > /dev/null 2>&1 || echo "UNINDEXED: $f"
+find .ai/knowledge -type f -name "*.md" | sed 's|.ai/knowledge/||' | while read f; do
+  jq -e --arg f "$f" '.knowledge_files[] | select(.file == $f)' .ai/config/knowledge-index.json > /dev/null 2>&1 || echo "UNINDEXED: $f"
 done
 ```
 
@@ -63,7 +63,7 @@ diff <(jq -r '.skills | keys[]' skills/_index.json | sort) \
 **How**:
 ```bash
 find skills -name manifest.json -exec jq -r '.required_context[]?' {} \; | sort -u | while read f; do
-  [ ! -f "knowledge/$f" ] && echo "MISSING CONTEXT: $f"
+  [ ! -f ".ai/knowledge/$f" ] && echo "MISSING CONTEXT: $f"
 done
 ```
 
@@ -71,7 +71,7 @@ done
 
 ### 5. Agent Manifest vs Skills
 
-**What**: `config/agent-manifest.json` may reference archived agents that have been migrated to skills.
+**What**: `.ai/config/agent-manifest.json` may reference archived agents that have been migrated to skills.
 
 **How**: Check each agent entry's status field and verify path exists.
 
@@ -79,7 +79,7 @@ done
 
 ### 6. Team Members vs References
 
-**What**: `config/team-members.json` should match references in transcripts and updates.
+**What**: `.ai/config/team-members.json` should match references in transcripts and updates.
 
 **How**: Extract names from recent transcripts and updates, compare against team-members.json entries.
 
@@ -91,14 +91,14 @@ done
 
 **How**:
 ```bash
-node scripts/confluence-sync.cjs --check
+node .ai/scripts/confluence-sync.cjs --check
 ```
 
-**Fix**: Run sync for stale pages: `node scripts/confluence-sync.cjs --page <ID>`
+**Fix**: Run sync for stale pages: `node .ai/scripts/confluence-sync.cjs --page <ID>`
 
 ### 8. Experiment Index vs Experiment Files
 
-**What**: `knowledge/experiments/_index.json` should match actual experiment files.
+**What**: `.ai/knowledge/experiments/_index.json` should match actual experiment files.
 
 **How**: Compare index entries against files in experiment category directories.
 

@@ -68,8 +68,8 @@
     "product-analysis-methodology.md",
     "product-copy-guidelines.md",
     "user-expectations-marketing.md",
-    "product-overview.md",
-    "product-features.md",
+    "cloaked-product-overview.md",
+    "cloaked-features.md",
     "metrics-catalog.md"
   ],
   "modes": {
@@ -91,10 +91,10 @@
     }
   },
   "meta": {
-    "author": "starter-kit",
+    "author": "kyler",
     "version": "2.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/product-coach.md",
     "migration_date": "2026-02-02"
   }
 }

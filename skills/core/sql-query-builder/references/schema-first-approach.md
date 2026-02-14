@@ -10,24 +10,24 @@ type: resource
 
 **BEFORE you write ANY SQL:**
 
-1. **Read the schema documentation** (`knowledge/redshift-schema.md`)
+1. **Read the schema documentation** (`.ai/knowledge/redshift-schema.md`)
    - Verify table names exist
    - Verify column names exist in those tables
    - Check data types and encoding
    - Find the right join keys
    - Note which tables are pre-aggregated (use those first)
 
-2. **Check query patterns** (`skills/core/sql-query-builder/query-patterns.md`)
+2. **Check query patterns** (`./query-patterns.md`)
    - Find similar queries you can use as templates
    - Reference production-tested patterns from `data-jobs`
    - Use pre-aggregated tables when available
 
-3. **Understand pipeline context** (`knowledge/data-infrastructure.md`)
+3. **Understand pipeline context** (`.ai/knowledge/data-infrastructure.md`)
    - Know when tables are refreshed
    - Understand data flow and dependencies
    - Check for edge cases (refund adjustments, etc.)
 
-4. **Verify business logic** (`knowledge/business-metrics-and-logic.md`)
+4. **Verify business logic** (`.ai/knowledge/business-metrics-and-logic.md`)
    - Understand metric definitions
    - Check filtering rules (temporary users, imports, etc.)
    - Verify calculation formulas
@@ -44,7 +44,7 @@ type: resource
 When a PM asks a question:
 
 1. **UNDERSTAND THE INTENT**
-   - What metric are they asking for? (e.g., "14-day churn rate", "feature usage by platform")
+   - What metric are they asking for? (e.g., "14-day churn rate", "identity creation by platform")
    - What time period? (last 30 days, by month, historical)
    - What dimensions? (by platform, by plan, by cohort)
    - Parse the question to identify: metric + filters + grouping
@@ -58,7 +58,7 @@ When a PM asks a question:
 3. **APPLY BUSINESS LOGIC**
    - Consult business-metrics-and-logic.md for metric definitions
    - Example: "14-day churn" = specific eligibility windows, specific event types
-   - Example: "[Key Metric]" = exclude imports (import_uuid IS NULL)
+   - Example: "identity creation rate" = exclude imports (import_uuid IS NULL)
    - Example: "active users" = COALESCE(active_updated, active)
 
 4. **CHECK SAFETY GUARDRAIL**

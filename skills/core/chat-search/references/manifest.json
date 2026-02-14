@@ -60,10 +60,10 @@
     "conversation-data-schema.md"
   ],
   "meta": {
-    "author": "starter-kit",
+    "author": "kyler",
     "version": "2.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/chat-search.md",
     "migration_date": "2026-02-03"
   }
 }

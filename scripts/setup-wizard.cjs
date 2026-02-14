@@ -1,4 +1,3 @@
-// PM AI Starter Kit - setup-wizard.cjs
 #!/usr/bin/env node
 
 /**
@@ -17,7 +16,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync, spawn } = require('child_process');
+const { execSync, execFileSync, spawn } = require('child_process');
 
 // Import existing modules
 const SetupState = require('./lib/state-manager.cjs');
@@ -25,48 +24,27 @@ const PlatformDetector = require('./lib/platform-detector.cjs');
 const SystemPackagesInstaller = require('./installers/system-packages.cjs');
 const MCPGenerator = require('./installers/mcp-generator.cjs');
 const { track, trackScript, trackComplete, trackError, flush } = require('./lib/telemetry.cjs');
+const { findEnvFile, ENV_FILE_LOCATIONS, parseEnvFile, countRealCredentials, safeWriteEnvFile, fixCrlf } = require('./lib/env-guard.cjs');
 
-const PM_DIR = path.resolve(__dirname, '..');
-
-// Environment file locations - check in order of preference
-const ENV_FILE_LOCATIONS = [
-  path.join(__dirname, '.env'),           // scripts/.env (preferred)
-  path.join(PM_DIR, '.env'),              // root .env (fallback)
-];
+const PM_DIR = path.resolve(__dirname, '../..');
 
 /**
- * Find the first existing .env file or return the preferred location
+ * Get the .env file path (dynamic, never cached)
  */
-function findEnvFile() {
-  for (const loc of ENV_FILE_LOCATIONS) {
-    if (fs.existsSync(loc)) return loc;
-  }
-  return ENV_FILE_LOCATIONS[0]; // Return preferred location for creation
+function getEnvFile() {
+  return findEnvFile();
 }
 
 /**
  * Load environment variables from .env file
+ * Delegates to env-guard for CRLF-safe parsing.
  */
 function loadEnvFile() {
   const envFile = findEnvFile();
   if (!fs.existsSync(envFile)) return {};
 
-  const content = fs.readFileSync(envFile, 'utf8');
-  const env = {};
-  for (const line of content.split('\n')) {
-    // Skip comments and empty lines
-    if (!line.trim() || line.startsWith('#')) continue;
-    // Handle Windows line endings
-    const cleanLine = line.replace(/\r$/, '');
-    const match = cleanLine.match(/^([^=]+)=(.*)$/);
-    if (match) {
-      env[match[1].trim()] = match[2].trim().replace(/^["']|["']$/g, '');
-    }
-  }
-  return env;
+  return parseEnvFile(envFile).vars;
 }
-
-const ENV_FILE = findEnvFile();
 
 // Phase definitions with descriptions
 const PHASES = {
@@ -269,25 +247,45 @@ async function runSystemPackages(state) {
 
 /**
  * Phase: env_file - Create .env template
+ *
+ * SAFETY: Never overwrite an existing .env that has real credentials.
+ * Uses env-guard to count credentials instead of checking for specific key names.
  */
 async function runEnvFile(state) {
-  if (fs.existsSync(ENV_FILE)) {
-    const content = fs.readFileSync(ENV_FILE, 'utf8');
-    const hasCredentials = content.includes('JIRA_API_KEY') || content.includes('GEMINI_API_KEY');
+  const envFile = getEnvFile();
+  if (fs.existsSync(envFile)) {
+    // Fix CRLF if present (silent, non-destructive)
+    fixCrlf(envFile);
 
-    if (hasCredentials) {
-      state.markPhaseCompleted('env_file', { existed: true });
+    const { vars } = parseEnvFile(envFile);
+    const realCount = countRealCredentials(vars);
+
+    if (realCount > 0) {
+      // File has real credentials - mark completed, never touch it
+      state.markPhaseCompleted('env_file', { existed: true, credentialCount: realCount });
       return {
         phase: 'env_file',
         status: 'completed',
         progress: state.getCompletionPercentage() + '%',
-        message: '.env file already exists with credentials',
+        message: `.env file exists with ${realCount} credential(s)`,
         next_phase: state.getNextPhase()
       };
     }
+
+    // File exists but is empty/all placeholders - tell user to fill it in, but DO NOT overwrite
+    return {
+      phase: 'env_file',
+      status: 'needs_input',
+      progress: state.getCompletionPercentage() + '%',
+      message: '.env file exists but has no real credentials',
+      file: envFile,
+      suggestion: 'Fill in your API credentials in the .env file, then run credentials validation',
+      required_keys: ['ATLASSIAN_EMAIL', 'JIRA_API_KEY', 'GITHUB_PERSONAL_ACCESS_TOKEN', 'GEMINI_API_KEY'],
+      optional_keys: ['POSTHOG_API_KEY', 'GOOGLE_CLIENT_ID', 'SLACK_BOT_TOKEN', 'FIGMA_PERSONAL_ACCESS_TOKEN']
+    };
   }
 
-  // Create template
+  // No .env file exists at all - create template using safe write
   const template = `# PM AI System Configuration
 # Fill in your API credentials below
 # See SETUP.md for detailed credential acquisition guides
@@ -302,7 +300,7 @@ async function runEnvFile(state) {
 ATLASSIAN_EMAIL=
 # Format: alphanumeric string (e.g., AbCdEf123456...)
 JIRA_API_KEY=
-ATLASSIAN_URL=https://YOUR_ORG.atlassian.net
+ATLASSIAN_URL=https://yourcompany.atlassian.net
 
 # GitHub Personal Access Token
 # Get token: https://github.com/settings/tokens (needs repo, read:org scopes)
@@ -331,7 +329,7 @@ POSTHOG_API_KEY=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
-# Slack Bot Token (used by CLI at scripts/slack-api.cjs)
+# Slack Bot Token (used by CLI at .ai/scripts/slack-api.cjs)
 # Get token: https://api.slack.com/apps > OAuth & Permissions
 # Format: xoxb-xxxx-xxxx-xxxx
 SLACK_BOT_TOKEN=
@@ -368,31 +366,36 @@ ZENDESK_TOKEN=
 V0_API_KEY=
 `;
 
-  fs.writeFileSync(ENV_FILE, template);
+  safeWriteEnvFile(envFile, template, { force: true });
 
   return {
     phase: 'env_file',
     status: 'needs_input',
     progress: state.getCompletionPercentage() + '%',
     message: 'Created .env template file',
-    file: ENV_FILE,
+    file: envFile,
     suggestion: 'Fill in your API credentials in the .env file, then run credentials validation',
     required_keys: ['ATLASSIAN_EMAIL', 'JIRA_API_KEY', 'GITHUB_PERSONAL_ACCESS_TOKEN', 'GEMINI_API_KEY'],
     optional_keys: ['POSTHOG_API_KEY', 'GOOGLE_CLIENT_ID', 'SLACK_BOT_TOKEN', 'FIGMA_PERSONAL_ACCESS_TOKEN']
   };
 }
 
+// loadEnvFile() is defined at top of file
+
 /**
- * Load .env file
+ * Mask a credential value for safe display in logs/JSON output.
+ * Shows only a short prefix for identification - never reveals the tail.
  */
-// Use the loadEnvFile function defined at top of file
-const loadEnv = loadEnvFile;
+function maskCred(val) {
+  if (!val || val.length < 4) return '***';
+  return val.slice(0, 4) + '...[redacted]';
+}
 
 /**
  * Phase: credentials - Validate API credentials
  */
 async function runCredentials(state) {
-  const env = loadEnv();
+  const env = loadEnvFile();
   const results = {};
   const issues = [];
 
@@ -435,11 +438,34 @@ async function runCredentials(state) {
       credentials: results,
       issues,
       suggestion: 'Add missing credentials to .env file',
-      env_file: ENV_FILE
+      env_file: getEnvFile()
     };
   }
 
-  // All credentials present - offer to validate them
+  // All credentials present - run validators to test API connections
+  const validatorDir = path.join(__dirname, 'validators');
+  const validatorConfigs = {
+    gemini: { script: 'gemini-validator.cjs', args: [env.GEMINI_API_KEY] },
+    github: { script: 'github-validator.cjs', args: [env.GITHUB_PERSONAL_ACCESS_TOKEN] },
+    atlassian: { script: 'atlassian-validator.cjs', args: [env.ATLASSIAN_EMAIL, env.JIRA_API_KEY] }
+  };
+
+  // Run each validator using execFileSync (no shell) to prevent command injection
+  const validationResults = {};
+  for (const [name, config] of Object.entries(validatorConfigs)) {
+    try {
+      execFileSync('node', [path.join(validatorDir, config.script), ...config.args], {
+        stdio: ['pipe', 'pipe', 'pipe'], timeout: 15000
+      });
+      validationResults[name] = { status: 'pass' };
+    } catch (err) {
+      validationResults[name] = {
+        status: 'fail',
+        error: err.stderr ? err.stderr.toString().trim() : err.message
+      };
+    }
+  }
+
   return {
     phase: 'credentials',
     status: 'ready_to_validate',
@@ -447,11 +473,7 @@ async function runCredentials(state) {
     message: 'All required credentials configured - ready to validate',
     credentials: results,
     suggestion: 'Run validators to test API connections',
-    validators: {
-      gemini: `node ${path.join(__dirname, 'validators/gemini-validator.cjs')} "${env.GEMINI_API_KEY}"`,
-      github: `node ${path.join(__dirname, 'validators/github-validator.cjs')} "${env.GITHUB_PERSONAL_ACCESS_TOKEN}"`,
-      atlassian: `node ${path.join(__dirname, 'validators/atlassian-validator.cjs')} "${env.ATLASSIAN_EMAIL}" "${env.JIRA_API_KEY}"`
-    }
+    validators: validationResults
   };
 }
 
@@ -459,7 +481,7 @@ async function runCredentials(state) {
  * Phase: google_oauth - Set up Google OAuth
  */
 async function runGoogleOAuth(state) {
-  const env = loadEnv();
+  const env = loadEnvFile();
 
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
     state.markPhaseSkipped('google_oauth', 'Google OAuth credentials not configured');
@@ -678,23 +700,20 @@ async function runAnalytics(state) {
  * Phase: daemon - Install background daemon
  */
 async function runDaemon(state) {
-  const env = loadEnv();
+  const env = loadEnvFile();
   const daemonInstaller = path.join(__dirname, 'installers/daemon-installer.cjs');
-  const LAUNCHD_LABEL = process.env.PM_AI_LAUNCHD_LABEL || 'com.pm-ai.enrichment';
 
   // Check if already running
   try {
-    const output = execSync('launchctl list', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-    if (output.includes(LAUNCHD_LABEL)) {
-      state.markPhaseCompleted('daemon', { running: true });
-      return {
-        phase: 'daemon',
-        status: 'completed',
-        progress: state.getCompletionPercentage() + '%',
-        message: 'Background daemon already running',
-        next_phase: state.getNextPhase()
-      };
-    }
+    execSync('launchctl list | grep com.cloaked.pm-enrichment', { stdio: 'pipe' });
+    state.markPhaseCompleted('daemon', { running: true });
+    return {
+      phase: 'daemon',
+      status: 'completed',
+      progress: state.getCompletionPercentage() + '%',
+      message: 'Background daemon already running',
+      next_phase: state.getNextPhase()
+    };
   } catch {
     // Not running, continue
   }
@@ -707,7 +726,7 @@ async function runDaemon(state) {
       progress: state.getCompletionPercentage() + '%',
       message: 'Daemon requires GEMINI_API_KEY (not found in .env)',
       missing: 'GEMINI_API_KEY',
-      env_file: ENV_FILE,
+      env_file: getEnvFile(),
       suggestion: 'Add GEMINI_API_KEY to .env, or skip this optional phase',
       skip_allowed: true,
       next_phase: state.getNextPhase()
@@ -775,7 +794,7 @@ async function runShellAlias(state) {
 
   // Add alias
   const aliasCode = `
-# PM AI System - Quick launch
+# Cloaked PM AI System - Quick launch
 pm-claude() {
     cd "${PM_DIR}" && claude .
 }
@@ -1191,7 +1210,7 @@ async function verifySetup() {
     checks.push({
       component: `Credential: ${key}`,
       status: present ? 'ok' : 'missing',
-      location: present ? ENV_FILE : null
+      location: present ? getEnvFile() : null
     });
     if (!present) healthy = false;
   }
@@ -1213,11 +1232,10 @@ async function verifySetup() {
   });
 
   // Check daemon
-  const LAUNCHD_LABEL = process.env.PM_AI_LAUNCHD_LABEL || 'com.pm-ai.enrichment';
   let daemonRunning = false;
   try {
-    const output = execSync('launchctl list', { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-    daemonRunning = output.includes(LAUNCHD_LABEL);
+    execSync('launchctl list | grep com.cloaked.pm-enrichment', { stdio: 'pipe' });
+    daemonRunning = true;
   } catch {}
   checks.push({
     component: 'Background Daemon',
@@ -1260,7 +1278,7 @@ async function verifySetup() {
 
   return {
     status: healthy ? 'healthy' : 'issues_found',
-    env_file: ENV_FILE,
+    env_file: getEnvFile(),
     checks,
     summary: {
       total: checks.length,

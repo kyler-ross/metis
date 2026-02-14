@@ -25,10 +25,10 @@ Manage Confluence pages and spaces using direct REST API calls. No MCP. No timeo
 - All operations: <3 seconds
 - If slower, something is wrong
 
-## [Your Company] Confluence
+## Cloaked Confluence
 
-- URL: `https://[your-domain].atlassian.net/wiki`
-- CLI: `node scripts/atlassian-api.cjs confluence [command]`
+- URL: `https://yourcompany.atlassian.net/wiki`
+- CLI: `node .ai/scripts/atlassian-api.cjs confluence [command]`
 
 ## Resource Selection
 
@@ -71,16 +71,16 @@ New Content: [Updated content]
 
 ```bash
 # Get page by ID
-node scripts/atlassian-api.cjs confluence get <page-id>
+node .ai/scripts/atlassian-api.cjs confluence get <page-id>
 
 # Search pages
-node scripts/atlassian-api.cjs confluence search "CQL query"
+node .ai/scripts/atlassian-api.cjs confluence search "CQL query"
 
 # Create page
-node scripts/atlassian-api.cjs confluence create --space KEY --title "Title" --body "Content"
+node .ai/scripts/atlassian-api.cjs confluence create --space KEY --title "Title" --body "Content"
 
 # Update page
-node scripts/atlassian-api.cjs confluence update <page-id> --body "New content"
+node .ai/scripts/atlassian-api.cjs confluence update <page-id> --body "New content"
 ```
 
 ## Voice
@@ -91,4 +91,4 @@ Never use: "delve," "robust," "seamless," "leverage," "streamline," "furthermore
 
 ## Required Context
 
-- `knowledge/jira-integration.md` - Jira/Confluence linking patterns
+- `.ai/knowledge/jira-integration.md` - Jira/Confluence linking patterns

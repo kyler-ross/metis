@@ -1,0 +1,6 @@
+{
+  "project": "ALL",
+  "description": "This ticket is missing a summary, has no acceptance criteria checklist, and contains sensitive data like our Series B investor information and $50M valuation.",
+  "components": ["InvalidComponent"],
+  "labels": []
+}

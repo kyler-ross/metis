@@ -1,4 +1,3 @@
-// PM AI Starter Kit - setup-user.cjs
 #!/usr/bin/env node
 /**
  * setup-user.cjs - Interactive wizard for adding a new user to the PM AI multi-user system.
@@ -8,13 +7,13 @@
  *   2. Run Google OAuth flow for their account
  *   3. Optionally run Granola auth
  *   4. Choose enabled jobs and schedule
- *   5. Write config/users/{id}.yml
+ *   5. Write .ai/config/users/{id}.yml
  *   6. Merge credentials into PM_USER_CREDENTIALS GHA secret
  *   7. Print next steps
  *
  * Usage:
- *   node scripts/setup-user.cjs               # Interactive wizard
- *   node scripts/setup-user.cjs --user=<id>   # Update existing user's credentials
+ *   node .ai/scripts/setup-user.cjs               # Interactive wizard
+ *   node .ai/scripts/setup-user.cjs --user=<id>   # Update existing user's credentials
  */
 'use strict';
 
@@ -25,6 +24,8 @@ const { spawnSync } = require('child_process');
 const yaml = require('js-yaml');
 const { validateUserId, USERS_DIR } = require('./lib/user-context.cjs');
 const LOCAL_CREDS_PATH = path.resolve(__dirname, '..', 'local', 'pm-user-credentials.json');
+
+const { run } = require('./lib/script-runner.cjs');
 
 function ask(rl, question, defaultVal) {
   const suffix = defaultVal ? ` [${defaultVal}]` : '';
@@ -52,14 +53,18 @@ function saveLocalCreds(creds) {
 
 const { detectRepo } = require('./lib/repo-utils.cjs');
 
-async function main() {
+run({
+  name: 'setup-user',
+  mode: 'operational',
+  services: [],
+}, async (ctx) => {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
   console.log('\n=== PM AI User Setup Wizard ===\n');
 
   // Check for --user flag (update mode)
-  const userArg = process.argv.find(a => a.startsWith('--user='));
-  let userId = userArg ? userArg.split('=')[1] : null;
+  const userFlag = ctx.args.flags.user;
+  let userId = userFlag || null;
   let existingProfile = null;
 
   if (userId) {
@@ -69,10 +74,8 @@ async function main() {
       existingProfile = yaml.load(fs.readFileSync(profilePath, 'utf-8'), { schema: yaml.JSON_SCHEMA });
       console.log(`Updating existing user: ${userId} (${existingProfile.name})\n`);
     } else {
-      console.error(`User profile not found: ${profilePath}`);
-      console.error(`To create a new user, run without --user flag: node scripts/setup-user.cjs`);
       rl.close();
-      process.exit(1);
+      throw new Error(`User profile not found: ${profilePath}\nTo create a new user, run without --user flag: node .ai/scripts/setup-user.cjs`);
     }
   }
 
@@ -80,13 +83,12 @@ async function main() {
   if (!existingProfile) {
     console.log('Step 1: Basic Information\n');
     const name = await ask(rl, 'Full name');
-    userId = await ask(rl, 'User ID (short lowercase, e.g., jane)', name.toLowerCase().split(' ')[0]);
+    userId = await ask(rl, 'User ID (short lowercase, e.g., kyler)', name.toLowerCase().split(' ')[0]);
     try {
       validateUserId(userId);
     } catch (err) {
-      console.error(err.message);
       rl.close();
-      process.exit(1);
+      throw err;
     }
 
     // Check for existing profile collision
@@ -96,15 +98,14 @@ async function main() {
       if (overwrite.toLowerCase() !== 'y') {
         console.log('Aborted.');
         rl.close();
-        process.exit(0);
+        return;
       }
     }
 
-    const email = await ask(rl, 'Email', `${userId}@yourcompany.com`);
+    const email = await ask(rl, 'Email', `${userId}@cloaked.id`);
     if (!email.includes('@')) {
-      console.error('Invalid email format');
       rl.close();
-      process.exit(1);
+      throw new Error('Invalid email format');
     }
     const title = await ask(rl, 'Title', 'Product Manager');
     const timezone = await ask(rl, 'Timezone', 'America/New_York');
@@ -115,9 +116,8 @@ async function main() {
     console.log('\nStep 2: Schedule\n');
     const briefingTime = await ask(rl, 'Daily briefing time (HH:MM, 24h)', '08:15');
     if (!/^\d{1,2}:\d{2}$/.test(briefingTime)) {
-      console.error('Invalid time format. Use HH:MM (e.g., 08:15)');
       rl.close();
-      process.exit(1);
+      throw new Error('Invalid time format. Use HH:MM (e.g., 08:15)');
     }
     const [hour, minute] = briefingTime.split(':');
     const briefingCron = `${minute} ${hour} * * 1-5`;
@@ -143,7 +143,7 @@ async function main() {
     const useDefault = await ask(rl, 'Use default persona template? (y/n)', 'y');
     let persona;
     if (useDefault.toLowerCase() === 'y') {
-      persona = `You are the chief of staff for {{name}}, {{title}} at your company.\nCustomize this persona to reflect your role, priorities, and communication style.\n`;
+      persona = `You are the chief of staff for {{name}}, {{title}} at Cloaked (a privacy platform).\nCustomize this persona to reflect your role, priorities, and communication style.\n`;
     } else {
       console.log('Enter your custom persona (end with an empty line):');
       const lines = [];
@@ -172,7 +172,7 @@ async function main() {
 
     const yamlContent = yaml.dump(profile, { lineWidth: 120, quotingType: '"' });
     fs.writeFileSync(path.join(USERS_DIR, `${userId}.yml`), yamlContent);
-    console.log(`\nProfile written to config/users/${userId}.yml`);
+    console.log(`\nProfile written to .ai/config/users/${userId}.yml`);
     existingProfile = profile;
   }
 
@@ -198,7 +198,7 @@ async function main() {
       }
     } catch (err) {
       console.error('Google OAuth failed:', err.message);
-      console.log('You can run it manually later: node scripts/google-auth-setup.cjs');
+      console.log('You can run it manually later: node .ai/scripts/google-auth-setup.cjs');
     }
   }
 
@@ -270,17 +270,12 @@ async function main() {
   // Summary
   console.log('\n=== Setup Complete ===\n');
   console.log(`User: ${existingProfile.name} (${userId})`);
-  console.log(`Profile: config/users/${userId}.yml`);
+  console.log(`Profile: .ai/config/users/${userId}.yml`);
   console.log(`Google OAuth: ${googleToken ? 'configured' : 'skipped'}`);
   console.log(`Granola: ${granolaAuth ? 'configured' : 'skipped'}`);
   console.log('\nNext steps:');
-  console.log(`  1. Review and commit: git add config/users/${userId}.yml && git commit`);
+  console.log(`  1. Review and commit: git add .ai/config/users/${userId}.yml && git commit`);
   console.log('  2. Push to main: git push');
-  console.log('  3. Sync jobs: node scheduler/sync-jobs.cjs');
-  console.log(`  4. Verify: node scripts/daily-report-dm.cjs --user=${userId} --dry-run`);
-}
-
-main().catch(err => {
-  console.error('Error:', err.message);
-  process.exit(1);
+  console.log('  3. Sync jobs: node .ai/scheduler/sync-jobs.cjs');
+  console.log(`  4. Verify: node .ai/scripts/daily-report-dm.cjs --user=${userId} --dry-run`);
 });

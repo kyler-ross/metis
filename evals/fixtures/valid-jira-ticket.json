@@ -1,0 +1,8 @@
+{
+  "project": "ALL",
+  "summary": "Add dark mode toggle to settings",
+  "description": "## Overview\nAdd a dark mode toggle to the settings screen.\n\n## Acceptance Criteria\n- [ ] Dark mode toggle appears in settings\n- [ ] Toggle persists across app restarts\n- [ ] UI updates immediately when toggled\n\n## Technical Notes\nUse system preference as default.",
+  "components": ["Mobile", "iOS"],
+  "labels": ["feature", "ui"],
+  "issuetype": "Story"
+}

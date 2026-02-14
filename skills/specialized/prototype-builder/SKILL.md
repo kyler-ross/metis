@@ -1,16 +1,16 @@
 ---
 name: prototype-builder
-description: Build interactive UI prototypes using your product's component libraries
+description: Build interactive UI prototypes using Cloaked's component libraries
 ---
 
 # Prototype Builder
 
-**Role**: Help PMs create functional UI prototypes using your product's actual design systems.
+**Role**: Help PMs create functional UI prototypes using Cloaked's actual design systems.
 **Supports**: Web (Storybook), iOS (SwiftUI), Android (Jetpack Compose)
 
 ## Overview
 
-This agent generates real, runnable prototype code using your product's existing component libraries. Unlike generic prototyping tools (v0, Figma), these prototypes use the actual design system and can be refined into production code.
+This agent generates real, runnable prototype code using Cloaked's existing component libraries. Unlike generic prototyping tools (v0, Figma), these prototypes use the actual design system and can be refined into production code.
 
 ## Two Modes of Operation
 
@@ -39,27 +39,27 @@ When a PM describes a prototype, determine the appropriate platform:
 ### Web (Dashboard - Storybook)
 
 **Output**: `.stories.js` files using Vue 3 components
-**Location**: `work/prototypes/web/[FeatureName].stories.js`
+**Location**: `pm/.ai/work/prototypes/web/[FeatureName].stories.js`
 **Run command**: `cd ../dashboard && npm run storybook`
 
 **Available Components** (from `dashboard/src/library/`):
 - `BaseButton` - variants: primary, secondary, outline, text
 - `BaseChip` - status tags and labels
-- `BaseAvatar` - user avatars
-- `BaseProgressTag` - progress indicators with [Your Product] colors
+- `BaseMedallion` - identity/cloak avatars
+- `BaseProgressTag` - progress indicators with Cloaked colors
 - `BaseInput` - text inputs with validation
 - `BaseSelect` - dropdowns
 - `BaseToggle` - switches
-- `BaseText` - typography with [Your Product] fonts
-- `BaseTextHiddenDots` - redacted text display
+- `BaseText` - typography with Cloaked fonts
+- `BaseTextHiddenDots` - masked text display
 - `BaseOrb` - decorative elements
 - `BaseInputOtp` - OTP/verification inputs
 - `BaseInputFeedback` - input with feedback states
 
-**App Colors** (for `BaseProgressTag` and styling):
-- `primary`, `accent-rose`, `accent-lime`, `accent-blue`
-- `accent-dark-blue`, `accent-violet`, `accent-green`
-- `status-warning`, `status-info`, `status-success`
+**Cloaked Colors** (for `BaseProgressTag` and styling):
+- `cloaked`, `spirit-rose`, `arctic-lime`, `foam-blue`
+- `crest-blue`, `violet-reflection`, `caribbean-green`
+- `spam-protection`, `safe-zone-blue`, `safe-zone-green`
 
 **Story Template**:
 ```javascript
@@ -92,41 +92,41 @@ Default.args = {
 ### iOS (SwiftUI Previews)
 
 **Output**: `.swift` files with `#Preview` macro
-**Location**: `work/prototypes/ios/[FeatureName].swift`
+**Location**: `pm/.ai/work/prototypes/ios/[FeatureName].swift`
 **Run**: Open in Xcode → preview renders automatically in canvas
 
 **Required Imports**:
 ```swift
 import SwiftUI
-import AppUI
-import AppPreviewData
+import CloakedUI
+import CloakedPreviewData
 ```
 
-**Available Components** (from `AppUI`):
+**Available Components** (from `CloakedUI`):
 - `Icon` - with `.circle()` modifier for background
 - `AsyncButton` - buttons with loading states
-- `.appFont()` modifier - typography (`.captionMedium`, `.headline4Bold`, `.headline6Medium`)
+- `.cloakedFont()` modifier - typography (`.captionMedium`, `.headline4Bold`, `.headline6Medium`)
 - `.defaultFilledButtonStyle()` - primary button styling
 
-**Mock Data** (from `AppPreviewData`):
-- `PreviewData.identities` - Array of mock identities
-- `PreviewData.cards` - Mock payment cards
+**Mock Data** (from `CloakedPreviewData`):
+- `PreviewData.cloaks` - Array of mock Cloak identities
+- `PreviewData.cards` - Mock virtual cards
 - `PreviewData.transactions` - Transaction history
 - `PreviewData.feedItems` - Home feed items
 - `PreviewData.activities` - Activity log entries
 - `PreviewData.contacts` - Contact list
-- `PreviewData.scans` - Feature scan results
+- `PreviewData.brokerScans` - Data removal scans
 
 **Color System**:
-- `Color.App.primary_100` - Primary text
-- `Color.App.base` - Background base
-- Icon colors: `.accent_green`, `.accent_rose`, etc.
+- `Color.Cloaked.primary_100` - Primary text
+- `Color.Cloaked.base` - Background base
+- Icon colors: `.caribbean_green`, `.spirit_rose`, etc.
 
 **Preview Template**:
 ```swift
 import SwiftUI
-import AppUI
-import AppPreviewData
+import CloakedUI
+import CloakedPreviewData
 
 struct FeatureNameView: View {
     // Props with defaults for preview
@@ -135,10 +135,10 @@ struct FeatureNameView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            // UI implementation using AppUI components
+            // UI implementation using CloakedUI components
         }
         .padding(20)
-        .background(Color.App.base.opacity(0.8))
+        .background(Color.Cloaked.base.opacity(0.8))
         .cornerRadius(30)
     }
 }
@@ -157,29 +157,29 @@ struct FeatureNameView: View {
 ### Android (Jetpack Compose)
 
 **Output**: `.kt` files with `@Preview` annotation
-**Location**: `work/prototypes/android/[FeatureName].kt`
+**Location**: `pm/.ai/work/prototypes/android/[FeatureName].kt`
 **Run**: Open in Android Studio → preview renders in design tab
 
 **Required Imports**:
 ```kotlin
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-// Add AppTheme imports
+// Add CloakedTheme imports
 ```
 
 **Preview Helpers** (from app):
-- `PreviewAppTheme()` - Wraps content in [Your Product] theme
+- `PreviewCloakedTheme()` - Wraps content in Cloaked theme
 - `InLightAndDarkTheme()` - Shows both theme variants
-- `PreviewAppV3Theme()` - New design system theme
+- `PreviewCloakedV3Theme()` - New design system theme
 
 **Available Components** (from `componentsv3`):
-- Buttons, Icons (AppIcons), Avatar
+- Buttons, Icons (CloakIcons), Avatar
 - AlertDialog, BottomBar, TopAppBar
 - List items, tiles, action items
 
 **Preview Template**:
 ```kotlin
-package com.yourcompany.app.prototypes
+package com.cloaked.app.prototypes
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -205,7 +205,7 @@ fun FeatureNameScreen(
 @Preview(showBackground = true)
 @Composable
 fun FeatureNamePreview() {
-    PreviewAppTheme {
+    PreviewCloakedTheme {
         FeatureNameScreen()
     }
 }
@@ -213,7 +213,7 @@ fun FeatureNamePreview() {
 @Preview(showBackground = true, name = "Dark Mode")
 @Composable
 fun FeatureNameDarkPreview() {
-    PreviewAppTheme(darkTheme = true) {
+    PreviewCloakedTheme(darkTheme = true) {
         FeatureNameScreen()
     }
 }
@@ -234,19 +234,19 @@ Or infer from context (dashboard feature → web, mobile feature → iOS)
 
 ### Step 3: Research Components
 Before generating code:
-1. Read `knowledge/[platform]-components.md` for available components
+1. Read `.ai/knowledge/[platform]-components.md` for available components
 2. Check if similar screens exist in the codebase
 3. Identify the right components to compose
 
 ### Step 4: Generate Prototype
-- Create the prototype file in `work/prototypes/[platform]/`
+- Create the prototype file in `pm/.ai/work/prototypes/[platform]/`
 - Use real components and design tokens
 - Include multiple preview variants if helpful
 
 ### Step 5: Provide Run Instructions
 Tell the PM exactly how to view their prototype:
 - **Web**: `cd ../dashboard && npm run storybook` → opens at localhost:6006
-- **iOS**: Open `[your-ios-app]/[YourApp].xcworkspace` in Xcode, navigate to file
+- **iOS**: Open `cloaked-ios/Cloaked.xcworkspace` in Xcode, navigate to file
 - **Android**: Open in Android Studio, switch to Design tab
 
 ### Step 6: Iterate
@@ -260,10 +260,10 @@ PM can request changes:
 ## Knowledge Files to Reference
 
 Before generating prototypes, read these knowledge files:
-- `knowledge/dashboard-components.md` - Web component inventory
-- `knowledge/ios-components.md` - iOS component inventory
-- `knowledge/android-components.md` - Android component inventory
-- `knowledge/product-features.md` - Product context
+- `.ai/knowledge/dashboard-components.md` - Web component inventory
+- `.ai/knowledge/ios-components.md` - iOS component inventory
+- `.ai/knowledge/android-components.md` - Android component inventory
+- `.ai/knowledge/cloaked-features.md` - Product context
 
 ---
 
@@ -271,34 +271,34 @@ Before generating prototypes, read these knowledge files:
 
 ### Example 1: Web Prototype
 ```
-PM: I want to prototype a new "[product feature] progress" card
+PM: I want to prototype a new "data removal progress" card
 
-Agent: I'll create a prototype for the [product feature] progress card. Which platform would you like? (web/iOS/Android/all)
+Agent: I'll create a prototype for the data removal progress card. Which platform would you like? (web/iOS/Android/all)
 
 PM: web
 
 Agent: Creating a Storybook prototype using BaseProgressTag and BaseChip components...
-[Generates work/prototypes/web/FeatureProgress.stories.js]
+[Generates pm/.ai/work/prototypes/web/DataRemovalProgress.stories.js]
 
 To view your prototype:
 1. cd ../dashboard
 2. npm run storybook
 3. Open http://localhost:6006
-4. Navigate to "Prototypes / FeatureProgress"
+4. Navigate to "Prototypes / DataRemovalProgress"
 
-You can adjust the progress percentage, item count, and colors using Storybook's controls panel.
+You can adjust the progress percentage, broker count, and colors using Storybook's controls panel.
 ```
 
 ### Example 2: iOS Prototype
 ```
 PM: /pm-prototype "New wallet card design showing balance and recent transactions"
 
-Agent: I'll create a SwiftUI prototype for the wallet card. This will use AppUI components and PreviewData mocks.
-[Generates work/prototypes/ios/WalletCard.swift]
+Agent: I'll create a SwiftUI prototype for the wallet card. This will use CloakedUI components and PreviewData mocks.
+[Generates pm/.ai/work/prototypes/ios/WalletCard.swift]
 
 To view your prototype:
-1. Open Xcode: open ../[your-ios-app]/[YourApp].xcworkspace
-2. Navigate to: work/prototypes/ios/WalletCard.swift
+1. Open Xcode: open ../cloaked-ios/Cloaked.xcworkspace
+2. Navigate to: pm/.ai/work/prototypes/ios/WalletCard.swift
 3. The preview canvas will show your prototype automatically
 
 I've included variants for different balance states and transaction counts.
@@ -306,15 +306,15 @@ I've included variants for different balance states and transaction counts.
 
 ### Example 3: All Platforms
 ```
-PM: Prototype a "[alert type] found" notification banner for all platforms
+PM: Prototype a "broker found" notification banner for all platforms
 
 Agent: I'll generate prototypes for web, iOS, and Android...
 [Generates 3 files]
 
 Created:
-- work/prototypes/web/AlertBanner.stories.js
-- work/prototypes/ios/AlertBanner.swift
-- work/prototypes/android/AlertBanner.kt
+- pm/.ai/work/prototypes/web/BrokerFoundBanner.stories.js
+- pm/.ai/work/prototypes/ios/BrokerFoundBanner.swift
+- pm/.ai/work/prototypes/android/BrokerFoundBanner.kt
 
 Each uses the platform's native design system while maintaining visual consistency.
 ```
@@ -361,17 +361,17 @@ Agent provides platform-specific run instructions
 When a PM asks for a flow prototype, extract these elements:
 
 ### 1. Which Flow?
-Map natural language to flow IDs from `knowledge/prototype-flows.md`:
+Map natural language to flow IDs from `.ai/knowledge/prototype-flows.md`:
 
 | PM Says | Flow ID |
 |---------|---------|
-| "verification flow", "card setup", "wallet onboarding" | `wallet-setup` |
-| "feature setup", "feature onboarding" | `feature-onboarding` |
-| "phone number setup", "number porting" | `phone-setup` |
-| "scan flow", "[feature] removal" | `scan-removal` |
+| "KYC flow", "card setup", "virtual cards onboarding" | `cards-setup` |
+| "call guard", "call screening setup" | `call-guard-onboarding` |
+| "eSIM", "phone number setup" | `esim-setup` |
+| "data removal", "broker removal" | `data-removal` |
 | "checkout", "signup flow" | `checkout` |
 | "import", "CSV import" | `import` |
-| "subscription onboarding", "upgrade flow" | `subscription-onboarding` |
+| "subscription onboarding", "pay onboarding" | `subscription-onboarding` |
 
 ### 2. Start Point?
 Convert natural language to step numbers:
@@ -379,7 +379,7 @@ Convert natural language to step numbers:
 | PM Says | Interpretation |
 |---------|----------------|
 | "starting at step 3" | `startStep: 3` |
-| "after verification approval" | Look up which step that is |
+| "after KYC approval" | Look up which step that is |
 | "from the address form" | Map to specific step |
 | "skip the intro" | `startStep: 2` or later |
 
@@ -397,15 +397,15 @@ Map to scenario IDs:
 |---------|-------------|
 | "new user", "fresh account" | `new_user` |
 | "paid user", "subscriber" | `paid_basic` |
-| "with 2 cards" | `paid_with_extras` + override cardCount |
-| "power user", "lots of items" | `power_user` |
+| "with 2 cards" | `paid_with_cards` + override cardCount |
+| "power user", "lots of identities" | `power_user` |
 
 ### 5. On Rails?
 Default to `true` for prototypes. Set to `false` if PM wants to test branching.
 
 ## Generating PrototypeConfig
 
-After parsing, generate JSON following `knowledge/prototype-config-schema.md`:
+After parsing, generate JSON following `.ai/knowledge/prototype-config-schema.md`:
 
 ```json
 {
@@ -433,7 +433,7 @@ After parsing, generate JSON following `knowledge/prototype-config-schema.md`:
 }
 ```
 
-Save to: `work/prototypes/configs/{name}.json`
+Save to: `.ai/work/prototypes/configs/{name}.json`
 
 ## Providing Run Instructions
 
@@ -441,7 +441,7 @@ Save to: `work/prototypes/configs/{name}.json`
 ```
 To run this prototype on iOS:
 
-1. Open Xcode: open ../[your-ios-app]/[YourApp].xcworkspace
+1. Open Xcode: open ../cloaked-ios/Cloaked.xcworkspace
 2. Run on simulator (⌘R)
 3. Go to Settings → Debug Menu → Load Prototype
 4. Select "{config-name}.json"
@@ -464,33 +464,33 @@ Or in Storybook:
 
 ## Flow Prototype Examples
 
-### Example 1: Verification Mid-Flow
+### Example 1: KYC Mid-Flow
 
 **PM Request:**
-> "Show me the verification flow starting after the user has entered their address (step 3). They're a paid user with 2 cards already. End at the success celebration."
+> "Show me the KYC flow starting after the user has entered their address (step 3). They're a paid user with 2 cards already. End at the success celebration."
 
 **Agent Response:**
 ```
-I'll create a verification prototype starting at step 3 (after address entry).
+I'll create a KYC prototype starting at step 3 (after identity verification).
 
 **Parsing your request:**
-- Flow: wallet-setup (Verification/Wallet Onboarding)
-- Start: Step 3 (Verification Loading - post address entry)
+- Flow: cards-setup (KYC/Cards Onboarding)
+- Start: Step 3 (KYC Loading - post address entry)
 - End: Step 7 (Success celebration)
-- User state: paid_with_extras with 2 cards
+- User state: paid_with_cards with 2 cards
 
 **Generated config:**
 ```
 
 ```json
 {
-  "name": "verify-step3-to-success",
-  "description": "Verification flow from post-address to success for paid user with 2 cards",
+  "name": "kyc-step3-to-success",
+  "description": "KYC flow from post-address to success for paid user with 2 cards",
   "platform": "ios",
   "createdAt": "2024-01-15T10:30:00Z",
 
   "flow": {
-    "id": "wallet-setup",
+    "id": "cards-setup",
     "startStep": 3,
     "endStep": 7,
     "onRails": true
@@ -498,11 +498,11 @@ I'll create a verification prototype starting at step 3 (after address entry).
 
   "auth": {
     "bypass": true,
-    "mockUser": "paid_with_extras"
+    "mockUser": "paid_with_cards"
   },
 
   "data": {
-    "scenario": "paid_with_extras",
+    "scenario": "paid_with_cards",
     "overrides": {
       "cardCount": 2
     }
@@ -511,40 +511,40 @@ I'll create a verification prototype starting at step 3 (after address entry).
 ```
 
 ```
-Saved to: work/prototypes/configs/verify-step3-to-success.json
+Saved to: .ai/work/prototypes/configs/kyc-step3-to-success.json
 
 **To run on iOS:**
-1. Open Xcode with [your-ios-app] project
+1. Open Xcode with cloaked-ios project
 2. Run on simulator
 3. Settings → Debug Menu → Load Prototype
-4. Select "verify-step3-to-success.json"
+4. Select "kyc-step3-to-success.json"
 ```
 
-### Example 2: Feature Onboarding Test Step
+### Example 2: Call Guard Test Step Only
 
 **PM Request:**
-> "I just want to see the setup test step in [feature onboarding]"
+> "I just want to see the call forwarding test step in call guard"
 
 **Agent Response:**
 ```
-I'll create a prototype showing just the setup test step.
+I'll create a prototype showing just the call forwarding test step.
 
 **Parsing your request:**
-- Flow: feature-onboarding
-- Start: Step 13 (Test Setup)
-- End: Step 14 (Setup Success)
+- Flow: call-guard-onboarding
+- Start: Step 13 (Test Call Forwarding)
+- End: Step 14 (Call Forwarding Success)
 - User state: default (paid_basic)
 ```
 
 ```json
 {
-  "name": "feature-test-step",
-  "description": "Feature onboarding - setup test step only",
+  "name": "call-guard-test-step",
+  "description": "Call Guard - call forwarding test step only",
   "platform": "ios",
   "createdAt": "2024-01-15T11:00:00Z",
 
   "flow": {
-    "id": "feature-onboarding",
+    "id": "call-guard-onboarding",
     "startStep": 13,
     "endStep": 14,
     "onRails": true
@@ -560,7 +560,7 @@ I'll create a prototype showing just the setup test step.
 ### Example 3: Web Import Flow
 
 **PM Request:**
-> "Show me the import flow from mapping onwards, with a power user who has lots of items"
+> "Show me the import flow from mapping onwards, with a power user who has lots of identities"
 
 **Agent Response:**
 ```
@@ -570,7 +570,7 @@ I'll create a web prototype of the import flow starting at column mapping.
 - Flow: import
 - Start: Step 3 (Column Mapping)
 - End: Step 5 (last step)
-- User state: power_user (50+ items)
+- User state: power_user (50+ identities)
 ```
 
 ```json
@@ -594,7 +594,7 @@ I'll create a web prototype of the import flow starting at column mapping.
   "data": {
     "scenario": "power_user",
     "overrides": {
-      "itemCount": 50
+      "identityCount": 50
     }
   }
 }
@@ -609,13 +609,13 @@ Open: http://localhost:3000/?prototype=import-mapping-power-user
 
 Always read these before generating flow configs:
 
-1. **`knowledge/prototype-flows.md`** - Flow registry with:
+1. **`.ai/knowledge/prototype-flows.md`** - Flow registry with:
    - All available flows by platform
    - Step numbers and names
    - Entry points and views
    - Natural language mappings
 
-2. **`knowledge/prototype-config-schema.md`** - Config schema with:
+2. **`.ai/knowledge/prototype-config-schema.md`** - Config schema with:
    - All available fields
    - Validation rules
    - Platform-specific behavior
@@ -639,11 +639,11 @@ When a PM uses `/pm-prototype`, determine which mode:
 | Request Type | Mode | Output |
 |--------------|------|--------|
 | "Prototype a card design" | Component | Code file |
-| "Show me the verification flow" | Flow | JSON config |
+| "Show me the KYC flow" | Flow | JSON config |
 | "Mock up a settings screen" | Component | Code file |
 | "Walk through checkout starting at step 3" | Flow | JSON config |
 | "Design a new banner component" | Component | Code file |
-| "Test the [core feature] flow on rails" | Flow | JSON config |
+| "Test the data removal flow on rails" | Flow | JSON config |
 
 **Signals for Flow Mode:**
 - Mentions "flow", "step", "starting at", "ending at"

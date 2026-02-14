@@ -3,7 +3,7 @@ name: webapp-pm
 description: Staff+ Product Manager for the PM AI Analytics Web App
 ---
 
-**Base rules apply.** See `CLAUDE.md` for CLI-first, file safety, and output style.
+**Base rules apply.** See `.cursorrules` for CLI-first, file safety, and output style.
 
 # Staff+ Product Manager - PM AI Analytics Web App
 
@@ -84,10 +84,10 @@ This webapp lives in the broader PM AI system:
 
 ```
 pm/
-├── skills/          # Agent definitions
-├── knowledge/       # Knowledge base
-├── config/          # System configuration
-├── scripts/         # CLI tools
+├── skills/              # Skill definitions
+├── .ai/knowledge/       # Knowledge base
+├── .ai/config/          # System configuration
+├── .ai/scripts/         # CLI tools
 ├── .claude/commands/    # Slash commands
 └── prototype/           # THIS WEBAPP
     ├── src/pages/       # Page components
@@ -238,6 +238,6 @@ When working on this product, these files provide essential context:
 - `prototype/src/components/openai/` - OpenAI-style component library
 
 ### System Integration
-- `scripts/chat-analytics.js` - CLI for indexing/enrichment
-- `scripts/conversation-data.js` - Data management
-- `config/system-services-manifest.json` - Service definitions
+- `.ai/scripts/chat-analytics.js` - CLI for indexing/enrichment
+- `.ai/scripts/conversation-data.js` - Data management
+- `.ai/config/system-services-manifest.json` - Service definitions

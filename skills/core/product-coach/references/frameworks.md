@@ -40,9 +40,9 @@ Feature B: (500 users × 3 impact × 50% confidence) / 1 person-month = 750
 
 **Framework**: "When [situation], I want to [motivation], so I can [outcome]"
 
-**Example for [Your Company]**:
-- **B2C**: "When managing my tasks across projects, I want to see everything in one view, so I can focus on what matters most"
-- **B2B**: "When onboarding new team members, I want to set up their workspace automatically, so I can reduce time-to-productivity"
+**Example for Cloaked**:
+- **B2C**: "When signing up for a new service, I want to hide my real email, so I can avoid spam and protect my identity"
+- **B2B**: "When onboarding employees, I want to provision secure identities, so I can reduce data breach risk"
 - **B2G**: "When processing citizen data, I want to ensure compliance, so I can meet FedRAMP requirements"
 
 **Key insight**: Same product, different jobs across markets
@@ -57,13 +57,13 @@ Feature B: (500 users × 3 impact × 50% confidence) / 1 person-month = 750
 4. Actionable by product team
 5. Understandable by everyone
 
-**For [Your Company] (B2C)**: "[Key actions] per month"
-- Not just users, but actual feature usage
-- Indicates value delivery (they're getting outcomes actively)
+**For Cloaked (B2C)**: "Active identities used per month"
+- Not just users, but actual identity usage
+- Indicates value delivery (they're protecting privacy actively)
 - Leading indicator of retention and word-of-mouth
 
 **Cascade down**:
-- North Star: [Key actions] per month
+- North Star: Active identities used/month
   - Input metrics: New user activation rate, feature adoption
   - Health metrics: Retention rate, NPS, support tickets
 
@@ -107,7 +107,7 @@ Increase B2B adoption
 **Multi-segment adaptation**:
 ```
        B2C          B2B              B2G
-Value: Productivity  Risk reduction   Compliance
+Value: Privacy     Breach prevention Compliance
 Growth: Viral      Sales-led         RFP/Procurement
 Monetization: $5-15/mo  $10-50/user/mo   $100K+ contracts
 ```
@@ -132,11 +132,11 @@ Sign up → Set up profile → Add payment → Configure settings → Use produc
 Sign up → Immediately deliver value → Upsell features as needed → Upgrade when valuable
 ```
 
-**[Your Company] example**:
+**Cloaked example**:
 ```
-1. Diagnose: "What do you need [Your Company] for?" (project tracking, team collaboration, etc.)
-2. Passive value: Instantly create a workspace, show it working with sample data
-3. Active upsell: When they need more seats or advanced features, upgrade prompt
+1. Diagnose: "What do you need Cloaked for?" (email privacy, phone privacy, etc.)
+2. Passive value: Instantly create masked email/phone, show it working
+3. Active upsell: When they need more masks or advanced features, upgrade prompt
 ```
 
 **Don't front-load setup** - users abandon before seeing value.
@@ -148,13 +148,13 @@ Sign up → Immediately deliver value → Upsell features as needed → Upgrade 
 
 **Example**:
 ```
-❌ Traditional: "Sign up to get your personalized performance report"
-✅ Inverted: "Enter your URL to get a free audit (no signup)" → value first → "Sign up to track improvements"
+❌ Traditional: "Sign up to see if we found your data on the dark web"
+✅ Inverted: "Enter email to scan dark web (no signup)" → value first → "Sign up to monitor ongoing"
 ```
 
-**[Your Company] example**: Background Protection
+**Cloaked example**: Background Protection
 - Runs automatically, no user action required
-- Delivers value passively (monitors and optimizes in the background)
+- Delivers value passively (removes data from data brokers)
 - User sees results, not setup screens
 
 ### Interdependent Retention
@@ -167,8 +167,8 @@ Sign up → Immediately deliver value → Upsell features as needed → Upgrade 
 - Slack: Channels and history (leaving = missing conversations)
 - Notion: Collaborative docs (leaving = can't edit shared work)
 
-**[Your Company] challenge**: Primarily individual-use product
-**Opportunity**: Family plans, shared workspaces, team collaboration features for B2B
+**Cloaked challenge**: Primarily individual-use product
+**Opportunity**: Family plans, shared password vaults, team identity management for B2B
 
 ## Leadership & Org Design Frameworks
 
@@ -181,7 +181,7 @@ Sign up → Immediately deliver value → Upsell features as needed → Upgrade 
 3. **Enabling**: Helps other teams learn new tech (e.g., "DevOps Enablement")
 4. **Complicated Subsystem**: Owns complex technical area (e.g., "Encryption team")
 
-**For [Your Company] multi-market**:
+**For Cloaked multi-market**:
 ```
 Stream-aligned teams:
   - B2C Growth team (onboarding, activation, retention)
@@ -189,7 +189,7 @@ Stream-aligned teams:
   - B2G Compliance team (FedRAMP, IL4/5, security)
 
 Platform teams:
-  - [Core Platform] (shared product infrastructure)
+  - Identity Platform (core masking infrastructure)
   - Data Infrastructure (analytics, reporting)
 
 Enabling teams:
@@ -237,7 +237,7 @@ Launch plan   R,A      I    I       R          C
 - **When**: Ambitious goals, inspiring change, quarterly/annual
 - **Structure**: Objective (qualitative) + 3-5 Key Results (quantitative)
 - **Example**:
-  - Objective: "Become the go-to solution for enterprises"
+  - Objective: "Become the privacy solution for enterprises"
   - KR1: Sign 10 enterprise contracts (>100 users each)
   - KR2: Achieve 90%+ renewal rate
   - KR3: Launch SSO and admin dashboard
@@ -313,7 +313,7 @@ Important  (Quadrant 3)    (Quadrant 4)
 - Process changes (can revert)
 → Move fast, learn by doing, iterate
 
-**For [Your Company]**:
+**For Cloaked**:
 - One-way: B2G compliance certifications (expensive, long commitments)
 - Two-way: New onboarding flow (can A/B test, revert if needed)
 
@@ -356,7 +356,7 @@ Mitigations:
 
 **Speed matters**: Faster OODA loop = competitive advantage
 
-**For [Your Company]**:
+**For Cloaked**:
 - Observe: User analytics, support tickets, competitor moves
 - Orient: "Users dropping off at payment step"
 - Decide: "Test removing credit card upfront"

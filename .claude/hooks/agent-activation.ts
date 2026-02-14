@@ -98,14 +98,14 @@ async function main() {
             let output = '';
 
             if (rule.enforcement === 'block') {
-                output = `AGENT AUTO-ACTIVATION (${Math.round(confidence * 100)}% confidence)\n\n`;
+                output = `⚠️ AGENT AUTO-ACTIVATION (${Math.round(confidence * 100)}% confidence)\n\n`;
                 output += rule.message + '\n\n';
                 output += `Read: ${rule.skillPath}`;
                 console.log(output);
                 process.exit(2); // Block execution
 
             } else if (rule.enforcement === 'suggest') {
-                output = `Detected ${agent} context (${Math.round(confidence * 100)}% confidence)\n\n`;
+                output = `💡 Detected ${agent} context (${Math.round(confidence * 100)}% confidence)\n\n`;
                 output += rule.message + '\n\n';
                 output += `Read: ${rule.skillPath}`;
                 console.log(output);

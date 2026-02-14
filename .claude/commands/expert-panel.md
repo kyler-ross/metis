@@ -15,15 +15,15 @@ The orchestrator will:
 
 Available experts include:
 - **Strategy & Leadership:** Serial CEO, Principal PM, VC Investor
-- **Growth & Business:** Growth Strategist, Business Analyst, Viral Growth Expert
+- **Growth & Business:** Growth Strategist, Business Analyst, Viral Growth Expert, Lenny Rachitsky
 - **Product & Design:** Design Lead, UX Psychologist
 - **Technical:** Engineering Lead, AI Systems Engineer
 - **Critical Thinking:** Devil's Advocate
 
-Plus **Customer Personas** representing different user types:
-- Casual User - low engagement, doesn't fully understand the product
-- Pragmatic User - understands the product, treats it as maintenance
-- Urgent User - urgent safety or privacy needs
-- Privacy Advocate - passionate expert user
+Plus **Customer Personas** representing different Cloaked users:
+- Casual User (Jordan) - doesn't understand, low engagement
+- Pragmatic User (Sam) - understands, treats as maintenance
+- Urgent User (Alex) - urgent safety needs
+- Privacy Advocate (Morgan) - passionate expert user
 
 You can also create custom experts on the fly.

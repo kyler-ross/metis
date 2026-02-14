@@ -2,10 +2,10 @@
 name: pm-search
 description: Find Claude Code or Cursor sessions by describing what you're looking for
 allowed-tools: Bash, Read, Grep
-argument-hint: [what you're looking for - e.g. "the chat about roadmap planning" or "yesterday's debugging session"]
+argument-hint: [what you're looking for - e.g. "the chat about PM hiring" or "yesterday's debugging session"]
 ---
 
-Load the chat-search agent and find the session matching: $ARGUMENTS
+Load the chat-search agent from `skills/core/chat-search/SKILL.md` and find the session matching: $ARGUMENTS
 
 **Database:** `~/.pm-ai/chats.db`
 

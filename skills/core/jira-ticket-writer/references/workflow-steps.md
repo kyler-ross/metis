@@ -37,14 +37,14 @@ Step 5: Create (only after "yes")
 ### Process
 
 1. **Identify the feature/area from user's request**
-   - Example: "[Feature A] isn't working right" → [Feature A]
+   - Example: "Call Guard isn't working right" → Call Guard feature
    - Example: "Login flow is broken" → Authentication system
 
 2. **Search knowledge base**
-   - Read: `knowledge/product-features.md`
-   - Read: `knowledge/product-overview.md`
-   - Read: `knowledge/architecture-decisions.md`
-   - Read: `knowledge/team-glossary.md`
+   - Read: `.ai/knowledge/cloaked-features.md`
+   - Read: `.ai/knowledge/cloaked-product-overview.md`
+   - Read: `.ai/knowledge/architecture-decisions.md`
+   - Read: `.ai/knowledge/team-glossary.md`
 
 3. **Use context to understand expected behavior**
    - What's the feature supposed to do?
@@ -52,37 +52,37 @@ Step 5: Create (only after "yes")
    - What are known constraints or dependencies?
 
 4. **Only ask user for details YOU can't find**
-   - Don't ask: "How is [Feature A] supposed to work?" (it's in the docs)
-   - DO ask: "What specific input caused the incorrect behavior?" (specific to this bug)
+   - Don't ask: "How is Call Guard supposed to work?" (it's in the docs)
+   - DO ask: "What type of call was incorrectly flagged?" (specific to this bug)
 
 ### Example: Good Knowledge Check
 
 ```
-User: "The filtering is flagging legitimate items"
+User: "The spam detection is flagging legitimate calls"
 
 You (internally):
-- Check product-features.md for [Feature A] / filtering behavior
-- Find: "[Feature A] uses AI to filter items, should only flag known bad patterns"
-- Find: "Legitimate items and verified sources should never be flagged"
+- Check cloaked-features.md for Call Guard / spam detection behavior
+- Find: "Call Guard uses AI to screen calls, should only block known spam patterns"
+- Find: "Legitimate business calls and known contacts should never be blocked"
 - Now I understand expected behavior without asking user
 
 You (to user):
-"I see this is about [Feature A] filtering. Based on our product docs,
-legitimate items shouldn't be flagged. To file this bug, I need:
-1. What type of item was incorrectly flagged? (verified source, known good, etc.)
-2. How often is this happening? (one time, consistently, specific patterns)
-3. Any specific inputs or patterns involved?"
+"I see this is about Call Guard spam detection. Based on our product docs,
+legitimate calls shouldn't be flagged. To file this bug, I need:
+1. What type of call was incorrectly flagged? (known contact, business, etc.)
+2. How often is this happening? (one time, every call, specific numbers)
+3. Any specific phone numbers or patterns involved?"
 ```
 
 ### Example: Bad Knowledge Check
 
 ```
-User: "The filtering is flagging legitimate items"
+User: "The spam detection is flagging legitimate calls"
 
 You (WITHOUT checking docs):
-"Can you explain how [Feature A] filtering is supposed to work?"
+"Can you explain how Call Guard spam detection is supposed to work?"
 
-❌ WRONG: This info is in product-features.md. You should have checked first.
+❌ WRONG: This info is in cloaked-features.md. You should have checked first.
 ```
 
 ### When Knowledge Base Has Gaps
@@ -242,7 +242,7 @@ You: Perfect! I have everything I need. Let me format this as a bug ticket and s
    - Task: Research, documentation, planning
 
 2. **Load the appropriate template**
-   - Read from: `skills/core/jira-ticket-writer/ticket-templates.md`
+   - Read from: `./ticket-templates.md`
 
 3. **Fill out all required fields**
    - Use information from Step 1 (interrogation)
@@ -282,12 +282,12 @@ What happened: App crashes immediately when user taps "Delete Account" in Settin
 What should have happened: Should show confirmation dialog, then delete account and log out
 
 Repro:
-1. Open [Your Company] app on iOS
+1. Open Cloaked app on iOS
 2. Navigate to Settings > Account
 3. Tap "Delete Account"
 4. App crashes before confirmation dialog appears
 
-Evidence: Sentry error log: https://sentry.io/[your-org]/issues/12345
+Evidence: Sentry error log: https://sentry.io/cloaked/issues/12345
 
 Priority: High (S1 severity, L2 likelihood)
 
@@ -297,7 +297,7 @@ Components: Mobile
 
 Notes:
 - Only affects iOS 16+; iOS 15 works correctly
-- May be related to recent keychain changes in PROJ-XXX
+- May be related to recent keychain changes in ALL-1234
 - Consider: What if user has pending transactions?
 - Constraint: Must comply with GDPR deletion requirements
 ```
@@ -320,8 +320,8 @@ Notes:
 **Required Fields**:
 - [ ] All mandatory template fields are filled (no "TBD" or blank)
 - [ ] Acceptance criteria are testable (can verify done/not done)
-- [ ] Priority follows matrix (see `knowledge/jira-priority-matrix.md`)
-- [ ] Labels and components are valid (see `knowledge/jira-components-labels.md`)
+- [ ] Priority follows matrix (see `.ai/knowledge/jira-priority-matrix.md`)
+- [ ] Labels and components are valid (see `.ai/knowledge/jira-components-labels.md`)
 
 **Content Quality**:
 - [ ] No "how" implementation details (code, functions, architecture)
@@ -396,7 +396,7 @@ Notes:
 │  dialog, then delete account and log out                    │
 │                                                             │
 │  Repro:                                                     │
-│  1. Open [Your Company] app on iOS                                 │
+│  1. Open Cloaked app on iOS                                 │
 │  2. Navigate to Settings > Account                          │
 │  3. Tap "Delete Account"                                    │
 │  4. App crashes before confirmation dialog appears          │
@@ -408,7 +408,7 @@ Notes:
 │                                                             │
 │  Notes:                                                     │
 │  - Only affects iOS 16+                                     │
-│  - May be related to recent keychain changes in PROJ-XXX    │
+│  - May be related to recent keychain changes in ALL-1234    │
 │  - Consider: What if user has pending transactions?         │
 │  - Constraint: Must comply with GDPR deletion requirements  │
 │                                                             │
@@ -468,13 +468,13 @@ You: Creating ticket... [Proceeds to Step 5]
    - User said "yes" or equivalent
 
 2. **Convert to ADF format** (if needed)
-   - See: `skills/core/jira-ticket-writer/api-reference.md`
+   - See: `./api-reference.md`
    - Jira requires ADF (JSON) format, not plain text
 
 3. **Execute CLI command**:
    ```bash
-   node scripts/atlassian-api.js jira create \
-     --project "PROJ" \
+   node .ai/scripts/atlassian-api.js jira create \
+     --project "ALL" \
      --type "Bug" \
      --summary "iOS: App crashes when deleting account" \
      --description "[ADF formatted JSON]" \
@@ -484,13 +484,13 @@ You: Creating ticket... [Proceeds to Step 5]
    ```
 
 4. **Capture result**
-   - Ticket key (e.g., PROJ-XXX)
-   - URL (e.g., https://[your-domain].atlassian.net/browse/PROJ-XXX)
+   - Ticket key (e.g., ALL-1234)
+   - URL (e.g., https://yourcompany.atlassian.net/browse/ALL-1234)
 
 5. **Confirm to user**:
    ```
-   ✅ Created [PROJ-XXX]: iOS: App crashes when deleting account
-   🔗 https://[your-domain].atlassian.net/browse/PROJ-XXX
+   ✅ Created [ALL-1234]: iOS: App crashes when deleting account
+   🔗 https://yourcompany.atlassian.net/browse/ALL-1234
 
    Summary:
    - Type: Bug

@@ -41,7 +41,7 @@ Testing:
 
 **Key principle**: Avoid technical explanation that sounds like you're hiding something. Users need reassurance, not mechanisms.
 
-See `knowledge/product-copy-guidelines.md` for detailed standards and examples.
+See `.ai/knowledge/product-copy-guidelines.md` for detailed standards and examples.
 
 ## Copy Review Process
 
@@ -61,7 +61,7 @@ When reviewing copy:
 
 3. **Check tone**
    - Is it reassuring without being patronizing?
-   - Does it match [Your Company]'s voice (direct, honest, empowering)?
+   - Does it match Cloaked's voice (direct, honest, empowering)?
    - Any unnecessary fear-mongering or over-explanation?
 
 4. **Check accuracy**
@@ -91,9 +91,9 @@ When reviewing copy:
 **Why**: "Biometric" is technical. Users know "Face ID" and "fingerprint."
 
 ### Explaining HOW Instead of WHAT
-**Bad**: "[Your Company] uses a distributed task graph with priority-weighted scheduling to optimize your workflow execution."
+**Bad**: "Cloaked generates a unique alias using cryptographic randomization that masks your real identity."
 
-**Good**: "[Your Company] automatically organizes your tasks so the important stuff gets done first."
+**Good**: "Cloaked creates a new identity for this signup. Your real info stays hidden."
 
 **Why**: Users care about WHAT it does, not HOW it works.
 
@@ -159,6 +159,6 @@ If copy involves:
 ## Additional Resources
 
 For more detailed guidelines and examples:
-- `knowledge/product-copy-guidelines.md` - Complete style guide
-- `knowledge/product-overview.md` - Product context
-- [Your Company] brand voice doc (if available)
+- `.ai/knowledge/product-copy-guidelines.md` - Complete style guide
+- `.ai/knowledge/cloaked-product-overview.md` - Product context
+- Cloaked brand voice doc (if available)

@@ -65,10 +65,10 @@
     "google-sheets-api.md"
   ],
   "meta": {
-    "author": "alice",
+    "author": "lucas",
     "version": "1.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/feed-manager.md",
     "migration_date": "2026-02-03"
   }
 }

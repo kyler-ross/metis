@@ -1,10 +1,6 @@
-// PM AI Starter Kit - experiment-validator.cjs
 #!/usr/bin/env node
 /**
  * experiment-validator.cjs - Validate and post-process experiment JSON files
- *
- * Validates experiment knowledge base files against a standard schema.
- * Can auto-fix common issues and restructure files after analysis pipeline output.
  *
  * Modes:
  *   --all              Validate all experiment files
@@ -13,17 +9,17 @@
  *   --post-process <f> Validate + restructure after analysis pipeline output
  *
  * Usage:
- *   node scripts/experiment-validator.cjs --all
- *   node scripts/experiment-validator.cjs --validate knowledge/experiments/checkout/counter-display.json
- *   node scripts/experiment-validator.cjs --fix
- *   node scripts/experiment-validator.cjs --post-process knowledge/experiments/checkout/new-experiment.json
+ *   node .ai/scripts/experiment-validator.cjs --all
+ *   node .ai/scripts/experiment-validator.cjs --validate .ai/knowledge/experiments/checkout/counter-display.json
+ *   node .ai/scripts/experiment-validator.cjs --fix
+ *   node .ai/scripts/experiment-validator.cjs --post-process .ai/knowledge/experiments/checkout/new-experiment.json
  */
 
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const { track, trackComplete, trackError, flush } = require('./lib/telemetry.cjs');
+const { run } = require('./lib/script-runner.cjs');
 
 const EXPERIMENTS_DIR = path.join(__dirname, '..', 'knowledge', 'experiments');
 
@@ -68,17 +64,10 @@ const CONCLUDED_STATUSES = [
   'concluded_won', 'concluded_lost', 'concluded_inconclusive', 'stopped_early'
 ];
 
-// --- Helpers ---
+// ─── Helpers ──────────────────────────────────────────────
 
 function findExperimentFiles() {
   const files = [];
-
-  if (!fs.existsSync(EXPERIMENTS_DIR)) {
-    console.log(`Experiments directory not found: ${EXPERIMENTS_DIR}`);
-    console.log('Create knowledge/experiments/ with experiment JSON files to use this tool.');
-    return files;
-  }
-
   const categories = fs.readdirSync(EXPERIMENTS_DIR).filter(d => {
     const fp = path.join(EXPERIMENTS_DIR, d);
     return fs.statSync(fp).isDirectory() && !d.startsWith('_');
@@ -106,7 +95,7 @@ function relPath(filePath) {
   return path.relative(process.cwd(), filePath);
 }
 
-// --- Validation ---
+// ─── Validation ───────────────────────────────────────────
 
 function validateFile(filePath, data) {
   const issues = [];
@@ -116,6 +105,7 @@ function validateFile(filePath, data) {
   // Required fields
   if (!data.experiment_id) issues.push(`${rel}: missing required field 'experiment_id'`);
   if (!data.canonical_name) issues.push(`${rel}: missing required field 'canonical_name'`);
+  // category can be top-level or in taxonomy.category
   if (!data.category && !data.taxonomy?.category) {
     issues.push(`${rel}: missing required field 'category' (not found at top-level or taxonomy.category)`);
   }
@@ -141,6 +131,7 @@ function validateFile(filePath, data) {
     const hasAlternateBaseline = data.results?.conversion_rates?.control !== undefined ||
                         data.results?.control_conversion_rate !== undefined ||
                         data.results?.variant_results?.control?.conversion_rate !== undefined;
+    // Allow null baseline if explicitly flagged as unavailable
     const baselineUnavailableFlags = ['baseline_unavailable_inconclusive', 'baseline_estimated', 'baseline_not_documented'];
     const hasBaselineUnavailableFlag = data.results?.data_quality_flags?.some(f =>
       baselineUnavailableFlags.some(flag => f.includes(flag) || f.includes('unavailable'))
@@ -164,7 +155,7 @@ function validateFile(filePath, data) {
 
   // PR links validation
   if (isConcluded && !data.identification?.pr_urls?.length && !data.identification?.commit_shas?.length) {
-    warnings.push(`${rel}: concluded experiment missing PR/commit links`);
+    warnings.push(`${rel}: concluded experiment missing PR/commit links - run experiment-normalize-baseline.cjs (without --skip-prs)`);
   }
 
   // Monolithic deep_analysis detection
@@ -180,6 +171,7 @@ function validateFile(filePath, data) {
       issues.push(`${rel}: MONOLITHIC - deep_analysis contains non-standard keys needing extraction: [${mappedSiblings.join(', ')}]`);
     }
 
+    // Check for oversized deep_analysis (>5KB suggests nested content)
     const daSize = JSON.stringify(data.deep_analysis).length;
     if (daSize > 5000 && nestedSiblings.length === 0 && mappedSiblings.length === 0) {
       warnings.push(`${rel}: deep_analysis is ${(daSize / 1024).toFixed(1)}KB - may contain non-standard nested content`);
@@ -243,10 +235,40 @@ function validateFile(filePath, data) {
     }
   }
 
+  // Check for high-confidence source conflicts
+  if (data.lineage?.conflicts) {
+    const highConfidenceConflicts = data.lineage.conflicts.filter(c =>
+      c.sources?.some(s => s.confidence === 'high') &&
+      c.sources?.filter(s => s.confidence === 'high').length >= 2
+    );
+    if (highConfidenceConflicts.length > 0) {
+      warnings.push(`${rel}: ${highConfidenceConflicts.length} conflict(s) between high-confidence sources - requires manual review`);
+    }
+  }
+
+  // If sources disagree, should have conflicts array
+  if (data.sources && data.sources.length >= 2) {
+    const hasConflicts = data.lineage?.conflicts && data.lineage.conflicts.length > 0;
+    const hasUncertaintyFlags = data.lineage?.uncertainty_flags && data.lineage.uncertainty_flags.length > 0;
+    // Only warn if we have results that could conflict
+    if (data.results && !hasConflicts && !hasUncertaintyFlags) {
+      // Check if results fields have conflicting source lineage
+      const resultFields = ['conclusion', 'baseline_value', 'lift_percentage', 'winning_variant'];
+      const hasMultipleResultSources = data.sources.some(s =>
+        s.fields_from_source?.some(f => resultFields.includes(f))
+      );
+      if (hasMultipleResultSources && data.sources.filter(s =>
+        s.fields_from_source?.some(f => resultFields.includes(f))
+      ).length >= 2) {
+        warnings.push(`${rel}: multiple sources provided result fields but no conflicts or uncertainty_flags documented`);
+      }
+    }
+  }
+
   return { issues, warnings };
 }
 
-// --- Fix Mode ---
+// ─── Fix Mode ─────────────────────────────────────────────
 
 function fixFile(filePath, data) {
   const fixes = [];
@@ -289,7 +311,7 @@ function fixFile(filePath, data) {
   return fixes;
 }
 
-// --- Post-Process Mode ---
+// ─── Post-Process Mode ────────────────────────────────────
 
 function postProcessFile(filePath, data) {
   const actions = [];
@@ -316,9 +338,10 @@ function postProcessFile(filePath, data) {
         const targetKey = KEY_MAPPINGS[key];
         if (!data[targetKey]) {
           data[targetKey] = data.deep_analysis[key];
-          actions.push(`Extracted '${key}' from deep_analysis -> top-level '${targetKey}'`);
+          actions.push(`Extracted '${key}' from deep_analysis → top-level '${targetKey}'`);
         } else {
-          actions.push(`SKIPPED mapping '${key}' -> '${targetKey}' - target already exists at top level`);
+          // Merge into existing if target exists
+          actions.push(`SKIPPED mapping '${key}' → '${targetKey}' - target already exists at top level`);
         }
         delete data.deep_analysis[key];
         modified = true;
@@ -328,6 +351,7 @@ function postProcessFile(filePath, data) {
     // Move non-metadata, non-sibling extra content to deep_analysis.extra
     const remainingKeys = Object.keys(data.deep_analysis).filter(k => !DA_METADATA_KEYS.includes(k));
     if (remainingKeys.length > 0) {
+      // Keep extra content inside deep_analysis but documented
       actions.push(`Keeping ${remainingKeys.length} extra keys in deep_analysis: [${remainingKeys.join(', ')}]`);
     }
   }
@@ -368,17 +392,18 @@ function postProcessFile(filePath, data) {
   return actions;
 }
 
-// --- CLI ---
+// ─── CLI ──────────────────────────────────────────────────
 
-async function main() {
+run({
+  name: 'experiment-validator',
+  mode: 'operational',
+  services: [],
+}, async (ctx) => {
   const args = process.argv.slice(2);
-  const startTime = Date.now();
   const mode = args.includes('--all') ? 'all' :
                args.includes('--validate') ? 'validate' :
                args.includes('--fix') ? 'fix' :
                args.includes('--post-process') ? 'post-process' : 'help';
-
-  track('pm_ai_experiment_validator_start', { mode });
 
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
     console.log(`
@@ -391,14 +416,15 @@ Usage:
   --post-process <file>   Restructure + validate after analysis pipeline
 
 Examples:
-  node scripts/experiment-validator.cjs --all
-  node scripts/experiment-validator.cjs --fix
-  node scripts/experiment-validator.cjs --post-process knowledge/experiments/checkout/new.json
+  node .ai/scripts/experiment-validator.cjs --all
+  node .ai/scripts/experiment-validator.cjs --fix
+  node .ai/scripts/experiment-validator.cjs --post-process .ai/knowledge/experiments/checkout/new.json
 `);
-    process.exit(0);
+    return;
   }
 
   if (args.includes('--all') || args.includes('--validate') && !args[args.indexOf('--validate') + 1]) {
+    // Validate all files
     const files = findExperimentFiles();
     let totalIssues = 0;
     let totalWarnings = 0;
@@ -427,45 +453,26 @@ Examples:
     console.log(`Errors:   ${totalIssues}`);
     console.log(`Warnings: ${totalWarnings}`);
 
-    trackComplete('pm_ai_experiment_validator_complete', startTime, {
-      mode: 'all',
-      files_scanned: files.length,
-      errors: totalIssues,
-      warnings: totalWarnings,
-      success: totalIssues === 0
-    });
-    await flush();
-
-    process.exit(totalIssues > 0 ? 1 : 0);
+    if (totalIssues > 0) {
+      throw new Error(`Validation found ${totalIssues} error(s)`);
+    }
+    return;
   }
 
   if (args.includes('--validate')) {
     const fileArg = args[args.indexOf('--validate') + 1];
-    if (!fileArg) { console.error('Missing file argument'); process.exit(1); }
+    if (!fileArg) { throw new Error('Missing file argument for --validate'); }
     const filePath = path.resolve(fileArg);
-    try {
-      const data = readExperiment(filePath);
-      const { issues, warnings } = validateFile(filePath, data);
-      for (const i of issues) console.log(`  ERROR: ${i}`);
-      for (const w of warnings) console.log(`  WARN:  ${w}`);
-      console.log(`\nErrors: ${issues.length}, Warnings: ${warnings.length}`);
+    const data = readExperiment(filePath);
+    const { issues, warnings } = validateFile(filePath, data);
+    for (const i of issues) console.log(`  ERROR: ${i}`);
+    for (const w of warnings) console.log(`  WARN:  ${w}`);
+    console.log(`\nErrors: ${issues.length}, Warnings: ${warnings.length}`);
 
-      trackComplete('pm_ai_experiment_validator_complete', startTime, {
-        mode: 'validate',
-        file: relPath(filePath),
-        errors: issues.length,
-        warnings: warnings.length,
-        success: issues.length === 0
-      });
-      await flush();
-
-      process.exit(issues.length > 0 ? 1 : 0);
-    } catch (e) {
-      trackError('pm_ai_experiment_validator_error', e, { mode: 'validate', file: fileArg });
-      await flush();
-      console.error(`Failed: ${e.message}`);
-      process.exit(1);
+    if (issues.length > 0) {
+      throw new Error(`Validation found ${issues.length} error(s)`);
     }
+    return;
   }
 
   if (args.includes('--fix')) {
@@ -491,70 +498,34 @@ Examples:
     console.log(`\n--- Summary ---`);
     console.log(`Files processed: ${files.length}`);
     console.log(`Total fixes:     ${totalFixes}`);
-
-    trackComplete('pm_ai_experiment_validator_complete', startTime, {
-      mode: 'fix',
-      files_processed: files.length,
-      total_fixes: totalFixes,
-      success: true
-    });
-    await flush();
+    return;
   }
 
   if (args.includes('--post-process')) {
     const fileArg = args[args.indexOf('--post-process') + 1];
-    if (!fileArg) { console.error('Missing file argument'); process.exit(1); }
+    if (!fileArg) { throw new Error('Missing file argument for --post-process'); }
     const filePath = path.resolve(fileArg);
-    try {
-      const data = readExperiment(filePath);
-      const actions = postProcessFile(filePath, data);
+    const data = readExperiment(filePath);
+    const actions = postProcessFile(filePath, data);
 
-      console.log(`\nPost-processing: ${relPath(filePath)}\n`);
-      if (actions.length === 0) {
-        console.log('  No changes needed - file is well-structured.');
-      } else {
-        for (const a of actions) console.log(`  - ${a}`);
-        console.log(`\n${actions.length} actions applied.`);
-      }
-
-      // Re-validate after post-processing
-      const reData = readExperiment(filePath);
-      const { issues, warnings } = validateFile(filePath, reData);
-      if (issues.length > 0) {
-        console.log('\nRemaining issues after post-processing:');
-        for (const i of issues) console.log(`  ERROR: ${i}`);
-
-        trackComplete('pm_ai_experiment_validator_complete', startTime, {
-          mode: 'post-process',
-          file: relPath(filePath),
-          actions_applied: actions.length,
-          remaining_issues: issues.length,
-          success: false
-        });
-        await flush();
-
-        process.exit(1);
-      } else {
-        console.log('\nValidation passed after post-processing.');
-
-        trackComplete('pm_ai_experiment_validator_complete', startTime, {
-          mode: 'post-process',
-          file: relPath(filePath),
-          actions_applied: actions.length,
-          success: true
-        });
-        await flush();
-      }
-    } catch (e) {
-      trackError('pm_ai_experiment_validator_error', e, { mode: 'post-process', file: fileArg });
-      await flush();
-      console.error(`Failed: ${e.message}`);
-      process.exit(1);
+    console.log(`\nPost-processing: ${relPath(filePath)}\n`);
+    if (actions.length === 0) {
+      console.log('  No changes needed - file is well-structured.');
+    } else {
+      for (const a of actions) console.log(`  - ${a}`);
+      console.log(`\n${actions.length} actions applied.`);
     }
-  }
-}
 
-main().catch(err => {
-  console.error('Fatal error:', err);
-  process.exit(1);
+    // Re-validate after post-processing
+    const reData = readExperiment(filePath);
+    const { issues, warnings } = validateFile(filePath, reData);
+    if (issues.length > 0) {
+      console.log('\nRemaining issues after post-processing:');
+      for (const i of issues) console.log(`  ERROR: ${i}`);
+      throw new Error(`Post-processing left ${issues.length} remaining issue(s)`);
+    } else {
+      console.log('\nValidation passed after post-processing.');
+    }
+    return;
+  }
 });

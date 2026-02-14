@@ -20,7 +20,7 @@ Standardized formats for documenting daily work, maintaining rolling context, an
 
 ## Daily Log Template
 
-**File**: `context/daily-logs/YYYY-MM-DD-[pm_owner].md`
+**File**: `.ai/context/daily-logs/YYYY-MM-DD-[pm_owner].md`
 
 **Behavior**: Append to existing file (don't overwrite) or create new if first entry
 
@@ -31,29 +31,29 @@ Standardized formats for documenting daily work, maintaining rolling context, an
 
 ## What I Did Today
 - [Action 1] - [Brief context, link to ticket/doc if relevant]
-  - Example: "Created PROJ-XXX for [Feature Redesign] notification card"
-  - Example: "Updated [Feature Name] CTA experiment to increase rollout to 50%"
+  - Example: "Created ALL-1234 for Feed Redesign notification card"
+  - Example: "Updated Health Meter CTA experiment to increase rollout to 50%"
 - [Action 2] - [Brief context]
 - [Action 3] - [Brief context]
 
 ## Decisions Made
 - **[Decision Title]**: [What was decided] - [Rationale/data] - Owner: [person]
-  - Example: "**Feed Urgent Tasks CTA**: Prioritize urgent tasks over scan again based on 2x conversion lift in experiment - Owner: Alice"
+  - Example: "**Feed Urgent Tasks CTA**: Prioritize urgent tasks over scan again based on 2x conversion lift in experiment - Owner: Lucas"
 - **[Decision Title]**: [What was decided] - [Rationale] - Owner: [person]
 
 ## Jira Activity
 
 ### Created
-- [PROJ-XXX](https://[your-domain].atlassian.net/browse/PROJ-XXX) - [Ticket Title]
-- [PROJ-XXX](https://[your-domain].atlassian.net/browse/PROJ-XXX) - [Ticket Title]
+- [ALL-123](https://yourcompany.atlassian.net/browse/ALL-123) - [Ticket Title]
+- [ALL-456](https://yourcompany.atlassian.net/browse/ALL-456) - [Ticket Title]
 
 ### Updated
-- [PROJ-XXX](https://[your-domain].atlassian.net/browse/PROJ-XXX) - [What changed]
+- [ALL-789](https://yourcompany.atlassian.net/browse/ALL-789) - [What changed]
   - Example: "Updated acceptance criteria to include offline support"
 
 ### Blocked
-- [PROJ-XXX](https://[your-domain].atlassian.net/browse/PROJ-XXX) - [Blocker description]
-  - Example: "Blocked pending design review from Carol"
+- [ALL-101](https://yourcompany.atlassian.net/browse/ALL-101) - [Blocker description]
+  - Example: "Blocked pending design review from Sarah"
 
 ## Confluence Activity
 - Updated: [Page Title](URL) - [What changed]
@@ -62,12 +62,12 @@ Standardized formats for documenting daily work, maintaining rolling context, an
 
 ## Follow-ups Created
 - [ ] [Follow-up task] - Owner: [person] - Deadline: [when]
-  - Example: "[ ] Schedule technical assessment for [Feature Tab] with Dave - Owner: Alice - By Friday"
+  - Example: "[ ] Schedule technical assessment for Wallet tab with Nate - Owner: Lucas - By Friday"
 - [ ] [Follow-up task] - Owner: [person] - Deadline: [when]
 
 ## Open Questions
 - [Question] - Raised by: [person], Context: [why it matters], Likely owner: [who should answer]
-  - Example: "Should we support offline mode for [Feature Tab]? - Raised by: Bob, Context: Impacts architecture complexity, Likely owner: Engineering + Alice"
+  - Example: "Should we support offline mode for Wallet tab? - Raised by: Vincent, Context: Impacts architecture complexity, Likely owner: Engineering + Lucas"
 
 ## Notes & Learnings
 - [Strategic context, team dynamics, important realizations, metrics insights]
@@ -90,7 +90,7 @@ _Based on: [X decisions, Y Jira tickets, Z Confluence pages, conversation with C
 
 ## Rolling Context Template
 
-**File**: `context/rolling/[team_key]-context.md`
+**File**: `.ai/context/rolling/[team_key]-context.md`
 
 **Behavior**: Update specific sections (replace or append as needed)
 
@@ -111,8 +111,8 @@ _Based on: [X decisions, Y Jira tickets, Z Confluence pages, conversation with C
 Example:
 > Sprint 47 (Dec 18 - Jan 8):
 > - Launch Feed Urgent Tasks CTA experiment
-> - Complete [Feature Tab] Basic mode integration
-> - [Feature Name] V2 design finalization
+> - Complete Wallet tab Basic mode integration
+> - Health Meter V2 design finalization
 
 ---
 
@@ -122,14 +122,14 @@ Example:
 - **[Initiative/Feature]** - Status: [In Development / In Review / Testing] - Owner: [person] - Timeline: [target date]
   - Context: [Why we're doing this, user impact, business goal]
   - Progress: [What's done, what's left]
-  - Tickets: [PROJ-XXX, PROJ-XXX]
+  - Tickets: [ALL-123, ALL-456]
   - Blockers: [If any]
 
 Example:
-> - **Feed Urgent Tasks Integration** - Status: In Development - Owner: Alice - Timeline: Jan 15
+> - **Feed Urgent Tasks Integration** - Status: In Development - Owner: Lucas - Timeline: Jan 15
 >   - Context: Health meter experiment shows 2x lift for urgent tasks CTA vs scan again
 >   - Progress: Designs complete, backend API in progress
->   - Tickets: [PROJ-XXX, PROJ-XXX]
+>   - Tickets: [ALL-1234, ALL-1235]
 >   - Blockers: None
 
 ### Recently Completed
@@ -137,8 +137,8 @@ Example:
 - **[Feature]** - Shipped: [date] - Impact: [metric or outcome]
 
 Example:
-> - **[Feature Name] V1** - Shipped: Dec 10 - Impact: 15% of users engaged in first week
-> - **[Feature Tab] (Advanced mode)** - Shipped: Nov 28 - Impact: Pending analytics
+> - **Health Meter V1** - Shipped: Dec 10 - Impact: 15% of users engaged in first week
+> - **Wallet Tab (Advanced mode)** - Shipped: Nov 28 - Impact: Pending analytics
 
 ---
 
@@ -147,8 +147,8 @@ Example:
 - **[YYYY-MM-DD]**: [Decision] - [Rationale] - Impact: [What changes] - Owner: [person]
 
 Example:
-> - **2025-12-15**: Prioritize urgent tasks CTA over scan again - Experiment data shows 2x conversion lift - Impact: Changes Feed redesign scope - Owner: Alice
-> - **2025-12-12**: Delay Wallet offline mode - Technical complexity too high for Q1 timeline - Impact: Removes from roadmap - Owner: Alice + Bob
+> - **2025-12-15**: Prioritize urgent tasks CTA over scan again - Experiment data shows 2x conversion lift - Impact: Changes Feed redesign scope - Owner: Lucas
+> - **2025-12-12**: Delay Wallet offline mode - Technical complexity too high for Q1 timeline - Impact: Removes from roadmap - Owner: Lucas + Vincent
 
 ---
 
@@ -160,9 +160,9 @@ Example:
   - Follow-up: [Ticket/thread if created]
 
 Example:
-> - **Should [Feature Tab] support offline mode?** - Asked by: Bob, Date: 2025-12-18
+> - **Should Wallet tab support offline mode?** - Asked by: Vincent, Date: 2025-12-18
 >   - Context: Impacts architecture complexity and Q1 timeline
->   - Potential owners: Engineering team + Alice
+>   - Potential owners: Engineering team + Lucas
 >   - Follow-up: Scheduled technical assessment for Dec 22
 
 ---
@@ -173,7 +173,7 @@ Example:
   - Context: [What this means, why it matters, target if any]
 
 Example:
-> - **[Feature Name] Engagement**: 15% of users (⬆️ from 12% last week) - Last updated: 2025-12-18
+> - **Health Meter Engagement**: 15% of users (⬆️ from 12% last week) - Last updated: 2025-12-18
 >   - Context: Target is 20% by end of Q1; on track
 > - **Feed Task Completion**: 8% (➡️ flat) - Last updated: 2025-12-18
 >   - Context: Baseline before urgent tasks experiment launches
@@ -188,7 +188,7 @@ Example:
 
 Example:
 > - **Urgent tasks CTA outperforms scan again by 2x** - Date: 2025-12-15
->   - From: [Feature Name] A/B experiment (n=500 users)
+>   - From: Health Meter A/B experiment (n=500 users)
 >   - Implication: Prioritize task-focused CTAs over generic actions in Feed redesign
 
 ---
@@ -201,9 +201,9 @@ Example:
   - Status: [Active / Resolving / Escalated]
 
 Example:
-> - **Design bandwidth for Feed V2** - Owner: Carol - Since: 2025-12-10
+> - **Design bandwidth for Feed V2** - Owner: Sarah - Since: 2025-12-10
 >   - Impact: Feed redesign timeline at risk; need mockups by Jan 5
->   - Plan: Escalated to Carol, reprioritizing Carol's roadmap
+>   - Plan: Escalated to Sam, reprioritizing Sarah's roadmap
 >   - Status: Resolving
 
 ---
@@ -213,7 +213,7 @@ Example:
 [Moved here automatically to keep main sections focused]
 
 Example:
-> - **2025-11-30**: Chose React Native over native iOS for [Feature Tab] - Faster development, shared codebase - Owner: Bob
+> - **2025-11-30**: Chose React Native over native iOS for Wallet tab - Faster development, shared codebase - Owner: Vincent
 
 ---
 
@@ -273,7 +273,7 @@ _Auto-updated by /pm-document. Last manual edit: [if applicable]_
 - Scheduled [Z] follow-ups: [list meeting/tasks]
 
 **Documentation Updated**:
-- ✅ Daily log: `context/daily-logs/[date]-[pm_owner].md`
+- ✅ Daily log: `.ai/context/daily-logs/[date]-[pm_owner].md`
 - ✅ Rolling context: [list teams updated]
 
 ---
@@ -322,7 +322,7 @@ I've analyzed today's conversation and activity. Here's what I'll document:
 ---
 
 ### Daily Log Updates
-**File:** `context/daily-logs/[date]-[pm_owner].md`
+**File:** `.ai/context/daily-logs/[date]-[pm_owner].md`
 
 **Content to add/update:**
 ```
@@ -335,20 +335,20 @@ I've analyzed today's conversation and activity. Here's what I'll document:
 
 ## Jira Activity
 ### Created
-- [PROJ-XXX](URL) - [Title]
+- [ALL-123](URL) - [Title]
 ```
 
 ---
 
 ### Rolling Context Changes
 
-**[Team Name]** (`context/rolling/[team]-context.md`):
+**[Team Name]** (`.ai/context/rolling/[team]-context.md`):
 ```diff
 ## Active Work
 + ### [New Feature/Initiative]
 +   - Status: [status]
 +   - Context: [why we're doing this]
-+   - Tickets: [PROJ-XXX]
++   - Tickets: [ALL-123]
 
 ## Recent Decisions (Last 2 Weeks)
 + - **[YYYY-MM-DD]**: [Decision text]
@@ -381,15 +381,15 @@ Say "no" or "wait" if you want to make changes.
 ### Daily Log Standards
 
 - **Actions**: Past tense, specific, with links
-  - Good: "Created PROJ-XXX for [Feature Redesign] notification card"
+  - Good: "Created ALL-1234 for Feed Redesign notification card"
   - Bad: "Worked on Feed stuff"
 
 - **Decisions**: Bold title, clear rationale, owner
-  - Good: "**Feed CTA**: Prioritize urgent tasks based on 2x experiment lift - Owner: Alice"
+  - Good: "**Feed CTA**: Prioritize urgent tasks based on 2x experiment lift - Owner: Lucas"
   - Bad: "Decided to do urgent tasks"
 
 - **Jira links**: Always use full URLs with markdown
-  - Format: `[PROJ-XXX](https://[your-domain].atlassian.net/browse/PROJ-XXX)`
+  - Format: `[ALL-123](https://yourcompany.atlassian.net/browse/ALL-123)`
 
 - **Follow-ups**: Use checkboxes for easy tracking
   - Format: `- [ ] [Task] - Owner: [person] - Deadline: [when]`
@@ -398,7 +398,7 @@ Say "no" or "wait" if you want to make changes.
 
 - **Dates**: YYYY-MM-DD format consistently
 - **Trends**: Use emoji indicators (⬆️ up, ⬇️ down, ➡️ flat)
-- **Tickets**: Link inline: `[PROJ-XXX]` when referencing
+- **Tickets**: Link inline: `[ALL-123]` when referencing
 - **Status**: Clear indicators (In Progress, Blocked, Completed, etc.)
 - **Pruning**: Auto-archive old content, don't delete (keep history)
 

@@ -1,4 +1,3 @@
-// PM AI Starter Kit - granola-fetch.cjs
 #!/usr/bin/env node
 /**
  * granola-fetch.cjs - Direct Granola API client for CI/headless environments.
@@ -6,8 +5,6 @@
  * Reads auth from ~/Library/Application Support/Granola/supabase.json
  * (same path as granola-mcp-plus) and calls the Granola API directly.
  * This bypasses MCP, which has reliability issues in GitHub Actions.
- *
- * Required: Granola auth token (run granola-auth.cjs login first)
  *
  * Usage:
  *   node granola-fetch.cjs list [--limit N]           List recent documents
@@ -20,6 +17,8 @@
 const { readFileSync } = require('fs');
 const { join } = require('path');
 const { homedir } = require('os');
+
+const { run } = require('./lib/script-runner.cjs');
 
 const GRANOLA_DIR = join(homedir(), 'Library', 'Application Support', 'Granola');
 const API_BASE = 'https://api.granola.ai';
@@ -87,74 +86,56 @@ async function searchDocuments(query, limit = 10) {
   }).slice(0, limit);
 }
 
-async function main() {
-  const [,, command, ...args] = process.argv;
+run({
+  name: 'granola-fetch',
+  mode: 'operational',
+  services: ['granola'],
+}, async (ctx) => {
+  const command = ctx.args.positional[0];
+  const restArgs = ctx.args.positional.slice(1);
 
   if (!command || command === '--help') {
-    console.error(`Usage: node granola-fetch.cjs <list|transcript|document|search> [args]
-
-Commands:
-  list [--limit N]           List recent Granola documents
-  transcript <document_id>    Get full transcript for a meeting
-  document <document_id>      Get document details
-  search <query>              Search documents by title/content
-
-Examples:
-  node scripts/granola-fetch.cjs list --limit 10
-  node scripts/granola-fetch.cjs transcript abc-123-def
-  node scripts/granola-fetch.cjs search "product review"
-
-Prerequisites:
-  Run 'node scripts/granola-auth.cjs login' first to authenticate.
-`);
-    process.exit(1);
+    console.error('Usage: node granola-fetch.cjs <list|transcript|document|search> [args]');
+    throw new Error('No command specified');
   }
 
-  try {
-    switch (command) {
-      case 'list': {
-        const limitIdx = args.indexOf('--limit');
-        const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1]) || 20 : 20;
-        const docs = await listDocuments(limit);
-        console.log(JSON.stringify(docs.map(d => ({
-          id: d.id,
-          title: d.title,
-          created_at: d.created_at,
-          updated_at: d.updated_at,
-          markdown: d.markdown ? d.markdown.substring(0, 500) : null,
-        })), null, 2));
-        break;
-      }
-      case 'transcript': {
-        if (!args[0]) { console.error('Error: document_id required'); process.exit(1); }
-        const transcript = await getTranscript(args[0]);
-        console.log(JSON.stringify(transcript, null, 2));
-        break;
-      }
-      case 'document': {
-        if (!args[0]) { console.error('Error: document_id required'); process.exit(1); }
-        const doc = await getDocument(args[0]);
-        console.log(JSON.stringify(doc, null, 2));
-        break;
-      }
-      case 'search': {
-        if (!args[0]) { console.error('Error: query required'); process.exit(1); }
-        const results = await searchDocuments(args.join(' '));
-        console.log(JSON.stringify(results.map(d => ({
-          id: d.id,
-          title: d.title,
-          created_at: d.created_at,
-        })), null, 2));
-        break;
-      }
-      default:
-        console.error(`Unknown command: ${command}`);
-        process.exit(1);
+  switch (command) {
+    case 'list': {
+      const limitFlag = ctx.args.flags.limit;
+      const limit = limitFlag ? parseInt(limitFlag) || 20 : 20;
+      const docs = await listDocuments(limit);
+      console.log(JSON.stringify(docs.map(d => ({
+        id: d.id,
+        title: d.title,
+        created_at: d.created_at,
+        updated_at: d.updated_at,
+        markdown: d.markdown ? d.markdown.substring(0, 500) : null,
+      })), null, 2));
+      break;
     }
-  } catch (err) {
-    console.error(`Error: ${err.message}`);
-    process.exit(1);
+    case 'transcript': {
+      if (!restArgs[0]) { throw new Error('Error: document_id required'); }
+      const transcript = await getTranscript(restArgs[0]);
+      console.log(JSON.stringify(transcript, null, 2));
+      break;
+    }
+    case 'document': {
+      if (!restArgs[0]) { throw new Error('Error: document_id required'); }
+      const doc = await getDocument(restArgs[0]);
+      console.log(JSON.stringify(doc, null, 2));
+      break;
+    }
+    case 'search': {
+      if (!restArgs[0]) { throw new Error('Error: query required'); }
+      const results = await searchDocuments(restArgs.join(' '));
+      console.log(JSON.stringify(results.map(d => ({
+        id: d.id,
+        title: d.title,
+        created_at: d.created_at,
+      })), null, 2));
+      break;
+    }
+    default:
+      throw new Error(`Unknown command: ${command}`);
   }
-}
-
-main();
+});

@@ -1,4 +1,3 @@
-// PM AI Starter Kit - context-loader.cjs
 #!/usr/bin/env node
 /**
  * Context Loader Script
@@ -10,10 +9,10 @@
  *   - lazy: Files available but not auto-loaded (agent must request)
  *
  * Usage:
- *   node scripts/context-loader.cjs <agent-name> "<task-text>"
- *   node scripts/context-loader.cjs product-coach "help me design a feature"
- *   node scripts/context-loader.cjs --list     # List all agents with context_loading
- *   node scripts/context-loader.cjs --stats    # Show context loading statistics
+ *   node .ai/scripts/context-loader.cjs <agent-name> "<task-text>"
+ *   node .ai/scripts/context-loader.cjs product-coach "help me design a feature"
+ *   node .ai/scripts/context-loader.cjs --list     # List all agents with context_loading
+ *   node .ai/scripts/context-loader.cjs --stats    # Show context loading statistics
  *
  * Output:
  *   Prints loaded context to stdout (for piping into agent prompts)
@@ -22,20 +21,21 @@
 
 const fs = require('fs');
 const path = require('path');
+const { run } = require('./lib/script-runner.cjs');
 
-const ROOT = path.resolve(__dirname, '..');
-const MANIFEST_PATH = path.join(ROOT, 'config/agent-manifest.json');
-const KNOWLEDGE_PATH = path.join(ROOT, 'knowledge');
+const ROOT = path.resolve(__dirname, '../..');
+const MANIFEST_PATH = path.join(ROOT, '.ai/config/agent-manifest.json');
+const KNOWLEDGE_PATH = path.join(ROOT, '.ai/knowledge');
 
 // Allowed base directories for file access (security: prevent path traversal)
 const ALLOWED_BASES = [
   ROOT,
   KNOWLEDGE_PATH,
-  path.join(ROOT, 'config'),
+  path.join(ROOT, '.ai'),
   path.join(ROOT, '.claude'),
 ];
 
-// Token estimation (4 chars ~ 1 token)
+// Token estimation (4 chars ≈ 1 token)
 function estimateTokens(text) {
   return Math.ceil((text || '').length / 4);
 }
@@ -80,7 +80,7 @@ function readFile(filePath) {
 
     // Security: Validate path is within allowed directories
     if (!isPathAllowed(resolved)) {
-      // Sanitize paths in error messages to prevent information disclosure
+      // L1: Sanitize paths in error messages to prevent information disclosure
       const sanitizedPath = path.basename(filePath);
       log(`Access denied (path traversal blocked): ${sanitizedPath}`);
       return null;
@@ -107,7 +107,7 @@ function readFile(filePath) {
       return fs.readFileSync(resolved, 'utf8');
     }
   } catch (err) {
-    // Log file read failures for debugging (sanitize path for security)
+    // Q3: Log file read failures for debugging (sanitize path for security)
     const sanitizedPath = path.basename(filePath);
     log(`Failed to read file ${sanitizedPath}: ${err.code || 'unknown error'}`);
     return null;
@@ -139,7 +139,7 @@ function loadContext(agentName, taskText) {
 
   if (!agent) {
     log(`Agent not found: ${agentName}`);
-    process.exit(1);
+    throw new Error(`Agent not found: ${agentName}`);
   }
 
   const contextConfig = agent.context_loading;
@@ -167,7 +167,7 @@ function loadContext(agentName, taskText) {
   }
 
   // Progressive loading with bounded token budget
-  // Validate token_budget is a number before using
+  // H2: Validate token_budget is a number before using
   const rawBudget = contextConfig.token_budget;
   const parsedBudget = typeof rawBudget === 'number' && !isNaN(rawBudget) ? rawBudget : 10000;
   const tokenBudget = Math.max(1000, Math.min(100000, parsedBudget)); // Bounds: 1k-100k
@@ -222,13 +222,13 @@ function loadContext(agentName, taskText) {
   log(`Loaded: ${loadedFiles.length} files, ${totalTokens} tokens`);
 
   for (const f of loadedFiles) {
-    log(`  + ${f.type}: ${f.ref} (${f.tokens} tokens)`);
+    log(`  ✓ ${f.type}: ${f.ref} (${f.tokens} tokens)`);
   }
 
   if (skippedFiles.length > 0) {
     log(`Skipped (budget): ${skippedFiles.length} files`);
     for (const f of skippedFiles) {
-      log(`  - ${f.ref} (${f.tokens} tokens)`);
+      log(`  ✗ ${f.ref} (${f.tokens} tokens)`);
     }
   }
 
@@ -307,31 +307,31 @@ function showStats() {
 }
 
 // Main
-function main() {
-  const args = process.argv.slice(2);
-
-  if (args.includes('--list')) {
+run({
+  name: 'context-loader',
+  mode: 'operational',
+  services: [],
+}, async (ctx) => {
+  if (ctx.args.flags.list) {
     listAgents();
     return;
   }
 
-  if (args.includes('--stats')) {
+  if (ctx.args.flags.stats) {
     showStats();
     return;
   }
 
-  if (args.length < 2) {
+  if (ctx.args.positional.length < 2) {
     console.log('Usage: node context-loader.cjs <agent-name> "<task-text>"');
     console.log('       node context-loader.cjs --list');
     console.log('       node context-loader.cjs --stats');
-    process.exit(1);
+    throw new Error('Missing required arguments: <agent-name> and "<task-text>"');
   }
 
-  const agentName = args[0];
-  const taskText = args[1];
+  const agentName = ctx.args.positional[0];
+  const taskText = ctx.args.positional[1];
 
   const content = loadContext(agentName, taskText);
   console.log(content);
-}
-
-main();
+});

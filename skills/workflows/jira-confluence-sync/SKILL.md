@@ -21,10 +21,10 @@ description: Common patterns for creating and managing linked Jira tickets and C
 
 1. **Create Jira Epic**
 ```javascript
-const { jira } = require('./scripts/atlassian-api.js');
+const { jira } = require('./.ai/scripts/atlassian-api.js');
 
 const epic = await jira.createEpic(
-  'PROJ',
+  'ALL',
   'Feature Name Initiative',
   'High-level description of the initiative'
 );
@@ -34,7 +34,7 @@ console.log(`Epic created: ${epic.key}`);
 
 2. **Create Confluence Product Spec**
 ```javascript
-const { confluence } = require('./scripts/atlassian-api.js');
+const { confluence } = require('./.ai/scripts/atlassian-api.js');
 
 const specContent = `
 <h1>Feature Name Product Spec</h1>
@@ -59,7 +59,7 @@ const specContent = `
 <p>What engineers should know - constraints, not solutions</p>
 
 <h2>Related Jira</h2>
-<p>Epic: <a href="https://[yourcompany].atlassian.net/browse/${epic.key}">${epic.key}</a></p>
+<p>Epic: <a href="https://yourcompany.atlassian.net/browse/${epic.key}">${epic.key}</a></p>
 
 <h2>Success Metrics</h2>
 <ul>
@@ -88,11 +88,11 @@ await jira.addComment(
 ```
 ✅ Epic & Spec Created
 
-Epic: PROJ-123
-https://[yourcompany].atlassian.net/browse/PROJ-123
+Epic: ALL-123
+https://yourcompany.atlassian.net/browse/ALL-123
 
 Spec: Feature Name - Product Spec
-https://[yourcompany].atlassian.net/wiki/spaces/PROD/pages/123456
+https://yourcompany.atlassian.net/wiki/spaces/PROD/pages/123456
 
 Next: Create implementation tasks and link to epic
 ```
@@ -138,12 +138,12 @@ const tasks = [
 
 2. **Create and Link Tasks**
 ```javascript
-const epicKey = 'PROJ-123';
+const epicKey = 'ALL-123';
 const createdTasks = [];
 
 for (const task of tasks) {
   const issue = await jira.createIssue(
-    'PROJ',
+    'ALL',
     task.summary,
     task.description,
     task.type
@@ -166,7 +166,7 @@ const updatedContent = specPage.body.storage.value + `
 <h2>Implementation Tasks</h2>
 <ul>
   ${createdTasks.map(key => 
-    `<li><a href="https://[yourcompany].atlassian.net/browse/${key}">${key}</a></li>`
+    `<li><a href="https://yourcompany.atlassian.net/browse/${key}">${key}</a></li>`
   ).join('\n  ')}
 </ul>
 `;
@@ -190,7 +190,7 @@ await confluence.updatePage(
 1. **Query Recent Activity**
 ```javascript
 const lastWeek = await jira.searchJQL(
-  'project = PROJ AND updated >= -7d ORDER BY updated DESC',
+  'project = ALL AND updated >= -7d ORDER BY updated DESC',
   { maxResults: 50 }
 );
 ```
@@ -223,21 +223,21 @@ const reportContent = `
 <h2>Completed (${categorized.completed.length})</h2>
 <ul>
 ${categorized.completed.map(i => 
-  `<li><a href="https://[yourcompany].atlassian.net/browse/${i.key}">${i.key}</a>: ${i.fields.summary}</li>`
+  `<li><a href="https://yourcompany.atlassian.net/browse/${i.key}">${i.key}</a>: ${i.fields.summary}</li>`
 ).join('\n')}
 </ul>
 
 <h2>In Progress (${categorized.inProgress.length})</h2>
 <ul>
 ${categorized.inProgress.map(i => 
-  `<li><a href="https://[yourcompany].atlassian.net/browse/${i.key}">${i.key}</a>: ${i.fields.summary}</li>`
+  `<li><a href="https://yourcompany.atlassian.net/browse/${i.key}">${i.key}</a>: ${i.fields.summary}</li>`
 ).join('\n')}
 </ul>
 
 <h2>Blocked (${categorized.blocked.length})</h2>
 <ul>
 ${categorized.blocked.map(i => 
-  `<li><a href="https://[yourcompany].atlassian.net/browse/${i.key}">${i.key}</a>: ${i.fields.summary}</li>`
+  `<li><a href="https://yourcompany.atlassian.net/browse/${i.key}">${i.key}</a>: ${i.fields.summary}</li>`
 ).join('\n')}
 </ul>
 `;
@@ -261,7 +261,7 @@ const report = await confluence.createPage(
 1. **Search Jira**
 ```javascript
 const jiraResults = await jira.searchJQL(
-  'project = PROJ AND text ~ "feature-name" ORDER BY created DESC'
+  'project = ALL AND text ~ "feature-name" ORDER BY created DESC'
 );
 ```
 
@@ -311,11 +311,11 @@ const created = [];
 for (const item of items) {
   try {
     const issue = await jira.createIssue(
-      'PROJ',
+      'ALL',
       item.summary,
       `Priority: ${item.priority}`,
       item.type,
-      { labels: ['tech-debt', 'Q1-2026'] }
+      { labels: ['tech-debt', 'Q1-2025'] }
     );
     
     created.push(issue);
@@ -340,7 +340,7 @@ const content = `
   </tr>
   ${created.map(i => `
     <tr>
-      <td><a href="https://[yourcompany].atlassian.net/browse/${i.key}">${i.key}</a></td>
+      <td><a href="https://yourcompany.atlassian.net/browse/${i.key}">${i.key}</a></td>
       <td>${i.fields.summary}</td>
       <td>${i.fields.issuetype.name}</td>
     </tr>
@@ -410,7 +410,7 @@ async function createEpicWithSpec(epicData, specData) {
       success: true,
       epic: {
         key: epic.key,
-        url: `https://[yourcompany].atlassian.net/browse/${epic.key}`
+        url: `https://yourcompany.atlassian.net/browse/${epic.key}`
       },
       spec: {
         title: page.title,
@@ -431,7 +431,7 @@ async function createEpicWithSpec(epicData, specData) {
 
 ## Reference
 
-- **API Wrapper**: `scripts/atlassian-api.js`
-- **Jira Agent**: `skills/core/jira-ticket-writer.md`
-- **Confluence Agent**: `skills/core/confluence-manager.md`
-- **Integration Guide**: `knowledge/jira-integration.md`
+- **API Wrapper**: `.ai/scripts/atlassian-api.js`
+- **Jira Skill**: `skills/core/jira-ticket-writer/SKILL.md`
+- **Confluence Skill**: `skills/core/confluence-manager/SKILL.md`
+- **Integration Guide**: `.ai/knowledge/jira-integration.md`

@@ -31,10 +31,10 @@
   },
   "required_context": [],
   "meta": {
-    "author": "starter-kit",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/webapp-pm.md",
     "migration_date": "2026-02-03"
   }
 }

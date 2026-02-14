@@ -1,9 +1,9 @@
-// PM AI Starter Kit - daemon-manager.js
 #!/usr/bin/env node
 /**
  * @deprecated This manager is no longer used. The enrichment daemon has been replaced by:
  *   - enrichment-runner.cjs (called by the scheduler's local worker)
  *   - context-enrichment.cjs curate (incremental about-me.md updates)
+ *   - local-worker-manager.cjs (manages all scheduled jobs)
  *
  * See context-enrichment-system.md for the current architecture.
  *
@@ -19,14 +19,15 @@ import path from 'path';
 import os from 'os';
 import { createRequire } from 'module';
 
-// Use createRequire for CommonJS telemetry module
+// Use createRequire for CommonJS modules
 const require = createRequire(import.meta.url);
-const { track, trackScript, flush } = require('./lib/telemetry.cjs');
+const { run } = require('./lib/script-runner.cjs');
+const { track } = require('./lib/telemetry.cjs');
 
 const PID_FILE = path.join(os.homedir(), '.pm-ai', 'enrichment-daemon.pid');
 const LOG_FILE = path.join(os.homedir(), '.pm-ai', 'enrichment-daemon.log');
 const DAEMON_SCRIPT = new URL('./enrichment-daemon.js', import.meta.url).pathname;
-const LAUNCHD_LABEL = process.env.PM_AI_LAUNCHD_LABEL || 'com.pm-ai.enrichment';
+const LAUNCHD_LABEL = 'com.cloaked.pm-enrichment';
 
 /**
  * Check if daemon is running via launchd (macOS)
@@ -70,13 +71,21 @@ function isRunningViaLaunchd() {
 function isRunning() {
   // First check PID file (used when started via daemon-manager)
   if (fs.existsSync(PID_FILE)) {
+    const pid = parseInt(fs.readFileSync(PID_FILE, 'utf-8'));
+    if (isNaN(pid)) {
+      try { fs.unlinkSync(PID_FILE); } catch (e) { /* ignore */ }
+      return false;
+    }
     try {
-      const pid = parseInt(fs.readFileSync(PID_FILE, 'utf-8'));
       process.kill(pid, 0); // Check if process exists
       return pid;
     } catch (error) {
-      // PID file exists but process is dead
-      fs.unlinkSync(PID_FILE);
+      if (error.code === 'EPERM') {
+        // Process exists but we lack permission to signal it
+        return pid;
+      }
+      // ESRCH (no such process) or other error - clean up stale PID file
+      try { fs.unlinkSync(PID_FILE); } catch (e) { /* ignore EACCES/ENOENT */ }
     }
   }
 
@@ -92,10 +101,10 @@ function isRunning() {
 /**
  * Start daemon
  */
-function start() {
+async function start() {
   const pid = isRunning();
   if (pid) {
-    console.log(`[+] Daemon already running (PID ${pid})`);
+    console.log(`✓ Daemon already running (PID ${pid})`);
     return;
   }
 
@@ -122,22 +131,24 @@ function start() {
   fs.closeSync(logFd);
 
   // Wait a bit to check if it started successfully
-  setTimeout(() => {
-    const newPid = isRunning();
-    if (newPid) {
-      console.log(`[+] Daemon started (PID ${newPid})`);
-      console.log(`  Logs: ${LOG_FILE}`);
-    } else {
-      console.error('[-] Daemon failed to start (check logs)');
-      process.exit(1);
-    }
-  }, 1000);
+  await new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const newPid = isRunning();
+      if (newPid) {
+        console.log(`✓ Daemon started (PID ${newPid})`);
+        console.log(`  Logs: ${LOG_FILE}`);
+        resolve();
+      } else {
+        reject(new Error('Daemon failed to start (check logs)'));
+      }
+    }, 1000);
+  });
 }
 
 /**
  * Stop daemon
  */
-function stop() {
+async function stop() {
   const pid = isRunning();
   if (!pid) {
     console.log('Daemon not running');
@@ -148,45 +159,63 @@ function stop() {
 
   try {
     process.kill(pid, 'SIGTERM');
+  } catch (error) {
+    throw new Error(`Failed to send SIGTERM to daemon: ${error.message}`);
+  }
 
-    // Wait for graceful shutdown (max 30 seconds)
+  // Wait for graceful shutdown (max 30 seconds)
+  return new Promise((resolve, reject) => {
     let attempts = 0;
+    let killedForcefully = false;
+    const maxAttempts = 30;
     const interval = setInterval(() => {
       attempts++;
 
       if (!isRunning()) {
         clearInterval(interval);
-        console.log('[+] Daemon stopped');
+        console.log('✓ Daemon stopped');
+        resolve();
         return;
       }
 
-      if (attempts > 30) {
+      if (attempts >= maxAttempts) {
         clearInterval(interval);
-        console.log('[!] Daemon did not stop gracefully, forcing...');
+        console.log('⚠ Daemon did not stop gracefully, forcing...');
 
         try {
           process.kill(pid, 'SIGKILL');
           if (fs.existsSync(PID_FILE)) {
             fs.unlinkSync(PID_FILE);
           }
-          console.log('[+] Daemon killed');
+          console.log('✓ Daemon killed');
+          resolve();
         } catch (error) {
-          console.error('[-] Failed to kill daemon:', error.message);
+          reject(new Error(`Failed to kill daemon: ${error.message}`));
+        }
+        return;
+      }
+
+      // Escalate to SIGKILL once at the halfway point
+      if (!killedForcefully && attempts >= Math.floor(maxAttempts / 2)) {
+        killedForcefully = true;
+        try {
+          process.kill(pid, 'SIGKILL');
+        } catch (e) {
+          if (e.code !== 'ESRCH') {
+            console.warn(`SIGKILL failed: ${e.code || e.message}`);
+          }
         }
       }
     }, 1000);
-  } catch (error) {
-    console.error('[-] Failed to stop daemon:', error.message);
-    process.exit(1);
-  }
+  });
 }
 
 /**
  * Restart daemon
  */
-function restart() {
-  stop();
-  setTimeout(() => start(), 2000);
+async function restart() {
+  await stop();
+  await start();
 }
 
 /**
@@ -196,7 +225,7 @@ function status() {
   const pid = isRunning();
 
   if (pid) {
-    console.log(`[+] Daemon running (PID ${pid})`);
+    console.log(`✓ Daemon running (PID ${pid})`);
     console.log(`  Logs: ${LOG_FILE}`);
 
     // Show last few log lines
@@ -208,7 +237,7 @@ function status() {
       lines.forEach(line => console.log('  ' + line));
     }
   } else {
-    console.log('[-] Daemon not running');
+    console.log('✗ Daemon not running');
   }
 }
 
@@ -228,45 +257,54 @@ function logs() {
 
   process.on('SIGINT', () => {
     tail.kill();
-    process.exit(0);
   });
 }
 
 /**
  * Main CLI
  */
-const command = process.argv[2];
-trackScript('daemon-manager', { command });
+run({
+  name: 'daemon-manager',
+  mode: 'operational',
+  services: [],
+  args: { required: ['command'], optional: [] },
+  description: `PM AI Analytics - Daemon Manager
 
-switch (command) {
-  case 'start':
-    track('daemon_start', {});
-    start();
-    flush();
-    break;
+Commands:
+  start    Start the enrichment daemon
+  stop     Stop the enrichment daemon
+  restart  Restart the enrichment daemon
+  status   Show daemon status
+  logs     Tail daemon logs`,
+}, async (ctx) => {
+  const command = ctx.args.positional[0];
 
-  case 'stop':
-    track('daemon_stop', {});
-    stop();
-    flush();
-    break;
+  switch (command) {
+    case 'start':
+      track('daemon_start', {});
+      await start();
+      break;
 
-  case 'restart':
-    track('daemon_restart', {});
-    restart();
-    flush();
-    break;
+    case 'stop':
+      track('daemon_stop', {});
+      await stop();
+      break;
 
-  case 'status':
-    status();
-    break;
+    case 'restart':
+      track('daemon_restart', {});
+      await restart();
+      break;
 
-  case 'logs':
-    logs();
-    break;
+    case 'status':
+      status();
+      break;
 
-  default:
-    console.log(`
+    case 'logs':
+      logs();
+      break;
+
+    default:
+      console.log(`
 PM AI Analytics - Daemon Manager
 
 Usage:
@@ -280,9 +318,10 @@ Commands:
   logs     Tail daemon logs
 
 Examples:
-  node scripts/daemon-manager.js start
-  node scripts/daemon-manager.js status
-  node scripts/daemon-manager.js logs
-    `.trim());
-    break;
-}
+  node .ai/scripts/daemon-manager.js start
+  node .ai/scripts/daemon-manager.js status
+  node .ai/scripts/daemon-manager.js logs
+      `.trim());
+      break;
+  }
+});

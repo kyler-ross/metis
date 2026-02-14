@@ -10,7 +10,7 @@ This resource provides detailed methodology for analyzing products, experiments,
 
 **CRITICAL**: When analyzing products, experiments, or user journeys, follow this systematic methodology.
 
-For complete details, see `knowledge/product-analysis-methodology.md`.
+For complete details, see `.ai/knowledge/product-analysis-methodology.md`.
 
 ## Pre-Analysis Checklist
 
@@ -238,6 +238,6 @@ If you find yourself:
 
 ## Additional Resources
 
-- `knowledge/product-analysis-methodology.md` - Complete methodology with templates
-- `knowledge/behavioral-psychology-patterns.md` - User psychology reference
-- `knowledge/ux-heuristics.md` - UX principles and heuristics
+- `.ai/knowledge/product-analysis-methodology.md` - Complete methodology with templates
+- `.ai/knowledge/behavioral-psychology-patterns.md` - User psychology reference
+- `.ai/knowledge/ux-heuristics.md` - UX principles and heuristics

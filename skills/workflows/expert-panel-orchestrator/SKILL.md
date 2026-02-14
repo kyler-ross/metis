@@ -71,11 +71,11 @@ TECHNICAL:
 CRITICAL THINKING:
 12. Devil's Advocate - Stress-tests ideas, finds counterarguments, prevents groupthink
 
-CUSTOMER PERSONAS:
-13. Casual User (Jordan) - Low engagement, doesn't fully understand the product
-14. Pragmatic User (Sam) - Power user who treats the product as boring but necessary maintenance
-15. Urgent User (Alex) - Doesn't understand the product but has urgent, time-sensitive needs
-16. Power User (Morgan) - Deeply understands and is passionately committed to the product's mission
+CLOAKED CUSTOMER PERSONAS:
+13. Casual User (Jordan) - Doesn't understand privacy, finds it boring, low engagement
+14. Pragmatic User (Sam) - Understands privacy fully, but treats it as boring maintenance
+15. Urgent User (Alex) - Doesn't understand, but has urgent safety needs (stalker, doxxing)
+16. Privacy Advocate (Morgan) - Deeply understands and is passionately committed to privacy
 
 CUSTOM:
 17. Create a custom expert (I'll ask about their specialty and perspective)
@@ -129,7 +129,7 @@ For example:
 - Feature evaluation → Add personas to hear user voice
 - Retention/engagement discussions → Include Casual User and Pragmatic User
 - Safety/urgency features → Include Urgent User
-- Power user features → Include Power User
+- Power user features → Include Privacy Advocate
 - Pricing discussions → Include mix of personas
 
 Would you like to proceed with these experts, or adjust the panel?
@@ -185,7 +185,7 @@ Use the Task tool to spawn all selected experts in parallel:
 For each expert:
 - subagent_type: "general-purpose"
 - prompt: |
-    Read the expert definition from skills/experts/[expert-name].md and adopt that persona.
+    Read the expert definition from skills/experts/[expert-name]/SKILL.md and adopt that persona.
 
     PANEL DISCUSSION - OPENING STATEMENT
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -207,7 +207,7 @@ For **Cursor/Other clients** (sequential execution):
 
 ```
 For each selected expert, in turn:
-1. Read skills/experts/[expert-name].md
+1. Read skills/experts/[expert-name]/SKILL.md
 2. Adopt that expert's persona
 3. Generate their opening statement
 4. Display and continue to next expert
@@ -283,7 +283,7 @@ Select the 1-2 highest-scoring experts for the next turn.
 For each selected expert:
 - subagent_type: "general-purpose" (Claude Code) or sequential read (other clients)
 - prompt: |
-    Read the expert definition from skills/experts/[expert-name].md and adopt that persona.
+    Read the expert definition from skills/experts/[expert-name]/SKILL.md and adopt that persona.
 
     PANEL DISCUSSION - OPEN DISCUSSION
     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -622,9 +622,9 @@ A panel session fails if:
 
 | Persona | File | Profile |
 |---------|------|---------|
-| Casual User (Jordan) | `casual-user.md` | Low engagement, doesn't fully understand the product |
-| Pragmatic User (Sam) | `pragmatic-user.md` | Power user, treats product as maintenance |
-| Urgent User (Alex) | `urgent-user.md` | Urgent needs, doesn't understand tech |
-| Power User (Morgan) | `power-user.md` | Deep understanding, passionate advocate |
+| Casual User (Jordan) | `casual-user.md` | Doesn't understand privacy, low engagement |
+| Pragmatic User (Sam) | `pragmatic-user.md` | Understands privacy, treats it as maintenance |
+| Urgent User (Alex) | `urgent-user.md` | Urgent safety needs, doesn't understand tech |
+| Privacy Advocate (Morgan) | `privacy-advocate.md` | Deep understanding, passionate advocate |
 
 Custom experts are generated inline using `_expert-template.md` structure.

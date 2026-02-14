@@ -46,46 +46,46 @@ The API endpoint only returns AI notes. To get full transcripts, we must use CDP
 
 It extracts complete verbatim transcripts via CDP (Chrome DevTools Protocol).
 
-**Location**: `scripts/granola-auto-extract-all.py`
+**Location**: `.ai/scripts/granola-auto-extract-all.py`
 
 ```bash
 # Extract transcripts since a date (RECOMMENDED)
-python3 scripts/granola-auto-extract-all.py --since 2025-11-17
+python3 .ai/scripts/granola-auto-extract-all.py --since 2025-11-17
 
 # Extract transcripts from a specific date
-python3 scripts/granola-auto-extract-all.py --on 2025-11-21
+python3 .ai/scripts/granola-auto-extract-all.py --on 2025-11-21
 
 # Extract specific meetings by ID
-python3 scripts/granola-auto-extract-all.py --ids "abc123,def456"
+python3 .ai/scripts/granola-auto-extract-all.py --ids "abc123,def456"
 
 # Check for files missing transcripts (only have notes)
-python3 scripts/granola-auto-extract-all.py --verify
+python3 .ai/scripts/granola-auto-extract-all.py --verify
 
 # Backfill missing transcripts (re-extract notes-only files)
-python3 scripts/granola-auto-extract-all.py --backfill
+python3 .ai/scripts/granola-auto-extract-all.py --backfill
 
 # Force re-extraction even if already in manifest
-python3 scripts/granola-auto-extract-all.py --since 2025-11-17 --force
+python3 .ai/scripts/granola-auto-extract-all.py --since 2025-11-17 --force
 ```
 
 ### Secondary Tool: `granola-helper.py` (LISTING ONLY)
 
 Use this ONLY for listing/searching meetings - NOT for syncing.
 
-**Location**: `scripts/granola-helper.py`
+**Location**: `.ai/scripts/granola-helper.py`
 
 ```bash
 # List all transcripts (returns JSON)
-python3 scripts/granola-helper.py list --limit 50
+python3 .ai/scripts/granola-helper.py list --limit 50
 
 # Filter by date
-python3 scripts/granola-helper.py list --date 2025-11-21
+python3 .ai/scripts/granola-helper.py list --date 2025-11-21
 
 # Search by pattern
-python3 scripts/granola-helper.py list --search "standup"
+python3 .ai/scripts/granola-helper.py list --search "standup"
 
 # Share LOCAL transcripts to TEAM (for git tracking)
-python3 scripts/granola-helper.py share --ids "abc123,def456"
+python3 .ai/scripts/granola-helper.py share --ids "abc123,def456"
 ```
 
 ⚠️ **WARNING**: `granola-helper.py sync` only syncs AI notes, NOT full transcripts. Use `granola-auto-extract-all.py` instead.
@@ -99,10 +99,10 @@ python3 scripts/granola-helper.py share --ids "abc123,def456"
 **User**: "Fetch all meetings from 11/21"
 
 **You**:
-1. Run: `python scripts/granola-helper.py list --date 2025-11-21`
+1. Run: `python .ai/scripts/granola-helper.py list --date 2025-11-21`
 2. Parse the JSON output
 3. Show user the meetings found (with count)
-4. Run: `python scripts/granola-helper.py sync --date 2025-11-21`
+4. Run: `python .ai/scripts/granola-helper.py sync --date 2025-11-21`
 5. Confirm: "✅ Synced 5 transcripts to LOCAL. Available to your PM agents now."
 6. Ask: "Want to share any of these with the team?"
 
@@ -111,9 +111,9 @@ python3 scripts/granola-helper.py share --ids "abc123,def456"
 **User**: "Grab transcripts from all standup meetings"
 
 **You**:
-1. Run: `python scripts/granola-helper.py list --search "standup"`
+1. Run: `python .ai/scripts/granola-helper.py list --search "standup"`
 2. Show matches with dates and count
-3. Run: `python scripts/granola-helper.py sync --search "standup"`
+3. Run: `python .ai/scripts/granola-helper.py sync --search "standup"`
 4. Confirm: "✅ Synced 12 standup transcripts to LOCAL. Available now."
 5. Ask: "Want to share these standups with the team?"
 
@@ -122,7 +122,7 @@ python3 scripts/granola-helper.py share --ids "abc123,def456"
 **User**: "Share all the scrum meetings with the team"
 
 **You**:
-1. Run: `python scripts/granola-helper.py share --search "scrum"`
+1. Run: `python .ai/scripts/granola-helper.py share --search "scrum"`
 2. Show what will be copied to TEAM directory
 3. Execute share (copies LOCAL → TEAM)
 4. Confirm: "✅ Shared 5 scrum transcripts to TEAM. Ready to commit to git."
@@ -134,7 +134,7 @@ python3 scripts/granola-helper.py share --ids "abc123,def456"
 
 **You**:
 1. Calculate date range (today - 7 days)
-2. Run: `python scripts/granola-helper.py list --since 2025-11-17`
+2. Run: `python .ai/scripts/granola-helper.py list --since 2025-11-17`
 3. Group by date and show organized list
 4. Ask: "Want to sync all of these to LOCAL?"
 5. If yes, run sync
@@ -145,22 +145,22 @@ python3 scripts/granola-helper.py share --ids "abc123,def456"
 **User**: "What meetings do I have in Granola?"
 
 **You**:
-1. Run: `python scripts/granola-helper.py list --limit 30`
+1. Run: `python .ai/scripts/granola-helper.py list --limit 30`
 2. Present in organized format:
    ```
    Your Recent Granola Transcripts (last 30):
    
    📅 2025-11-21 (5 meetings)
    - Weekly standup
-   - Investor call with [VC Firm]
+   - Investor call with a16z
    - Product sync
-   - Working Groups sync
+   - Tiger Teams sync
    - Metrics review
    
    📅 2025-11-20 (3 meetings)
-   - Cross-Team Sync
+   - Scrum of Scrums
    - Design review
-   - 1-on-1 with [Team Member]
+   - 1-on-1 with Sarah
    ```
 3. Ask: "Which date(s) would you like to sync?"
 4. User responds with dates or patterns
@@ -173,14 +173,14 @@ python3 scripts/granola-helper.py share --ids "abc123,def456"
 **Simple and Safe:**
 
 1. **ALL transcripts sync to LOCAL by default**
-   - Path: `local/private_transcripts/`
+   - Path: `.ai/local/private_transcripts/`
    - Gitignored (private)
    - Always available to PM agents
    - No network calls needed
 
 2. **Selective sharing to TEAM**
    - User explicitly says which to share
-   - Copied to: `knowledge/meeting_transcripts/`
+   - Copied to: `.ai/knowledge/meeting_transcripts/`
    - Git-tracked (team can see)
    - User commits when ready
 
@@ -208,8 +208,8 @@ Parse these types of queries:
 - "standup meetings" → `--search standup`
 - "investor calls" → `--search investor`
 - "all scrums" → `--search scrum`
-- "Working Groups" → `--search "working groups"`
-- "meetings with [Team Member]" → `--search sarah`
+- "Tiger Teams" → `--search "tiger teams"`
+- "meetings with Sarah" → `--search sarah`
 
 ### Quantity Queries
 - "last 10 meetings" → `--limit 10`
@@ -234,7 +234,7 @@ When showing transcripts to user, use clear formatting:
     Duration: 30 min
     Has notes: ✓
 
-[2] Investor Call with [VC Firm]
+[2] Investor Call with a16z
     Time: 02:30 PM  
     Duration: 45 min
     Has notes: ✓
@@ -347,16 +347,16 @@ After successful sync:
 ✅ Sync complete!
 
 Synced to TEAM (23 files):
-  knowledge/meeting_transcripts/
+  .ai/knowledge/meeting_transcripts/
   → Ready to commit to git
 
 Synced to LOCAL (6 files):
-  local/private_transcripts/
+  .ai/local/private_transcripts/
   → Private and gitignored
 
 Next steps:
-- Review TEAM transcripts: ls knowledge/meeting_transcripts/
-- Commit to git: git add knowledge/meeting_transcripts/ && git commit -m "Add meeting transcripts"
+- Review TEAM transcripts: ls .ai/knowledge/meeting_transcripts/
+- Commit to git: git add .ai/knowledge/meeting_transcripts/ && git commit -m "Add meeting transcripts"
 - Use in agents: All PM agents can now reference these transcripts
 
 Want me to help with anything else?
@@ -381,13 +381,13 @@ Found 5 meetings:
 [1] Weekly Standup (09:00 AM) ✓ Has notes
     → Recommendation: TEAM
 
-[2] Investor Call with [VC Firm] (02:30 PM) ✓ Has notes
+[2] Investor Call with a16z (02:30 PM) ✓ Has notes
     → Recommendation: LOCAL (investor discussion)
 
 [3] Product Sync (10:00 AM) ✓ Has notes
     → Recommendation: TEAM
 
-[4] Working Groups Sync (05:29 PM) ✓ Has notes
+[4] Tiger Teams Sync (05:29 PM) ✓ Has notes
     → Recommendation: TEAM
 
 [5] Metrics Review (05:59 PM) ✓ Has notes
@@ -483,12 +483,12 @@ Parse this JSON and present it conversationally.
 
 ```bash
 # Sync specific IDs
-python scripts/granola-helper.py sync \
+python .ai/scripts/granola-helper.py sync \
   --ids "abc123,def456,ghi789" \
   --destination team
 
 # Sync by filter
-python scripts/granola-helper.py sync \
+python .ai/scripts/granola-helper.py sync \
   --date 2025-11-21 \
   --destination team
 ```

@@ -1,4 +1,3 @@
-// PM AI Starter Kit - validate-dependencies.cjs
 #!/usr/bin/env node
 /**
  * Dependency Validator for Agent Manifest
@@ -7,7 +6,7 @@
  * actually exist in the knowledge base.
  *
  * Usage:
- *   node scripts/validate-dependencies.cjs [--fix]
+ *   node .ai/scripts/validate-dependencies.cjs [--fix]
  *
  * Options:
  *   --fix    Remove missing files from required_context (updates manifest)
@@ -15,13 +14,12 @@
 
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const { track, trackComplete, flush } = require('./lib/telemetry.cjs');
+const { run } = require('./lib/script-runner.cjs');
 
-const REPO_ROOT = path.resolve(__dirname, '..');
-const MANIFEST_PATH = path.join(REPO_ROOT, 'config/agent-manifest.json');
-const KNOWLEDGE_DIR = path.join(REPO_ROOT, 'knowledge');
+const REPO_ROOT = path.resolve(__dirname, '../..');
+const MANIFEST_PATH = path.join(REPO_ROOT, '.ai/config/agent-manifest.json');
+const KNOWLEDGE_DIR = path.join(REPO_ROOT, '.ai/knowledge');
 
 function loadManifest() {
   const content = fs.readFileSync(MANIFEST_PATH, 'utf8');
@@ -33,9 +31,9 @@ const SPECIAL_KEYWORDS = ['all', 'none', 'minimal'];
 
 // Files that live in other directories (not knowledge)
 const CONFIG_FILES = {
-  'agent-manifest.json': 'config/agent-manifest.json',
-  'knowledge-index.json': 'config/knowledge-index.json',
-  'team-members.json': 'config/team-members.json'
+  'agent-manifest.json': '.ai/config/agent-manifest.json',
+  'knowledge-index.json': '.ai/config/knowledge-index.json',
+  'team-members.json': '.ai/config/team-members.json'
 };
 
 function validateDependencies(manifest, options = {}) {
@@ -79,7 +77,7 @@ function validateDependencies(manifest, options = {}) {
       }
 
       // Handle both direct filenames and paths
-      const depPath = dep.startsWith('.')
+      const depPath = dep.startsWith('.ai/')
         ? path.join(REPO_ROOT, dep)
         : path.join(KNOWLEDGE_DIR, dep);
 
@@ -120,19 +118,21 @@ function fixMissingDeps(manifest, missingByAgent) {
   return fixed;
 }
 
-async function main() {
-  const startTime = Date.now();
-  const args = process.argv.slice(2);
-  const shouldFix = args.includes('--fix');
-  track('pm_ai_validate_dependencies_start', { shouldFix });
+run({
+  name: 'validate-dependencies',
+  mode: 'diagnostic',
+  services: [],
+  args: { required: [], optional: ['--fix'] },
+}, async (ctx) => {
+  const shouldFix = ctx.args.flags.fix || false;
 
-  console.log('Validating agent dependencies...\n');
+  console.log('🔍 Validating agent dependencies...\n');
 
   const manifest = loadManifest();
   const results = validateDependencies(manifest);
 
   // Summary
-  console.log(`Summary:`);
+  console.log(`📊 Summary:`);
   console.log(`   Total agents: ${results.total_agents}`);
   console.log(`   Agents with dependencies: ${results.agents_with_deps}`);
   console.log(`   Total dependencies: ${results.total_deps}`);
@@ -141,19 +141,12 @@ async function main() {
   console.log('');
 
   if (results.missing_deps.length === 0) {
-    console.log('All dependencies are valid!\n');
-    trackComplete('pm_ai_validate_dependencies_complete', startTime, {
-      total_agents: results.total_agents,
-      total_deps: results.total_deps,
-      missing: 0,
-      success: true
-    });
-    await flush();
-    process.exit(0);
+    console.log('✅ All dependencies are valid!\n');
+    return;
   }
 
   // Report missing
-  console.log('Missing dependencies:\n');
+  console.log('❌ Missing dependencies:\n');
 
   const groupedByAgent = {};
   for (const dep of results.missing_deps) {
@@ -172,36 +165,17 @@ async function main() {
   console.log('');
 
   if (shouldFix) {
-    console.log('Fixing manifest...\n');
+    console.log('🔧 Fixing manifest...\n');
     const fixedCount = fixMissingDeps(manifest, results.agents_missing_deps);
 
     // Update manifest
     manifest.updated = new Date().toISOString().split('T')[0];
     fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
 
-    console.log(`Removed ${fixedCount} missing dependencies from manifest`);
+    console.log(`✅ Removed ${fixedCount} missing dependencies from manifest`);
     console.log(`   Manifest updated: ${MANIFEST_PATH}\n`);
-
-    trackComplete('pm_ai_validate_dependencies_complete', startTime, {
-      total_agents: results.total_agents,
-      total_deps: results.total_deps,
-      missing: results.missing_deps.length,
-      fixed: fixedCount,
-      success: true
-    });
-    await flush();
   } else {
-    console.log('Run with --fix to remove missing dependencies from manifest\n');
-
-    trackComplete('pm_ai_validate_dependencies_complete', startTime, {
-      total_agents: results.total_agents,
-      total_deps: results.total_deps,
-      missing: results.missing_deps.length,
-      success: false
-    });
-    await flush();
-    process.exit(1);
+    console.log('💡 Run with --fix to remove missing dependencies from manifest\n');
+    throw new Error(`${results.missing_deps.length} missing dependencies found`);
   }
-}
-
-main();
+});

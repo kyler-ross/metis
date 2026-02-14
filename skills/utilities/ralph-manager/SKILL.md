@@ -36,19 +36,19 @@ Ralph is installed via the PM AI setup wizard. There are two ways:
 /pm-setup
 
 # Or run just the Ralph phase
-node scripts/setup-wizard.cjs run ralph
+node .ai/scripts/setup-wizard.cjs run ralph
 ```
 
 ### Via Installer Directly
 ```bash
 # Check status
-node scripts/installers/ralph-installer.cjs status
+node .ai/scripts/installers/ralph-installer.cjs status
 
 # Full setup (install + config + templates)
-node scripts/installers/ralph-installer.cjs setup
+node .ai/scripts/installers/ralph-installer.cjs setup
 
 # Just install ralph-orchestrator
-node scripts/installers/ralph-installer.cjs install
+node .ai/scripts/installers/ralph-installer.cjs install
 ```
 
 ### Manual Installation
@@ -151,7 +151,7 @@ For UI tasks, text-based criteria (build passes, tests green) often miss visual 
 - Building or modifying user interfaces
 - Tasks where "it looks right" matters
 - When text-based tests can pass but UI is broken
-- Electron apps, web dashboards, component libraries
+- Desktop apps, web dashboards, component libraries
 
 ### How It Works
 1. Add `## Visual Verification Criteria` section to PROMPT.md
@@ -181,10 +181,10 @@ For UI tasks, text-based criteria (build passes, tests green) often miss visual 
 ### Running Verification
 ```bash
 # From project root
-python3 scripts/visual-verify.py --prompt tasks/active/PROMPT.md
+python3 .ai/scripts/visual-verify.py --prompt tasks/active/PROMPT.md
 
 # With custom output directory
-python3 scripts/visual-verify.py --prompt PROMPT.md --output-dir .agent/screenshots
+python3 .ai/scripts/visual-verify.py --prompt PROMPT.md --output-dir .agent/screenshots
 ```
 
 ### Results Format
@@ -210,7 +210,7 @@ Your PROMPT.md instructions should include:
 ...
 5. **REQUIRED**: Before signaling completion, run visual verification:
    ```bash
-   python3 scripts/visual-verify.py --prompt tasks/active/PROMPT.md
+   python3 .ai/scripts/visual-verify.py --prompt tasks/active/PROMPT.md
    ```
 6. Read results from `.agent/visual-verification.md`
 7. If any visual criteria FAIL, fix the issues and re-run verification
@@ -334,7 +334,7 @@ git log --oneline | head -20
 
 ### Location for Ralph tasks
 ```
-
+pm/
 ├── tasks/                    # Ralph task prompts
 │   ├── active/              # Currently running
 │   │   └── PROMPT.md
@@ -392,8 +392,8 @@ ralph --max-iterations 25 --max-cost 20.0
 ## Responding to User Requests
 
 ### "Help me set up Ralph"
-1. Check status: `node scripts/installers/ralph-installer.cjs status`
-2. If not installed, run: `node scripts/installers/ralph-installer.cjs setup`
+1. Check status: `node .ai/scripts/installers/ralph-installer.cjs status`
+2. If not installed, run: `node .ai/scripts/installers/ralph-installer.cjs setup`
 3. Verify with: `ralph --version`
 4. Check ANTHROPIC_API_KEY is set
 5. Point user to templates in `tasks/templates/`

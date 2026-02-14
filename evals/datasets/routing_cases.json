@@ -1,0 +1,136 @@
+{
+  "routing_tests": [
+    {
+      "input": "What's our D7 retention this month?",
+      "expected": "sql-query-builder",
+      "tags": ["smoke"],
+      "description": "Data/metrics query should route to SQL builder"
+    },
+    {
+      "input": "Should we add a pause feature to monitoring?",
+      "expected": "product-coach",
+      "tags": ["smoke"],
+      "description": "Feature decision should route to product coach"
+    },
+    {
+      "input": "Create a Jira ticket for the login bug",
+      "expected": "jira-ticket-writer",
+      "tags": ["smoke"],
+      "description": "Ticket creation should route to Jira writer"
+    },
+    {
+      "input": "Summarize my meeting notes from today",
+      "expected": "transcript-organizer",
+      "tags": ["smoke"],
+      "description": "Meeting transcript work should route to transcript organizer"
+    },
+    {
+      "input": "Write my weekly update for the team",
+      "expected": "weekly-update-writer",
+      "tags": ["smoke"],
+      "description": "Weekly update should route to update writer"
+    },
+    {
+      "input": "Help me plan my day and prioritize tasks",
+      "expected": "daily-chief-of-staff",
+      "tags": [],
+      "description": "Daily planning should route to chief of staff"
+    },
+    {
+      "input": "What's our MRR growth rate compared to last quarter?",
+      "expected": "sql-query-builder",
+      "tags": [],
+      "description": "Financial metrics query"
+    },
+    {
+      "input": "Is adding a free trial conversion feature a good idea?",
+      "expected": "product-coach",
+      "tags": [],
+      "description": "Feature evaluation"
+    },
+    {
+      "input": "Update ALL-123 with the new requirements from the meeting",
+      "expected": "jira-ticket-writer",
+      "tags": [],
+      "description": "Ticket update"
+    },
+    {
+      "input": "Extract action items from the product sync call recording",
+      "expected": "transcript-organizer",
+      "tags": [],
+      "description": "Action item extraction from transcript"
+    },
+    {
+      "input": "How many users activated data removal last week?",
+      "expected": "sql-query-builder",
+      "tags": [],
+      "description": "Feature activation metrics"
+    },
+    {
+      "input": "Should we redesign the onboarding flow?",
+      "expected": "product-coach",
+      "tags": [],
+      "description": "UX/design decision"
+    },
+    {
+      "input": "File a bug for the crash on iOS settings page",
+      "expected": "jira-ticket-writer",
+      "tags": [],
+      "description": "Bug filing"
+    },
+    {
+      "input": "What were the key decisions from the roadmap meeting?",
+      "expected": "transcript-organizer",
+      "tags": [],
+      "description": "Meeting insights extraction"
+    },
+    {
+      "input": "Draft my manager update for this week",
+      "expected": "weekly-update-writer",
+      "tags": [],
+      "description": "Manager update"
+    },
+    {
+      "input": "Create a feed item for this privacy article",
+      "expected": "content-creator",
+      "tags": ["feed-system"],
+      "description": "Feed item creation routes to content-creator"
+    },
+    {
+      "input": "Write a blog post about stopping ad tracking",
+      "expected": "content-creator",
+      "tags": ["feed-system"],
+      "description": "Blog article creation routes to content-creator"
+    },
+    {
+      "input": "Transform this EFF article into a Cloaked blog post",
+      "expected": "blog-content-writer",
+      "tags": ["feed-system"],
+      "description": "Article transformation routes to blog-content-writer"
+    },
+    {
+      "input": "Show me the feed structure",
+      "expected": "feed-manager",
+      "tags": ["feed-system"],
+      "description": "Feed visualization routes to feed-manager"
+    },
+    {
+      "input": "What unlocks after the privacy questionnaire?",
+      "expected": "feed-manager",
+      "tags": ["feed-system"],
+      "description": "Feed flow questions route to feed-manager"
+    },
+    {
+      "input": "What's currently in the prod feed?",
+      "expected": "feed-manager",
+      "tags": ["feed-system"],
+      "description": "Feed state queries route to feed-manager"
+    },
+    {
+      "input": "Design a sequential automation flow for data deletion",
+      "expected": "feed-manager",
+      "tags": ["feed-system"],
+      "description": "Flow design requests route to feed-manager"
+    }
+  ]
+}

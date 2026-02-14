@@ -31,8 +31,8 @@ Provide targeted analysis when the user wants to:
 **Process**:
 
 1. **Load the transcript**
-   - Check `local/private_transcripts/` first
-   - Then check `knowledge/meeting_transcripts/`
+   - Check `.ai/local/private_transcripts/` first
+   - Then check `.ai/knowledge/meeting_transcripts/`
    - If user provides content, use that directly
 
 2. **Identify meeting metadata**
@@ -113,7 +113,7 @@ Provide targeted analysis when the user wants to:
 
 2. **Query Jira via CLI**:
    ```bash
-   node scripts/atlassian-api.js jira search "project = PROJ AND updated >= -1d AND assignee in ([team members])"
+   node .ai/scripts/atlassian-api.js jira search "project = ALL AND updated >= -1d AND assignee in ([team members])"
    ```
 
 3. **Extract relevant updates**:
@@ -138,19 +138,19 @@ Provide targeted analysis when the user wants to:
    ---
 
    ### 🔴 Immediate Attention Required
-   - **[PROJ-XXX]**: [Title]
+   - **[ALL-123]**: [Title]
      - Status: [Blocked / High Priority / etc.]
      - Issue: [What's wrong]
      - Your action: [What you need to do]
 
    ### ⚠️ Follow-up Needed
-   - **[PROJ-XXX]**: [Title]
+   - **[ALL-456]**: [Title]
      - Update: [What changed]
      - Your action: [Review / Comment / Assign / etc.]
 
    ### ✅ Progressing Well (FYI)
-   - **[PROJ-XXX]**: [Title] - [Status change]
-   - **[PROJ-XXX]**: [Title] - [Comment added]
+   - **[ALL-789]**: [Title] - [Status change]
+   - **[ALL-101]**: [Title] - [Comment added]
 
    ---
 
@@ -180,7 +180,7 @@ Provide targeted analysis when the user wants to:
 
 2. **Query Confluence via CLI**:
    ```bash
-   node scripts/atlassian-api.js confluence search "type = page AND space in (PROD, ENG) AND lastModified >= -7d"
+   node .ai/scripts/atlassian-api.js confluence search "type = page AND space in (PROD, ENG) AND lastModified >= -7d"
    ```
 
 3. **Extract relevant changes**:
@@ -223,8 +223,8 @@ Provide targeted analysis when the user wants to:
 
    ### 🔗 Cross-References
    Related Jira tickets:
-   - [PROJ-XXX] references [Page 1]
-   - [PROJ-XXX] needs [Page 2] updated
+   - [ALL-123] references [Page 1]
+   - [ALL-456] needs [Page 2] updated
 
    What would you like to review or update?
    ```
@@ -304,7 +304,7 @@ Provide targeted analysis when the user wants to:
 
 ## Team Categorization
 
-Use `config/team-members.json` to categorize content by team:
+Use `.ai/config/team-members.json` to categorize content by team:
 
 1. **Map participants to teams**
    - Match names in transcripts to team members
@@ -321,10 +321,10 @@ Use `config/team-members.json` to categorize content by team:
 
 **Present team-specific views when helpful**:
 ```markdown
-## [Team A] Team
+## App Experience Team
 - [Items specific to this team]
 
-## [Your Team] Team
+## Cloaked Labs Team
 - [Items specific to this team]
 
 ## Cross-Team Items

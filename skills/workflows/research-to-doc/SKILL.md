@@ -26,27 +26,27 @@ Before gathering data, confirm:
 Launch 5 gathering subagents simultaneously using the Task tool:
 
 **Transcript Gatherer** (subagent_type: "general-purpose"):
-- Search `local/private_transcripts/` and `knowledge/meeting_transcripts/`
+- Search `.ai/local/private_transcripts/` and `.ai/knowledge/meeting_transcripts/`
 - Extract relevant quotes, decisions, and action items
 - Note speaker attributions and dates
 
 **Jira Gatherer** (subagent_type: "general-purpose"):
-- Search tickets related to the topic: `node scripts/atlassian-api.cjs jira search "text ~ 'topic'"`
+- Search tickets related to the topic: `node .ai/scripts/atlassian-api.cjs jira search "text ~ 'topic'"`
 - Get ticket details, comments, status, and linked issues
 - Extract requirements, decisions, and blockers
 
 **Analytics Gatherer** (subagent_type: "general-purpose"):
 - Check PostHog for relevant metrics and experiments
-- Check relevant Google Sheets: `node scripts/google-sheets-api.cjs read <spreadsheet_id> <range>`
+- Check relevant Google Sheets: `node .ai/scripts/google-sheets-api.cjs read <spreadsheet_id> <range>`
 - Look for relevant dashboards and reports
 
 **Knowledge Base Gatherer** (subagent_type: "general-purpose"):
-- Search Confluence: `node scripts/atlassian-api.cjs confluence search "query"`
-- Check `knowledge/` for relevant docs
+- Search Confluence: `node .ai/scripts/atlassian-api.cjs confluence search "query"`
+- Check `.ai/knowledge/` for relevant docs
 - Look for prior research on the topic
 
 **Slack Gatherer** (subagent_type: "general-purpose"):
-- Search relevant channels for discussions: `node scripts/slack-api.cjs search "topic"`
+- Search relevant channels for discussions: `node .ai/scripts/slack-api.cjs search "topic"`
 - Extract key threads and decisions
 - Note unresolved questions
 
@@ -78,12 +78,12 @@ Based on user preference:
 
 **Google Docs**:
 ```bash
-node scripts/google-docs-creator.cjs create "Document Title" "<content>"
+node .ai/scripts/google-docs-creator.cjs create "Document Title" "<content>"
 ```
 
 **Confluence**:
 ```bash
-node scripts/atlassian-api.cjs confluence create-page --space TEAM --title "Title" --content "<content>"
+node .ai/scripts/atlassian-api.cjs confluence create-page --space TEAM --title "Title" --content "<content>"
 ```
 
 **Inline**: Present directly in the conversation.

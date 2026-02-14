@@ -1,5 +1,3 @@
-// PM AI Starter Kit - confluence-sync.cjs
-// See scripts/README.md for setup
 #!/usr/bin/env node
 /**
  * Confluence Sync - Pull Confluence pages into local markdown files
@@ -14,11 +12,13 @@
 const fs = require('fs');
 const path = require('path');
 const { confluence } = require('./lib/confluence-client.cjs');
+const { run } = require('./lib/script-runner.cjs');
+const { track } = require('./lib/telemetry.cjs');
 
-// Paths - customize these for your project
-const CONFIG_PATH = path.join(__dirname, 'config/confluence-sync-config.json');
-const MANIFEST_PATH = path.join(__dirname, 'config/confluence-sync-manifest.json');
-const KNOWLEDGE_PATH = path.join(__dirname, 'knowledge');
+// Paths
+const CONFIG_PATH = path.join(__dirname, '../config/confluence-sync-config.json');
+const MANIFEST_PATH = path.join(__dirname, '../config/confluence-sync-manifest.json');
+const KNOWLEDGE_PATH = path.join(__dirname, '../knowledge');
 
 // Staleness threshold (24 hours)
 const STALE_THRESHOLD_MS = 24 * 60 * 60 * 1000;
@@ -126,9 +126,7 @@ function htmlToMarkdown(html) {
  */
 function loadConfig() {
   if (!fs.existsSync(CONFIG_PATH)) {
-    console.error('Config not found:', CONFIG_PATH);
-    console.error('Create config/confluence-sync-config.json with page definitions');
-    process.exit(1);
+    throw new Error(`Config not found: ${CONFIG_PATH}. Create .ai/config/confluence-sync-config.json with page definitions`);
   }
   return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
 }
@@ -154,14 +152,13 @@ function saveManifest(manifest) {
  * Generate YAML frontmatter for synced file
  */
 function generateFrontmatter(page, pageData) {
-  const baseUrl = process.env.JIRA_BASE_URL || 'https://yourcompany.atlassian.net';
   const lines = [
     '---',
     'source: confluence',
     `page_id: "${page.id}"`,
     `space: "${pageData.space?.key || 'unknown'}"`,
     `title: "${pageData.title}"`,
-    `url: "${baseUrl}/wiki/spaces/${pageData.space?.key}/pages/${page.id}"`,
+    `url: "https://yourcompany.atlassian.net/wiki/spaces/${pageData.space?.key}/pages/${page.id}"`,
     `synced_at: "${new Date().toISOString()}"`,
     `confluence_version: ${pageData.version?.number || 0}`,
     '---',
@@ -268,7 +265,7 @@ async function checkStaleness(config, manifest) {
 
   console.log('\n' + '='.repeat(50));
   if (hasStale) {
-    console.log('Run: node scripts/confluence-sync.cjs');
+    console.log('Run: node .ai/scripts/confluence-sync.cjs');
   } else {
     console.log('All files up to date');
   }
@@ -285,6 +282,7 @@ function listPages(config, manifest) {
     console.log(`\nID: ${page.id}`);
     console.log(`  Destination: ${page.destination}`);
     console.log(`  Tags: ${page.tags?.join(', ') || 'none'}`);
+    console.log(`  Agents: ${page.agents?.join(', ') || 'none'}`);
     if (cached) {
       console.log(`  Last sync: ${cached.synced_at}`);
       console.log(`  Version: ${cached.confluence_version}`);
@@ -297,31 +295,33 @@ function listPages(config, manifest) {
 /**
  * Main
  */
-async function main() {
-  const args = process.argv.slice(2);
+run({
+  name: 'confluence-sync',
+  mode: 'operational',
+  services: ['jira'],
+}, async (ctx) => {
+  const mode = ctx.args.flags.check ? 'check' : ctx.args.flags.list ? 'list' : ctx.args.flags.page ? 'page' : 'sync';
 
   const config = loadConfig();
   const manifest = loadManifest();
 
   // Parse args
-  if (args.includes('--check')) {
+  if (ctx.args.flags.check) {
     await checkStaleness(config, manifest);
     return;
   }
 
-  if (args.includes('--list')) {
+  if (ctx.args.flags.list) {
     listPages(config, manifest);
     return;
   }
 
   // Sync specific page
-  const pageIdx = args.indexOf('--page');
-  if (pageIdx !== -1) {
-    const pageId = args[pageIdx + 1];
+  if (ctx.args.flags.page) {
+    const pageId = ctx.args.flags.page;
     const page = config.pages.find(p => p.id === pageId);
     if (!page) {
-      console.error(`Page ${pageId} not in config`);
-      process.exit(1);
+      throw new Error(`Page ${pageId} not in config`);
     }
     await syncPage(page, manifest);
     saveManifest(manifest);
@@ -347,9 +347,6 @@ async function main() {
 
   console.log('\n' + '='.repeat(50));
   console.log(`Synced: ${success}, Failed: ${failed}`);
-}
 
-main().catch(err => {
-  console.error('Fatal error:', err.message);
-  process.exit(1);
+  track('confluence_sync', { success, failed, total: config.pages.length });
 });

@@ -1,0 +1,156 @@
+{
+  "description": "Quality evaluation test cases for PM AI agents",
+  "version": "1.0.0",
+  "test_cases": [
+    {
+      "id": "quality-001",
+      "prompt": "What's our current D7 retention rate?",
+      "criteria": [
+        "Mentions checking metrics or data sources",
+        "References appropriate tools or knowledge files",
+        "Provides actionable next steps"
+      ],
+      "tags": ["metrics", "smoke"]
+    },
+    {
+      "id": "quality-002",
+      "prompt": "Should we add a pause feature to Call Guard?",
+      "criteria": [
+        "Considers user value and use cases",
+        "Mentions potential trade-offs or risks",
+        "Provides a clear recommendation with reasoning"
+      ],
+      "tags": ["product", "smoke"]
+    },
+    {
+      "id": "quality-003",
+      "prompt": "Help me analyze the checkout-trust-badges experiment results",
+      "criteria": [
+        "References experiment data or knowledge files",
+        "Discusses statistical significance or sample size",
+        "Provides interpretation of results"
+      ],
+      "tags": ["experiments", "smoke"]
+    },
+    {
+      "id": "quality-004",
+      "prompt": "Draft a Jira ticket for improving the data scan loading time",
+      "criteria": [
+        "Uses appropriate Jira formatting (ADF or plain text)",
+        "Includes clear problem statement",
+        "Specifies acceptance criteria or success metrics"
+      ],
+      "tags": ["jira", "smoke"]
+    },
+    {
+      "id": "quality-005",
+      "prompt": "What experiments have we run on the checkout flow?",
+      "criteria": [
+        "References experiment knowledge base",
+        "Lists specific experiments by name",
+        "Summarizes key learnings"
+      ],
+      "tags": ["experiments"]
+    },
+    {
+      "id": "quality-006",
+      "prompt": "Write my weekly update - this week I shipped the trust badges experiment and started working on Call Guard improvements",
+      "criteria": [
+        "Uses appropriate update format",
+        "Organizes into shipped/in-progress/blockers",
+        "Keeps tone direct and specific"
+      ],
+      "tags": ["updates"]
+    },
+    {
+      "id": "quality-007",
+      "prompt": "Compare our conversion rate to industry benchmarks",
+      "criteria": [
+        "Acknowledges need for external data or research",
+        "References internal metrics if available",
+        "Provides context about what good looks like"
+      ],
+      "tags": ["metrics", "research"]
+    },
+    {
+      "id": "quality-008",
+      "prompt": "How does the backend-core handle user authentication?",
+      "criteria": [
+        "References correct codebase or documentation",
+        "Describes authentication flow accurately",
+        "Mentions relevant files or components"
+      ],
+      "tags": ["engineering"]
+    },
+    {
+      "id": "quality-009",
+      "prompt": "What's the bug investigation process for iOS crashes?",
+      "criteria": [
+        "References engineering guidelines or knowledge",
+        "Outlines specific debugging steps",
+        "Mentions relevant tools (Sentry, Xcode, etc.)"
+      ],
+      "tags": ["engineering", "debugging"]
+    },
+    {
+      "id": "quality-010",
+      "prompt": "Summarize what we learned from the tiered pricing experiment",
+      "criteria": [
+        "References specific experiment data",
+        "States clear outcome (won/lost/inconclusive)",
+        "Extracts actionable learnings"
+      ],
+      "tags": ["experiments", "analysis"]
+    },
+    {
+      "id": "quality-011",
+      "prompt": "Design an A/B test for improving onboarding completion",
+      "criteria": [
+        "Defines clear hypothesis",
+        "Specifies metrics to track",
+        "Considers sample size or runtime"
+      ],
+      "tags": ["experiments", "product"]
+    },
+    {
+      "id": "quality-012",
+      "prompt": "What are our key product principles?",
+      "criteria": [
+        "References product knowledge files",
+        "Lists specific principles",
+        "Provides context on how they apply"
+      ],
+      "tags": ["product"]
+    },
+    {
+      "id": "quality-013",
+      "prompt": "Help me prepare for a 1:1 with my manager about Q1 priorities",
+      "criteria": [
+        "Suggests discussion topics",
+        "References current projects or priorities",
+        "Provides actionable preparation steps"
+      ],
+      "tags": ["career", "planning"]
+    },
+    {
+      "id": "quality-014",
+      "prompt": "What's the status of our Call Guard COGS reduction efforts?",
+      "criteria": [
+        "References relevant project context",
+        "Mentions specific cost drivers (OpenAI, telephony)",
+        "Provides current state or recent updates"
+      ],
+      "tags": ["project", "metrics"]
+    },
+    {
+      "id": "quality-015",
+      "prompt": "Create a Confluence page documenting our experiment learnings",
+      "criteria": [
+        "Uses appropriate documentation format",
+        "Organizes learnings by category or theme",
+        "Includes actionable insights"
+      ],
+      "tags": ["documentation"]
+    }
+  ]
+}

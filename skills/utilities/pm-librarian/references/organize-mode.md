@@ -14,41 +14,41 @@ Handle file placement, naming conventions, and index maintenance. Use when new i
 
 ```
 Is it a knowledge document (reference, guide, schema)?
-  → knowledge/ (and add to knowledge-index.json)
+  → .ai/knowledge/ (and add to knowledge-index.json)
 
 Is it a meeting transcript?
-  → knowledge/meeting_transcripts/ (if team/public)
-  → local/private_transcripts/ (if sensitive/1:1)
+  → .ai/knowledge/meeting_transcripts/ (if team/public)
+  → .ai/local/private_transcripts/ (if sensitive/1:1)
 
 Is it experiment data?
-  → knowledge/experiments/<category>/
+  → .ai/knowledge/experiments/<category>/
 
 Is it a temporary work product (draft, analysis, report)?
-  → work/<project-name>/
+  → .ai/work/<project-name>/
 
 Is it a system configuration?
-  → config/
+  → .ai/config/
 
 Is it a CLI script or tool?
-  → scripts/ (entry point)
-  → scripts/lib/ (shared library)
+  → .ai/scripts/ (entry point)
+  → .ai/tools/lib/ (shared library)
 
 Is it private user data?
-  → local/
+  → .ai/local/
 
 Is it a status update?
-  → updates/YYYY/MM/
+  → .ai/updates/YYYY/MM/
 ```
 
 ### Naming Conventions
 
 | Type | Pattern | Example |
 |------|---------|---------|
-| Knowledge docs | `kebab-case.md` | `product-features.md` |
+| Knowledge docs | `kebab-case.md` | `cloaked-features.md` |
 | Meeting transcripts | `YYYY-MM-DD-title.md` | `2026-02-11-standup.md` |
 | Experiment files | `<experiment-id>.json` | `remove-paywall-gate.json` |
 | Config files | `kebab-case.json` | `knowledge-index.json` |
-| Status updates | `YYYY-MM-DD-author.md` | `2026-02-11-your-name.md` |
+| Status updates | `YYYY-MM-DD-author.md` | `2026-02-11-kyler-ross.md` |
 | Work drafts | descriptive name | `prd-freemium-q1-2026.md` |
 | Backup files | `<name>-<timestamp>.backup.<ext>` | `temporal-db-v2-1234.backup.json` |
 
@@ -61,7 +61,7 @@ Is it a status update?
 
 ## Knowledge Index Maintenance
 
-When adding a file to `knowledge/`, ALWAYS update `config/knowledge-index.json`:
+When adding a file to `.ai/knowledge/`, ALWAYS update `.ai/config/knowledge-index.json`:
 
 ```json
 {
@@ -88,14 +88,14 @@ When the user says "remember this" or "store this somewhere":
 2. **Check for existing home** - Does a file already cover this topic?
 3. **Append or create**:
    - If existing file covers the topic: append to it with a date header
-   - If new topic: create appropriately named file in knowledge/
+   - If new topic: create appropriately named file in .ai/knowledge/
 4. **Update index** - Add/update entry in knowledge-index.json
 5. **Confirm** - Tell user where it was stored and how to find it
 
 ## Directory Creation Rules
 
 - Only create subdirectories when a topic has 3+ files
-- Keep nesting to max 2 levels under knowledge/
+- Keep nesting to max 2 levels under .ai/knowledge/
 - Group by domain, not by date (dates go in filenames)
 
 ## Reorganization Protocol

@@ -37,11 +37,11 @@
   },
   "required_context": [],
   "meta": {
-    "author": "starter-kit",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
     "agent_type": "expert-persona",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/experts/ux-psychologist.md",
     "migration_date": "2026-02-03"
   }
 }

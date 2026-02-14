@@ -3,7 +3,7 @@ Analyze today's customer feedback sessions and generate actionable insights.
 ## Steps
 
 1. Read workflow state for today from the scheduler API:
-   - Run: `node -e "const s = require('./scripts/feedback-sessions/lib/shared.cjs'); s.getState().then(r => console.log(JSON.stringify(r, null, 2)))"`
+   - Run: `node -e "const s = require('./.ai/scripts/feedback-sessions/lib/shared.cjs'); s.getState().then(r => console.log(JSON.stringify(r, null, 2)))"`
    - Or call directly: `curl -H 'Authorization: Bearer $PM_AI_SCHEDULER_SECRET' $SCHEDULER_WORKER_URL/api/state/feedback-sessions/$(date +%Y-%m-%d)`
    - Extract: slots data, claim patterns, recording status
 
@@ -27,7 +27,7 @@ Analyze today's customer feedback sessions and generate actionable insights.
    - Suggestions for improving fill rate or participation
    - Notable user segments that are under/over-represented
 
-6. Post summary to your team's Slack channel:
+6. Post summary to #feedback-sessions Slack channel:
    - Use the existing thread if available from today's workflow state
    - Include key metrics and recommendations
 

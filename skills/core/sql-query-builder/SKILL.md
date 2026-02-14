@@ -33,10 +33,10 @@ Load the appropriate reference based on the task:
 ## Required Context
 
 Before writing any query, load relevant knowledge:
-- `knowledge/redshift-schema.md` - Complete table inventory with columns
-- `knowledge/metrics-catalog.md` - Authoritative metric definitions
-- `knowledge/business-metrics-and-logic.md` - Calculation formulas
-- `knowledge/churned-users-guide.md` - Churn analysis details
+- `.ai/knowledge/redshift-schema.md` - Complete table inventory with columns
+- `.ai/knowledge/metrics-catalog.md` - Authoritative metric definitions
+- `.ai/knowledge/business-metrics-and-logic.md` - Calculation formulas
+- `.ai/knowledge/churned-users-guide.md` - Churn analysis details
 
 ## Pre-Aggregated Tables (Use First)
 

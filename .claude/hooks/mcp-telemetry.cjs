@@ -4,24 +4,9 @@
  *
  * Tracks MCP tool usage via PreToolUse hook.
  * Sends events to PostHog for analytics.
- *
- * Requires a telemetry library at scripts/lib/telemetry.cjs that exports:
- *   - track(eventName, properties): void
- *   - flush(): Promise<void>
- *
- * If the telemetry library is not found, this hook silently approves all tools.
  */
 
-let track, flush;
-try {
-  const telemetry = require('../../scripts/lib/telemetry.cjs');
-  track = telemetry.track;
-  flush = telemetry.flush;
-} catch {
-  // Telemetry library not found - create no-op stubs
-  track = () => {};
-  flush = async () => {};
-}
+const { track, flush } = require('../../.ai/scripts/lib/telemetry.cjs');
 
 async function main() {
   // Read hook input from stdin

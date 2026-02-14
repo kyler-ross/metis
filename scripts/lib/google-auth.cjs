@@ -1,8 +1,16 @@
-// PM AI Starter Kit - Google Auth Library (Multi-Account)
-// See scripts/README.md for setup instructions
-//
-// Unified OAuth2 authentication for all Google services.
-// Supports multiple accounts with per-account token storage.
+/**
+ * Unified Google Auth Module
+ *
+ * Multi-account OAuth2 authentication for all Google services:
+ * - Google Sheets
+ * - Google Drive
+ * - Google Slides
+ * - Google Docs
+ * - Gmail
+ * - Calendar
+ *
+ * Supports multiple accounts with per-account token storage.
+ */
 
 const { google } = require('googleapis');
 const fs = require('fs');
@@ -10,16 +18,16 @@ const path = require('path');
 const http = require('http');
 const { URL } = require('url');
 
-// Load environment variables from scripts/.env
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+// Load environment variables from .ai/scripts/.env
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 // Configuration from environment (loaded after dotenv)
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const TOKENS_DIR = path.join(__dirname, '../.google-tokens');
-const ACCOUNTS_FILE = path.join(__dirname, '../.google-accounts.json');
-const LEGACY_TOKEN_PATH = path.join(__dirname, '../.google-suite-token.json');
-const LEGACY_SHEETS_TOKEN = path.join(__dirname, '../.google-sheets-token.json');
+const TOKENS_DIR = path.join(__dirname, '..', '.google-tokens');
+const ACCOUNTS_FILE = path.join(__dirname, '..', '.google-accounts.json');
+const LEGACY_TOKEN_PATH = path.join(__dirname, '..', '.google-suite-token.json');
+const LEGACY_SHEETS_TOKEN = path.join(__dirname, '..', '.google-sheets-token.json');
 const REDIRECT_URL = 'http://localhost:3001/oauth2callback';
 
 // Current account context (can be set per-request)
@@ -43,9 +51,9 @@ function checkCredentials() {
   if (!CLIENT_ID || !CLIENT_SECRET) {
     throw new Error(
       'GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be set in environment.\n' +
-      'Add to scripts/.env:\n' +
-      '  GOOGLE_CLIENT_ID=your-client-id\n' +
-      '  GOOGLE_CLIENT_SECRET=your-client-secret'
+      'Add to ~/.zshrc or ~/.bashrc:\n' +
+      '  export GOOGLE_CLIENT_ID="your-client-id"\n' +
+      '  export GOOGLE_CLIENT_SECRET="your-client-secret"'
     );
   }
 }
@@ -69,6 +77,30 @@ function getTokenPathForAccount(email) {
 }
 
 /**
+ * Register an account in the accounts config (creates config if needed)
+ */
+function registerAccount(account) {
+  if (!fs.existsSync(ACCOUNTS_FILE)) {
+    const config = { default: account, accounts: [account] };
+    fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(config, null, 2), { mode: 0o600 });
+    return;
+  }
+  const config = loadAccounts();
+  let changed = false;
+  if (!config.accounts.includes(account)) {
+    config.accounts.push(account);
+    changed = true;
+  }
+  if (!config.default) {
+    config.default = account;
+    changed = true;
+  }
+  if (changed) {
+    saveAccounts(config);
+  }
+}
+
+/**
  * Load accounts config
  */
 function loadAccounts() {
@@ -82,7 +114,7 @@ function loadAccounts() {
  * Save accounts config
  */
 function saveAccounts(config) {
-  fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(config, null, 2));
+  fs.writeFileSync(ACCOUNTS_FILE, JSON.stringify(config, null, 2), { mode: 0o600 });
 }
 
 /**
@@ -141,19 +173,11 @@ function migrateLegacyToken() {
     const newPath = getTokenPathForAccount(email);
 
     if (!fs.existsSync(newPath)) {
-      fs.writeFileSync(newPath, JSON.stringify(token));
+      fs.writeFileSync(newPath, JSON.stringify(token), { mode: 0o600 });
 
-      // Update accounts config
-      const config = loadAccounts();
-      if (!config.accounts.includes(email)) {
-        config.accounts.push(email);
-      }
-      if (!config.default) {
-        config.default = email;
-      }
-      saveAccounts(config);
+      registerAccount(email);
 
-      console.log('Migrated legacy token to multi-account system');
+      console.log('📦 Migrated legacy token to multi-account system');
     }
     return true;
   }
@@ -190,6 +214,38 @@ async function getAuthClient(options = {}) {
   const account = options.account || getCurrentAccount();
   const tokenPath = account ? getTokenPathForAccount(account) : LEGACY_TOKEN_PATH;
 
+  // Migrate legacy token to per-account path if needed
+  // This runs inside getAuthClient() so ALL scripts benefit automatically
+  if (account && tokenPath !== LEGACY_TOKEN_PATH && !fs.existsSync(tokenPath) && fs.existsSync(LEGACY_TOKEN_PATH)) {
+    try {
+      ensureTokensDir();
+      const legacyData = fs.readFileSync(LEGACY_TOKEN_PATH, 'utf-8');
+      // Validate it's parseable JSON before writing
+      JSON.parse(legacyData);
+      fs.writeFileSync(tokenPath, legacyData, { flag: 'wx', mode: 0o600 });
+      // Tighten permissions on legacy file too while we're here
+      fs.chmodSync(LEGACY_TOKEN_PATH, 0o600);
+
+      registerAccount(account);
+      process.stderr.write(`[google-auth] Migrated legacy token to per-account path: ${tokenPath}\n`);
+    } catch (migrationErr) {
+      if (migrationErr.code === 'EEXIST') {
+        // Another process already migrated - this is fine
+        process.stderr.write(`[google-auth] Legacy token already migrated by another process\n`);
+      } else {
+        process.stderr.write(`[google-auth] Legacy token migration failed: ${migrationErr.message}\n`);
+        // Delete corrupt target so next run retries from scratch
+        try {
+          if (fs.existsSync(tokenPath)) {
+            fs.unlinkSync(tokenPath);
+          }
+        } catch (cleanupErr) {
+          process.stderr.write(`[google-auth] Cleanup failed: ${cleanupErr.message}\n`);
+        }
+      }
+    }
+  }
+
   // Check if token exists and is valid
   if (!options.forceReauth && fs.existsSync(tokenPath)) {
     const token = JSON.parse(fs.readFileSync(tokenPath));
@@ -205,7 +261,7 @@ async function getAuthClient(options = {}) {
       try {
         const { credentials } = await oauth2Client.refreshAccessToken();
         oauth2Client.setCredentials(credentials);
-        fs.writeFileSync(tokenPath, JSON.stringify(credentials));
+        fs.writeFileSync(tokenPath, JSON.stringify(credentials), { mode: 0o600 });
         return oauth2Client;
       } catch (err) {
         console.log('Token refresh failed, re-authorizing...');
@@ -224,6 +280,14 @@ async function getAuthClient(options = {}) {
  * @returns {Promise<{client: OAuth2Client, email: string}>}
  */
 async function addAccount() {
+  // In CI environments, fail fast instead of opening a browser
+  if (process.env.CI) {
+    throw new Error(
+      'Google OAuth requires interactive authorization but running in CI.\n' +
+      'Ensure GOOGLE_OAUTH_TOKEN_JSON is set and written to .google-tokens/<account>.json'
+    );
+  }
+
   const oauth2Client = createOAuth2Client();
 
   return new Promise((resolve, reject) => {
@@ -249,17 +313,9 @@ async function addAccount() {
         // Save token for this account
         ensureTokensDir();
         const tokenPath = getTokenPathForAccount(email);
-        fs.writeFileSync(tokenPath, JSON.stringify(tokens));
+        fs.writeFileSync(tokenPath, JSON.stringify(tokens), { mode: 0o600 });
 
-        // Update accounts config
-        const config = loadAccounts();
-        if (!config.accounts.includes(email)) {
-          config.accounts.push(email);
-        }
-        if (!config.default) {
-          config.default = email;
-        }
-        saveAccounts(config);
+        registerAccount(email);
 
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(`

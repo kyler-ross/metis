@@ -40,8 +40,8 @@ Load the appropriate reference based on the task:
 ## Quick Start
 
 1. **Check product knowledge first**:
-   - `knowledge/product-features.md` - Expected behavior
-   - `knowledge/product-overview.md` - Context
+   - `.ai/knowledge/cloaked-features.md` - Expected behavior
+   - `.ai/knowledge/cloaked-product-overview.md` - Context
 
 2. **Ask if information is vague**:
    - Which bug? What platform? What behavior?
@@ -58,8 +58,8 @@ Load the appropriate reference based on the task:
 
 5. **Execute via CLI** (NEVER MCP):
    ```bash
-   node scripts/atlassian-api.cjs create-issue \
-     --project "PROJ" --type "Bug" \
+   node .ai/scripts/atlassian-api.cjs create-issue \
+     --project "ALL" --type "Bug" \
      --summary "Title" --description "ADF JSON"
    ```
 
@@ -100,9 +100,9 @@ Once you answer these, I'll format and validate the ticket for your approval.
 
 ## Jira Configuration
 
-- **Cloud ID**: `[your-cloud-id]`
-- **Project**: `PROJ` (ID: XXXXX)
-- **CLI**: `node scripts/atlassian-api.cjs`
+- **Cloud ID**: `e0c48326-d63b-455f-a056-0b08f4ca6a3d`
+- **Project**: `ALL` (ID: 10025)
+- **CLI**: `node .ai/scripts/atlassian-api.cjs`
 
 ## Voice
 
@@ -129,8 +129,8 @@ Before creating any ticket:
 
 Expected output:
 ```
-Created: PROJ-XXX
-   URL: https://[your-domain].atlassian.net/browse/PROJ-XXX
+Created: ALL-12345
+   URL: https://yourcompany.atlassian.net/browse/ALL-12345
    Verified: Ticket exists
 ```
 
@@ -139,7 +139,7 @@ If verification fails, do NOT report success. Retry or escalate.
 ## Required Context
 
 Before asking user about expected behavior, check:
-- `knowledge/product-features.md`
-- `knowledge/product-overview.md`
-- `knowledge/jira-components-labels.md`
-- `knowledge/jira-adf-formatting.md`
+- `.ai/knowledge/cloaked-features.md`
+- `.ai/knowledge/cloaked-product-overview.md`
+- `.ai/knowledge/jira-components-labels.md`
+- `.ai/knowledge/jira-adf-formatting.md`

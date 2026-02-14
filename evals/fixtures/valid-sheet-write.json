@@ -1,0 +1,10 @@
+{
+  "sheetId": "1abc234def567ghi890jklmnop123qrs456tuv789wxy",
+  "range": "Sheet1!A1:B3",
+  "type": "write",
+  "data": [
+    ["Name", "Email"],
+    ["Alice", "alice@example.com"],
+    ["Bob", "bob@example.com"]
+  ]
+}

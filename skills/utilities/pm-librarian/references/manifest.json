@@ -52,7 +52,7 @@
     "estimated_tokens": 3000,
     "mcp_tools": [],
     "cli_tools": [
-      "scripts/confluence-sync.cjs",
+      ".ai/scripts/confluence-sync.cjs",
       "scripts/validate-skills.cjs",
       "scripts/generate-index.cjs"
     ],
@@ -100,7 +100,7 @@
     }
   },
   "meta": {
-    "author": "pm-system",
+    "author": "kyler",
     "version": "1.0",
     "status": "active"
   }

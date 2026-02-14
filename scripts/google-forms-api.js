@@ -1,4 +1,3 @@
-// PM AI Starter Kit - google-forms-api.js
 #!/usr/bin/env node
 /**
  * Google Forms API CLI
@@ -29,6 +28,8 @@ const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const formsClient = require('./lib/forms-client.js');
+const { track } = require('./lib/telemetry.cjs');
+const { run } = require('./lib/script-runner.cjs');
 
 // Parse arguments
 const [,, command, ...args] = process.argv;
@@ -111,16 +112,21 @@ JSON Spec Format (for create-from-json):
 }
 
 // Main execution
-async function main() {
+run({
+  name: 'google-forms-api',
+  mode: 'operational',
+  services: ['google'],
+}, async (ctx) => {
+  track('pm_ai_google_forms_api_start', { command });
+
   try {
     switch (command) {
       case 'create': {
         if (!args[0]) {
-          console.error('ERROR: title is required');
-          process.exit(1);
+          throw new Error('title is required');
         }
         const form = await formsClient.createForm(args[0]);
-        console.log(`\nCreated form: ${form.title}`);
+        console.log(`\n✅ Created form: ${form.title}`);
         console.log(`   Form ID: ${form.formId}`);
         console.log(`   Edit: ${form.editUri}`);
         console.log(`   Share: ${form.responderUri}`);
@@ -129,11 +135,10 @@ async function main() {
 
       case 'info': {
         if (!args[0]) {
-          console.error('ERROR: formId is required');
-          process.exit(1);
+          throw new Error('formId is required');
         }
         const form = await formsClient.getForm(args[0]);
-        console.log(`\n${form.title}`);
+        console.log(`\n📋 ${form.title}`);
         if (form.description) {
           console.log(`   ${form.description}`);
         }
@@ -146,11 +151,10 @@ async function main() {
 
       case 'questions': {
         if (!args[0]) {
-          console.error('ERROR: formId is required');
-          process.exit(1);
+          throw new Error('formId is required');
         }
         const form = await formsClient.getForm(args[0]);
-        console.log(`\n${form.title}\n`);
+        console.log(`\n📋 ${form.title}\n`);
 
         if (form.questions.length === 0) {
           console.log('   (no questions)');
@@ -168,9 +172,7 @@ async function main() {
 
       case 'add': {
         if (!args[0] || !args[1] || !args[2]) {
-          console.error('ERROR: formId, type, and title are required');
-          console.error('Usage: add <formId> <type> <title> [--options "a,b,c"] [--required]');
-          process.exit(1);
+          throw new Error('formId, type, and title are required. Usage: add <formId> <type> <title> [--options "a,b,c"] [--required]');
         }
 
         const formId = args[0];
@@ -190,7 +192,7 @@ async function main() {
         };
 
         const result = await formsClient.addQuestion(formId, question);
-        console.log(`\nAdded question: "${title}"`);
+        console.log(`\n✅ Added question: "${title}"`);
         console.log(`   Type: ${type}`);
         console.log(`   Item ID: ${result.itemId}`);
         break;
@@ -198,38 +200,35 @@ async function main() {
 
       case 'add-json': {
         if (!args[0] || !args[1]) {
-          console.error('ERROR: formId and JSON are required');
-          process.exit(1);
+          throw new Error('formId and JSON are required');
         }
 
         const formId = args[0];
         const questions = JSON.parse(args[1]);
 
         const results = await formsClient.addQuestions(formId, questions);
-        console.log(`\nAdded ${results.length} questions`);
+        console.log(`\n✅ Added ${results.length} questions`);
         break;
       }
 
       case 'create-from-json': {
         if (!args[0]) {
-          console.error('ERROR: JSON file path is required');
-          process.exit(1);
+          throw new Error('JSON file path is required');
         }
 
         const filePath = path.resolve(args[0]);
         if (!fs.existsSync(filePath)) {
-          console.error(`ERROR: File not found: ${filePath}`);
-          process.exit(1);
+          throw new Error(`File not found: ${filePath}`);
         }
 
         const spec = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-        console.log(`\nCreating form from: ${filePath}`);
+        console.log(`\n📝 Creating form from: ${filePath}`);
         console.log(`   Title: ${spec.title}`);
         console.log(`   Questions: ${spec.questions?.length || 0}`);
 
         const form = await formsClient.createFormFromSpec(spec);
 
-        console.log(`\nCreated form: ${form.title}`);
+        console.log(`\n✅ Created form: ${form.title}`);
         console.log(`   Form ID: ${form.formId}`);
         console.log(`   Questions: ${form.questionCount}`);
         console.log(`   Edit: ${form.editUri}`);
@@ -239,12 +238,11 @@ async function main() {
 
       case 'responses': {
         if (!args[0]) {
-          console.error('ERROR: formId is required');
-          process.exit(1);
+          throw new Error('formId is required');
         }
 
         const data = await formsClient.getResponses(args[0]);
-        console.log(`\nResponses: ${data.responseCount}\n`);
+        console.log(`\n📊 Responses: ${data.responseCount}\n`);
 
         if (data.responseCount === 0) {
           console.log('   (no responses yet)');
@@ -263,12 +261,11 @@ async function main() {
 
       case 'summary': {
         if (!args[0]) {
-          console.error('ERROR: formId is required');
-          process.exit(1);
+          throw new Error('formId is required');
         }
 
         const summary = await formsClient.getResponsesSummary(args[0]);
-        console.log(`\n${summary.title}`);
+        console.log(`\n📊 ${summary.title}`);
         console.log(`   Total responses: ${summary.responseCount}\n`);
 
         for (const [qId, data] of Object.entries(summary.questions)) {
@@ -293,12 +290,11 @@ async function main() {
 
       case 'duplicate': {
         if (!args[0] || !args[1]) {
-          console.error('ERROR: formId and newTitle are required');
-          process.exit(1);
+          throw new Error('formId and newTitle are required');
         }
 
         const form = await formsClient.duplicateForm(args[0], args[1]);
-        console.log(`\nDuplicated form: ${form.title}`);
+        console.log(`\n✅ Duplicated form: ${form.title}`);
         console.log(`   Form ID: ${form.formId}`);
         console.log(`   Questions: ${form.questionCount}`);
         console.log(`   Edit: ${form.editUri}`);
@@ -317,18 +313,19 @@ async function main() {
           console.error(`Unknown command: ${command}`);
         }
         showHelp();
-        process.exit(command ? 1 : 0);
+        if (command) throw new Error(`Unknown command: ${command}`);
+        return;
     }
+
   } catch (error) {
-    console.error(`\nError: ${error.message}`);
+    console.error(`\n❌ Error: ${error.message}`);
     if (error.errors) {
       console.error('Details:', JSON.stringify(error.errors, null, 2));
     }
     if (error.response?.data?.error) {
       console.error('API Error:', JSON.stringify(error.response.data.error, null, 2));
     }
-    process.exit(1);
+    throw error;
   }
-}
+});
 
-main();

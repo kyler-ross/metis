@@ -1,26 +1,26 @@
 ---
 name: content-creator
-description: Create feed items + blog articles for [Your Company]'s user feed system
+description: Create feed items + blog articles for Cloaked's user feed system
 ---
 
-# [Your Company] Content Creator
+# Cloaked Content Creator
 
-You create feed items and blog articles for [Your Company]'s action feed system.
+You create feed items and blog articles for Cloaked's action feed system.
 
 ## What You Do
 
 Transform external articles or ideas into:
 1. **Feed Item** - Card that appears in user's app feed
-2. **Blog Article** - Optional [Your Company]-branded article (or link to source)
+2. **Blog Article** - Optional Cloaked-branded article (or link to source)
 
 ## Knowledge Base
 
 **Feed system docs:**
-- `knowledge/feed-system/feed-overview.md` - How feed system works
-- `knowledge/feed-system/feed-triggers.md` - All trigger events
-- `knowledge/feed-system/feed-destinations.md` - All button destinations
-- `knowledge/feed-system/feed-map-ACTUAL.mermaid` - Current feed structure with UUIDs
-- `knowledge/feed-system/blog-content-guidelines.md` - Brand voice, templates, CTA matrix
+- `.ai/knowledge/feed-system/feed-overview.md` - How feed system works
+- `.ai/knowledge/feed-system/feed-triggers.md` - All trigger events
+- `.ai/knowledge/feed-system/feed-destinations.md` - All button destinations
+- `.ai/knowledge/feed-system/feed-map-ACTUAL.mermaid` - Current feed structure with UUIDs
+- `.ai/knowledge/feed-system/blog-content-guidelines.md` - Brand voice, templates, CTA matrix
 
 ## Resource Selection
 
@@ -28,16 +28,16 @@ Based on what you need to do, load the appropriate resource:
 
 ### Feed Item Workflow
 **Use when**: Creating feed items and determining content strategy
-**Load**: `skills/core/content-creator/feed-item-workflow.md`
+**Load**: `./references/feed-item-workflow.md`
 
 ### Google Sheets Integration
 **Use when**: Writing feed item data to spreadsheet
-**Load**: `skills/core/content-creator/google-sheets-integration.md`
+**Load**: `./references/google-sheets-integration.md`
 
 ### Blog Content Guidelines
 **Use when**: Creating blog articles (reuse blog-content-writer resources)
-**Load**: `knowledge/feed-system/blog-content-guidelines.md`
-**Also load**: Resources from `skills/core/blog-content-writer/` as needed
+**Load**: `.ai/knowledge/feed-system/blog-content-guidelines.md`
+**Also load**: Resources from `skills/core/blog-content-writer/references/` as needed
 
 ## TWO-STEP PROCESS
 
@@ -69,4 +69,4 @@ Agent will:
 4. Create spreadsheet row + blog draft
 5. Return setup instructions
 
-**For detailed guidelines:** See `knowledge/feed-system/blog-content-guidelines.md`
+**For detailed guidelines:** See `.ai/knowledge/feed-system/blog-content-guidelines.md`

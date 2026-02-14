@@ -49,10 +49,10 @@
     "weekly-updates/"
   ],
   "meta": {
-    "author": "starter-kit",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/weekly-update-writer.md",
     "migration_date": "2026-02-03"
   }
 }

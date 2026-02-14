@@ -19,7 +19,7 @@ This resource contains advanced workflows for epic management, bulk operations, 
 **Process**:
 
 ```javascript
-const { jira } = require('./scripts/atlassian-api.js');
+const { jira } = require('./.ai/scripts/atlassian-api.js');
 
 // Step 1: Create epic
 const epic = await jira.createEpic(
@@ -59,14 +59,14 @@ console.log(`Epic ${epic.key} now has ${tasks.length} sub-tasks`);
 
 **Output**:
 ```
-Created epic: PROJ-XXX
-Created and linked: PROJ-XXX
-Created and linked: PROJ-XXX
-Created and linked: PROJ-XXX
-Created and linked: PROJ-XXX
-Created and linked: PROJ-XXX
-Created and linked: PROJ-XXX
-Epic PROJ-XXX now has 6 sub-tasks
+Created epic: ALL-1000
+Created and linked: ALL-1001
+Created and linked: ALL-1002
+Created and linked: ALL-1003
+Created and linked: ALL-1004
+Created and linked: ALL-1005
+Created and linked: ALL-1006
+Epic ALL-1000 now has 6 sub-tasks
 ```
 
 ---
@@ -79,7 +79,7 @@ Epic PROJ-XXX now has 6 sub-tasks
 
 ```javascript
 // Search for all tasks under epic
-const epicKey = 'PROJ-XXX';
+const epicKey = 'ALL-1000';
 const tasks = await jira.searchJQL(`parent = ${epicKey}`);
 
 // Count by status
@@ -99,7 +99,7 @@ console.log(`- Blocked: ${statusCounts['Blocked'] || 0}`);
 
 **Output**:
 ```
-Epic PROJ-XXX progress:
+Epic ALL-1000 progress:
 - Total tasks: 6
 - To Do: 2
 - In Progress: 3
@@ -170,7 +170,7 @@ console.log(`\nCreated ${createdKeys.length} tickets: ${createdKeys.join(', ')}`
 ```javascript
 // Find tickets to update
 const tickets = await jira.searchJQL(
-  'project = PROJ AND status = "To Do" AND labels = Feed AND sprint is EMPTY'
+  'project = ALL AND status = "To Do" AND labels = Feed AND sprint is EMPTY'
 );
 
 console.log(`Found ${tickets.issues.length} tickets to update`);
@@ -198,7 +198,7 @@ console.log('Bulk update complete');
 ```javascript
 // Find stale tickets
 const staleTickets = await jira.searchJQL(
-  'project = PROJ AND status = "In Progress" AND updated <= -30d'
+  'project = ALL AND status = "In Progress" AND updated <= -30d'
 );
 
 console.log(`Found ${staleTickets.issues.length} stale tickets`);
@@ -227,7 +227,7 @@ console.log('Added comments to all stale tickets');
 **Process**:
 
 ```javascript
-const { jira, confluence } = require('./scripts/atlassian-api.js');
+const { jira, confluence } = require('./.ai/scripts/atlassian-api.js');
 
 // Step 1: Create epic in Jira
 const epic = await jira.createEpic(
@@ -247,7 +247,7 @@ const confluencePage = await confluence.createPage(
     <p>Product specification for Feature X</p>
 
     <h2>Jira Epic</h2>
-    <p>Epic: <a href="https://[your-domain].atlassian.net/browse/${epic.key}">${epic.key}</a></p>
+    <p>Epic: <a href="https://yourcompany.atlassian.net/browse/${epic.key}">${epic.key}</a></p>
 
     <h2>User Stories</h2>
     <ul>
@@ -276,9 +276,9 @@ console.log(`Linked Confluence page to epic ${epic.key}`);
 
 **Output**:
 ```
-Created epic: PROJ-XXX
-Created Confluence page: https://[your-domain].atlassian.net/wiki/spaces/PROD/pages/123456
-Linked Confluence page to epic PROJ-XXX
+Created epic: ALL-1000
+Created Confluence page: https://yourcompany.atlassian.net/wiki/spaces/PROD/pages/123456
+Linked Confluence page to epic ALL-1000
 ```
 
 ---
@@ -290,13 +290,13 @@ Linked Confluence page to epic PROJ-XXX
 **Process**:
 
 ```javascript
-const prdUrl = 'https://[your-domain].atlassian.net/wiki/spaces/PROD/pages/123456';
+const prdUrl = 'https://yourcompany.atlassian.net/wiki/spaces/PROD/pages/123456';
 const prdTitle = 'Feature X Product Spec';
 const changeDescription = 'Updated acceptance criteria to include offline mode support';
 
 // Find tickets that reference this PRD
 const relatedTickets = await jira.searchJQL(
-  `project = PROJ AND text ~ "${prdTitle}"`
+  `project = ALL AND text ~ "${prdTitle}"`
 );
 
 console.log(`Found ${relatedTickets.issues.length} tickets referencing this PRD`);
@@ -400,7 +400,7 @@ const sprintName = 'Sprint 47';
 
 // Get all tickets in sprint
 const sprintTickets = await jira.searchJQL(
-  `project = PROJ AND sprint = "${sprintName}"`
+  `project = ALL AND sprint = "${sprintName}"`
 );
 
 // Analyze by status and type
@@ -458,7 +458,7 @@ const searchTerm = 'login crash iOS';
 
 // Search for similar tickets
 const similar = await jira.searchJQL(
-  `project = PROJ AND text ~ "${searchTerm}" ORDER BY created DESC`
+  `project = ALL AND text ~ "${searchTerm}" ORDER BY created DESC`
 );
 
 console.log(`Found ${similar.issues.length} potentially related tickets:`);
@@ -467,7 +467,7 @@ for (const issue of similar.issues.slice(0, 10)) {  // Show top 10
   console.log(`\n${issue.key}: ${issue.fields.summary}`);
   console.log(`  Status: ${issue.fields.status.name}`);
   console.log(`  Created: ${issue.fields.created}`);
-  console.log(`  URL: https://[your-domain].atlassian.net/browse/${issue.key}`);
+  console.log(`  URL: https://yourcompany.atlassian.net/browse/${issue.key}`);
 }
 
 if (similar.issues.length === 0) {
@@ -491,7 +491,7 @@ if (similar.issues.length === 0) {
 const sprintName = 'Sprint 47';
 
 const sprintTickets = await jira.searchJQL(
-  `project = PROJ AND sprint = "${sprintName}"`
+  `project = ALL AND sprint = "${sprintName}"`
 );
 
 const issues = [];
@@ -538,6 +538,6 @@ if (issues.length === 0) {
 ## Reference
 
 **See also**:
-- Ticket templates: `skills/core/jira-ticket-writer/ticket-templates.md`
-- Workflow steps: `skills/core/jira-ticket-writer/workflow-steps.md`
-- API reference: `skills/core/jira-ticket-writer/api-reference.md`
+- Ticket templates: `./ticket-templates.md`
+- Workflow steps: `./workflow-steps.md`
+- API reference: `./api-reference.md`

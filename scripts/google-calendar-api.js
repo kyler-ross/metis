@@ -1,4 +1,3 @@
-// PM AI Starter Kit - google-calendar-api.js
 #!/usr/bin/env node
 /**
  * Google Calendar API CLI
@@ -24,7 +23,10 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 // Use createRequire for CommonJS modules
 const require = createRequire(import.meta.url);
 const calendarClient = require('./lib/calendar-client.cjs');
+const standupManager = require('./lib/standup-manager.cjs');
 const readline = require('readline');
+const { run } = require('./lib/script-runner.cjs');
+const { track } = require('./lib/telemetry.cjs');
 
 // Email validation regex (RFC 5322 compliant - stricter than simplified version)
 // Rejects: consecutive dots, dots at start/end of local part, missing domain parts
@@ -46,10 +48,7 @@ function isValidEmail(email) {
  */
 function validateEmail(email, context = 'Email') {
   if (!isValidEmail(email)) {
-    console.error(`ERROR: Invalid email format: ${email}`);
-    console.error(`${context} must be a valid email address`);
-    console.error('Example: user@example.com');
-    process.exit(1);
+    throw new Error(`Invalid email format: ${email}. ${context} must be a valid email address. Example: user@example.com`);
   }
 }
 
@@ -107,11 +106,7 @@ function isValidRRule(rrule) {
  */
 function validateRRule(rrule) {
   if (!isValidRRule(rrule)) {
-    console.error(`ERROR: Invalid RRULE format: ${rrule}`);
-    console.error('RRULE must start with "RRULE:" and include a valid FREQ=');
-    console.error('Valid frequencies: DAILY, WEEKLY, MONTHLY, YEARLY');
-    console.error('Example: RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR');
-    process.exit(1);
+    throw new Error(`Invalid RRULE format: ${rrule}. RRULE must start with "RRULE:" and include a valid FREQ=. Valid frequencies: DAILY, WEEKLY, MONTHLY, YEARLY. Example: RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR`);
   }
 }
 
@@ -150,10 +145,7 @@ function isValidDateTime(dateStr) {
  */
 function validateDateTime(dateStr, context = 'Date/time') {
   if (!isValidDateTime(dateStr)) {
-    console.error(`ERROR: Invalid date/time format for ${context}: ${dateStr}`);
-    console.error('Must be ISO 8601 format: YYYY-MM-DDTHH:MM or YYYY-MM-DD');
-    console.error('Examples: 2025-12-05T14:00, 2025-12-05T14:00:00Z, 2025-12-05');
-    process.exit(1);
+    throw new Error(`Invalid date/time format for ${context}: ${dateStr}. Must be ISO 8601 format: YYYY-MM-DDTHH:MM or YYYY-MM-DD. Examples: 2025-12-05T14:00, 2025-12-05T14:00:00Z, 2025-12-05`);
   }
 }
 
@@ -196,6 +188,20 @@ Recurring Events:
   update-series <eventId> <field> <value>
                                          Update recurring series
 
+Standup Management:
+  standup list                           List configured standups
+  standup preview <key>                  Preview standup before creating
+  standup create <key>                   Create standup series
+  standup create-all                     Create all standups
+  standup sync [key]                     Sync attendees from config
+  standup delete <key>                   Delete standup series
+
+Group Management:
+  group list                             List attendee groups
+  group show <name>                      Show group members
+  group add <name> <email>               Add member to group
+  group remove <name> <email>            Remove member from group
+
 Date/Time Formats:
   2025-12-05                             All-day event date
   2025-12-05T14:00                       Date with time (local timezone)
@@ -221,6 +227,11 @@ Examples:
   # Recurring events
   node google-calendar-api.js create-recurring "Daily Standup" "2026-01-21T09:00" "2026-01-21T09:15" "RRULE:FREQ=DAILY;COUNT=5"
   node google-calendar-api.js instances abc123 30
+
+  # Standups
+  node google-calendar-api.js standup list
+  node google-calendar-api.js standup preview global_weekly
+  node google-calendar-api.js standup create global_weekly
 `);
 }
 
@@ -235,9 +246,7 @@ function parseOptions(args) {
       // Validate each email
       for (const email of emails) {
         if (!isValidEmail(email)) {
-          console.error(`ERROR: Invalid email in --attendees: ${email}`);
-          console.error('Each attendee must be a valid email address');
-          process.exit(1);
+          throw new Error(`Invalid email in --attendees: ${email}. Each attendee must be a valid email address`);
         }
       }
       options.attendees = emails;
@@ -295,13 +304,17 @@ function formatDateTime(dateStr, isAllDay = false) {
 }
 
 // Main execution
-async function main() {
+run({
+  name: 'google-calendar-api',
+  mode: 'operational',
+  services: ['google'],
+}, async (ctx) => {
   try {
     switch (command) {
       case 'calendars': {
         const calendars = await calendarClient.listCalendars();
 
-        console.log(`\n${calendars.length} calendars:\n`);
+        console.log(`\n📅 ${calendars.length} calendars:\n`);
 
         for (const cal of calendars) {
           const primary = cal.primary ? ' (primary)' : '';
@@ -317,7 +330,7 @@ async function main() {
         const days = parseInt(args[0]) || 7;
         const events = await calendarClient.getUpcomingEvents(days);
 
-        console.log(`\nNext ${days} days (${events.length} events):\n`);
+        console.log(`\n📅 Next ${days} days (${events.length} events):\n`);
 
         if (events.length === 0) {
           console.log('   No events scheduled.');
@@ -328,17 +341,17 @@ async function main() {
             if (eventDate !== currentDate) {
               currentDate = eventDate;
               console.log(`\n   ${currentDate}`);
-              console.log('   ' + '-'.repeat(40));
+              console.log('   ' + '─'.repeat(40));
             }
 
             const time = event.isAllDay ? 'All day' : `${formatTime(event.start)} - ${formatTime(event.end)}`;
             console.log(`   ${time.padEnd(20)} ${event.summary}`);
 
             if (event.location) {
-              console.log(`   ${''.padEnd(20)} Location: ${event.location}`);
+              console.log(`   ${''.padEnd(20)} 📍 ${event.location}`);
             }
             if (event.meetLink) {
-              console.log(`   ${''.padEnd(20)} Meet link available`);
+              console.log(`   ${''.padEnd(20)} 🎥 Meet`);
             }
           }
         }
@@ -347,9 +360,7 @@ async function main() {
 
       case 'search': {
         if (!args[0]) {
-          console.error('ERROR: search query is required');
-          console.error('Usage: search <query> [days]');
-          process.exit(1);
+          throw new Error('search query is required. Usage: search <query> [days]');
         }
 
         const query = args[0];
@@ -365,7 +376,7 @@ async function main() {
           maxResults: 20
         });
 
-        console.log(`\nSearch: "${query}" (next ${days} days)\n`);
+        console.log(`\n🔍 Search: "${query}" (next ${days} days)\n`);
 
         if (events.length === 0) {
           console.log('   No matching events found.');
@@ -393,7 +404,7 @@ async function main() {
           day: 'numeric'
         });
 
-        console.log(`\n${today} (${events.length} events):\n`);
+        console.log(`\n📅 ${today} (${events.length} events):\n`);
 
         if (events.length === 0) {
           console.log('   No events scheduled for today.');
@@ -403,17 +414,17 @@ async function main() {
             console.log(`   ${time.padEnd(20)} ${event.summary}`);
 
             if (event.location) {
-              console.log(`   ${''.padEnd(20)} Location: ${event.location}`);
+              console.log(`   ${''.padEnd(20)} 📍 ${event.location}`);
             }
             if (event.meetLink) {
-              console.log(`   ${''.padEnd(20)} ${event.meetLink}`);
+              console.log(`   ${''.padEnd(20)} 🎥 ${event.meetLink}`);
             }
             if (event.attendees && event.attendees.length > 0) {
               const others = event.attendees.filter(a => !a.self);
               if (others.length > 0) {
                 const names = others.slice(0, 3).map(a => a.displayName || a.email.split('@')[0]);
                 const more = others.length > 3 ? ` +${others.length - 3} more` : '';
-                console.log(`   ${''.padEnd(20)} With: ${names.join(', ')}${more}`);
+                console.log(`   ${''.padEnd(20)} 👥 ${names.join(', ')}${more}`);
               }
             }
           }
@@ -424,14 +435,13 @@ async function main() {
       case 'get':
       case 'event': {
         if (!args[0]) {
-          console.error('ERROR: eventId is required');
-          process.exit(1);
+          throw new Error('eventId is required');
         }
 
         const eventOpts = parseOptions(args.slice(1));
         const event = await calendarClient.getEvent(args[0], eventOpts.calendarId);
 
-        console.log(`\n${event.summary}\n`);
+        console.log(`\n📅 ${event.summary}\n`);
         console.log(`   When:      ${formatDateTime(event.start, event.isAllDay)} - ${formatDateTime(event.end, event.isAllDay)}`);
 
         if (event.location) {
@@ -449,9 +459,9 @@ async function main() {
         if (event.attendees && event.attendees.length > 0) {
           console.log(`   Attendees:`);
           for (const a of event.attendees) {
-            const status = a.responseStatus === 'accepted' ? '[accepted]' :
-                          a.responseStatus === 'declined' ? '[declined]' :
-                          a.responseStatus === 'tentative' ? '[tentative]' : '[pending]';
+            const status = a.responseStatus === 'accepted' ? '✓' :
+                          a.responseStatus === 'declined' ? '✗' :
+                          a.responseStatus === 'tentative' ? '?' : '○';
             console.log(`      ${status} ${a.displayName || a.email}`);
           }
         }
@@ -462,14 +472,11 @@ async function main() {
 
       case 'update-attendees': {
         if (!args[0]) {
-          console.error('ERROR: eventId is required');
-          console.error('Usage: update-attendees <eventId> --attendees "a@x.com,b@x.com" [--calendar <id>] [--notify]');
-          process.exit(1);
+          throw new Error('eventId is required. Usage: update-attendees <eventId> --attendees "a@x.com,b@x.com" [--calendar <id>] [--notify]');
         }
         const uaOpts = parseOptions(args.slice(1));
         if (!uaOpts.attendees || uaOpts.attendees.length === 0) {
-          console.error('ERROR: --attendees is required');
-          process.exit(1);
+          throw new Error('--attendees is required');
         }
         const uaCurrent = await calendarClient.getEvent(args[0], uaOpts.calendarId);
         const uaOldEmails = (uaCurrent.attendees || []).map(a => a.email);
@@ -491,14 +498,11 @@ async function main() {
 
       case 'remove-attendee': {
         if (!args[0] || !args[1]) {
-          console.error('ERROR: eventId and email are required');
-          console.error('Usage: remove-attendee <eventId> <email> [--calendar <id>] [--notify]');
-          process.exit(1);
+          throw new Error('eventId and email are required. Usage: remove-attendee <eventId> <email> [--calendar <id>] [--notify]');
         }
         const raEmail = args[1];
         if (!isValidEmail(raEmail)) {
-          console.error(`ERROR: Invalid email: ${raEmail}`);
-          process.exit(1);
+          throw new Error(`Invalid email: ${raEmail}`);
         }
         const raOpts = parseOptions(args.slice(2));
         const raCurrent = await calendarClient.getEvent(args[0], raOpts.calendarId);
@@ -519,9 +523,7 @@ async function main() {
 
       case 'create': {
         if (!args[0] || !args[1] || !args[2]) {
-          console.error('ERROR: title, start, and end are required');
-          console.error('Usage: create <title> <start> <end> [--attendees "a@x.com"] [--meet]');
-          process.exit(1);
+          throw new Error('title, start, and end are required. Usage: create <title> <start> <end> [--attendees "a@x.com"] [--meet]');
         }
 
         const [title, start, end] = args;
@@ -539,7 +541,13 @@ async function main() {
           ...options
         });
 
-        console.log(`\nEvent created: ${event.summary}`);
+        track('calendar_create', {
+          has_attendees: !!(options.attendees && options.attendees.length > 0),
+          has_meet: !!event.meetLink,
+          attendee_count: event.attendees?.length || 0
+        });
+
+        console.log(`\n✅ Event created: ${event.summary}`);
         console.log(`   When: ${formatDateTime(event.start)} - ${formatDateTime(event.end)}`);
         if (event.location) {
           console.log(`   Where: ${event.location}`);
@@ -557,15 +565,15 @@ async function main() {
 
       case 'quick': {
         if (!args[0]) {
-          console.error('ERROR: text description is required');
-          console.error('Usage: quick "Meeting with John tomorrow at 3pm"');
-          process.exit(1);
+          throw new Error('text description is required. Usage: quick "Meeting with John tomorrow at 3pm"');
         }
 
         const text = args.join(' ');
         const event = await calendarClient.quickAdd(text);
 
-        console.log(`\nEvent created: ${event.summary}`);
+        track('calendar_quick_add', { text_length: text.length });
+
+        console.log(`\n✅ Event created: ${event.summary}`);
         console.log(`   When: ${formatDateTime(event.start, event.isAllDay)} - ${formatDateTime(event.end, event.isAllDay)}`);
         console.log(`   Event ID: ${event.id}`);
         console.log(`   Link: ${event.htmlLink}`);
@@ -574,9 +582,7 @@ async function main() {
 
       case 'freebusy': {
         if (!args[0] || !args[1] || !args[2]) {
-          console.error('ERROR: emails, start, and end are required');
-          console.error('Usage: freebusy "a@x.com,b@y.com" "2025-12-05T09:00" "2025-12-05T17:00"');
-          process.exit(1);
+          throw new Error('emails, start, and end are required. Usage: freebusy "a@x.com,b@y.com" "2025-12-05T09:00" "2025-12-05T17:00"');
         }
 
         const emails = args[0].split(',').map(e => e.trim());
@@ -593,16 +599,16 @@ async function main() {
 
         const result = await calendarClient.getFreeBusy(emails, start, end);
 
-        console.log(`\nFree/Busy: ${formatDateTime(start)} - ${formatDateTime(end)}\n`);
+        console.log(`\n📅 Free/Busy: ${formatDateTime(start)} - ${formatDateTime(end)}\n`);
 
         for (const [email, data] of Object.entries(result)) {
           console.log(`   ${email}:`);
           if (data.errors) {
-            console.log(`      Error: ${JSON.stringify(data.errors)}`);
+            console.log(`      ⚠️  Error: ${JSON.stringify(data.errors)}`);
           } else if (data.busy.length === 0) {
-            console.log(`      Free during this time`);
+            console.log(`      ✅ Free during this time`);
           } else {
-            console.log(`      Busy times:`);
+            console.log(`      ❌ Busy times:`);
             for (const slot of data.busy) {
               console.log(`         ${formatTime(slot.start)} - ${formatTime(slot.end)}`);
             }
@@ -614,10 +620,7 @@ async function main() {
 
       case 'find-slot': {
         if (!args[0]) {
-          console.error('ERROR: emails are required');
-          console.error('Usage: find-slot <emails> [duration] [days] [--json]');
-          console.error('Example: find-slot "a@x.com,b@y.com" 30 7');
-          process.exit(1);
+          throw new Error('emails are required. Usage: find-slot <emails> [duration] [days] [--json]. Example: find-slot "a@x.com,b@y.com" 30 7');
         }
 
         const emails = args[0].split(',').map(e => e.trim());
@@ -632,7 +635,7 @@ async function main() {
         const jsonOutput = args.includes('--json');
 
         if (!jsonOutput) {
-          console.log(`\nFinding ${duration}-minute slot for ${emails.length} people (next ${searchDays} days)...\n`);
+          console.log(`\n🔍 Finding ${duration}-minute slot for ${emails.length} people (next ${searchDays} days)...\n`);
         }
 
         // Collect multiple slots across days
@@ -685,7 +688,7 @@ async function main() {
           console.log(JSON.stringify(slots));
         } else if (slots.length > 0) {
           const slot = slots[0];
-          console.log(`Found available slot:`);
+          console.log(`✅ Found available slot:`);
           console.log(`   Date: ${slot.date}`);
           console.log(`   Time: ${formatTime(slot.start)} - ${formatTime(slot.end)}`);
           console.log(`   Duration: ${slot.durationMinutes} minutes available`);
@@ -695,16 +698,14 @@ async function main() {
             console.log(`\n   (${slots.length - 1} more slots available)`);
           }
         } else {
-          console.log(`No ${duration}-minute slot found in the next ${searchDays} days`);
+          console.log(`❌ No ${duration}-minute slot found in the next ${searchDays} days`);
         }
         break;
       }
 
       case 'add-attendee': {
         if (!args[0] || !args[1]) {
-          console.error('ERROR: eventId and email are required');
-          console.error('Usage: add-attendee <eventId> <email>');
-          process.exit(1);
+          throw new Error('eventId and email are required. Usage: add-attendee <eventId> <email>');
         }
 
         const eventId = args[0];
@@ -718,7 +719,7 @@ async function main() {
         const existingEmails = (currentEvent.attendees || []).map(a => a.email);
 
         if (existingEmails.includes(newEmail)) {
-          console.log(`\n${newEmail} is already an attendee of ${currentEvent.summary}`);
+          console.log(`\n⚠️  ${newEmail} is already an attendee of ${currentEvent.summary}`);
           break;
         }
 
@@ -727,7 +728,7 @@ async function main() {
           attendees: updatedAttendees
         });
 
-        console.log(`\nAdded attendee to: ${updatedEvent.summary}`);
+        console.log(`\n✅ Added attendee to: ${updatedEvent.summary}`);
         console.log(`   Added: ${newEmail}`);
         console.log(`   Total attendees: ${updatedEvent.attendees.length}`);
         break;
@@ -735,11 +736,7 @@ async function main() {
 
       case 'move': {
         if (!args[0] || !args[1]) {
-          console.error('ERROR: eventId and time shift are required');
-          console.error('Usage: move <eventId> <shift>');
-          console.error('Shift format: +1h, -30m, +2h30m, -1h');
-          console.error('Example: move abc123 -1h  (move back 1 hour)');
-          process.exit(1);
+          throw new Error('eventId and time shift are required. Usage: move <eventId> <shift>. Shift format: +1h, -30m, +2h30m, -1h. Example: move abc123 -1h  (move back 1 hour)');
         }
 
         const eventId = args[0];
@@ -749,9 +746,7 @@ async function main() {
         // Regex requires at least hours or minutes (not empty string)
         const shiftMatch = shiftStr.match(/^([+-]?)((\d+)h)?((\d+)m)?$/);
         if (!shiftMatch || (!shiftMatch[2] && !shiftMatch[4])) {
-          console.error('ERROR: Invalid shift format. Use +1h, -30m, +2h30m, etc.');
-          console.error('       Must specify at least hours or minutes.');
-          process.exit(1);
+          throw new Error('Invalid shift format. Use +1h, -30m, +2h30m, etc..        Must specify at least hours or minutes.');
         }
 
         const sign = shiftMatch[1] === '-' ? -1 : 1;
@@ -764,20 +759,17 @@ async function main() {
         const totalMinutes = hours * 60 + minutes;
 
         if (totalMinutes > MAX_SHIFT_MINUTES) {
-          console.error(`ERROR: Shift amount too large (max: ${MAX_SHIFT_HOURS} hours or 30 days)`);
-          console.error(`       Requested: ${hours}h ${minutes}m (${totalMinutes} minutes total)`);
-          process.exit(1);
+          throw new Error(`Shift amount too large (max: ${MAX_SHIFT_HOURS} hours or 30 days).        Requested: ${hours}h ${minutes}m (${totalMinutes} minutes total)`);
         }
 
         if (totalMinutes === 0) {
-          console.error('ERROR: Shift amount cannot be zero');
-          process.exit(1);
+          throw new Error('Shift amount cannot be zero');
         }
 
-        // Safe integer check before multiplication
+        // Safe integer check before multiplication (Number.MAX_SAFE_INTEGER / 60000 ≈ 150 billion minutes)
+        // Our MAX_SHIFT_MINUTES (43200) is well under this, but explicit check prevents future issues
         if (totalMinutes > Number.MAX_SAFE_INTEGER / 60000) {
-          console.error('ERROR: Shift amount would cause numerical overflow');
-          process.exit(1);
+          throw new Error('Shift amount would cause numerical overflow');
         }
 
         const shiftMs = sign * (totalMinutes * 60 * 1000);
@@ -787,9 +779,7 @@ async function main() {
 
         // Check for all-day events (have date but no dateTime)
         if (currentEvt.start && !currentEvt.start.includes('T')) {
-          console.error('ERROR: Cannot shift all-day events with move command.');
-          console.error('       Use update command to change the date instead.');
-          process.exit(1);
+          throw new Error('Cannot shift all-day events with move command..        Use update command to change the date instead.');
         }
         const newStart = new Date(new Date(currentEvt.start).getTime() + shiftMs);
         const newEnd = new Date(new Date(currentEvt.end).getTime() + shiftMs);
@@ -800,7 +790,7 @@ async function main() {
         });
 
         const shiftDesc = `${sign > 0 ? '+' : ''}${hours ? hours + 'h' : ''}${minutes ? minutes + 'm' : ''}`;
-        console.log(`\nEvent moved (${shiftDesc}): ${movedEvent.summary}`);
+        console.log(`\n✅ Event moved (${shiftDesc}): ${movedEvent.summary}`);
         console.log(`   Was: ${formatDateTime(currentEvt.start)} - ${formatDateTime(currentEvt.end)}`);
         console.log(`   Now: ${formatDateTime(movedEvent.start)} - ${formatDateTime(movedEvent.end)}`);
         break;
@@ -808,10 +798,7 @@ async function main() {
 
       case 'update': {
         if (!args[0] || !args[1] || !args[2]) {
-          console.error('ERROR: eventId, field, and value are required');
-          console.error('Usage: update <eventId> <field> <value>');
-          console.error('Fields: summary, location, description, start, end');
-          process.exit(1);
+          throw new Error('eventId, field, and value are required. Usage: update <eventId> <field> <value>. Fields: summary, location, description, start, end');
         }
 
         const [eventId, field, value] = args;
@@ -824,20 +811,19 @@ async function main() {
         const updates = { [field]: value };
 
         const event = await calendarClient.updateEvent(eventId, updates);
-        console.log(`\nEvent updated: ${event.summary}`);
+        console.log(`\n✅ Event updated: ${event.summary}`);
         console.log(`   ${field}: ${value}`);
         break;
       }
 
       case 'delete': {
         if (!args[0]) {
-          console.error('ERROR: eventId is required');
-          process.exit(1);
+          throw new Error('eventId is required');
         }
 
         // Get event details for confirmation
         const eventToDelete = await calendarClient.getEvent(args[0]);
-        console.log(`\nAbout to delete: ${eventToDelete.summary || args[0]}`);
+        console.log(`\n⚠️  About to delete: ${eventToDelete.summary || args[0]}`);
 
         const confirmed = await confirmAction('Are you sure you want to delete this event?');
         if (!confirmed) {
@@ -846,7 +832,8 @@ async function main() {
         }
 
         await calendarClient.deleteEvent(args[0]);
-        console.log(`\nEvent deleted: ${eventToDelete.summary || args[0]}`);
+        track('calendar_delete', {});
+        console.log(`\n✅ Event deleted: ${eventToDelete.summary || args[0]}`);
         break;
       }
 
@@ -854,13 +841,11 @@ async function main() {
 
       case 'accept': {
         if (!args[0]) {
-          console.error('ERROR: eventId is required');
-          console.error('Usage: accept <eventId>');
-          process.exit(1);
+          throw new Error('eventId is required. Usage: accept <eventId>');
         }
 
         const event = await calendarClient.respondToInvite(args[0], 'accepted');
-        console.log(`\nAccepted invite: ${event.summary}`);
+        console.log(`\n✅ Accepted invite: ${event.summary}`);
         console.log(`   When: ${formatDateTime(event.start, event.isAllDay)} - ${formatDateTime(event.end, event.isAllDay)}`);
         if (event.organizer) {
           console.log(`   Organizer: ${event.organizer}`);
@@ -870,13 +855,11 @@ async function main() {
 
       case 'decline': {
         if (!args[0]) {
-          console.error('ERROR: eventId is required');
-          console.error('Usage: decline <eventId>');
-          process.exit(1);
+          throw new Error('eventId is required. Usage: decline <eventId>');
         }
 
         const event = await calendarClient.respondToInvite(args[0], 'declined');
-        console.log(`\nDeclined invite: ${event.summary}`);
+        console.log(`\n❌ Declined invite: ${event.summary}`);
         console.log(`   When: ${formatDateTime(event.start, event.isAllDay)} - ${formatDateTime(event.end, event.isAllDay)}`);
         if (event.organizer) {
           console.log(`   Organizer notified: ${event.organizer}`);
@@ -887,13 +870,11 @@ async function main() {
       case 'maybe':
       case 'tentative': {
         if (!args[0]) {
-          console.error('ERROR: eventId is required');
-          console.error('Usage: maybe <eventId>');
-          process.exit(1);
+          throw new Error('eventId is required. Usage: maybe <eventId>');
         }
 
         const event = await calendarClient.respondToInvite(args[0], 'tentative');
-        console.log(`\nMarked as maybe: ${event.summary}`);
+        console.log(`\n❓ Marked as maybe: ${event.summary}`);
         console.log(`   When: ${formatDateTime(event.start, event.isAllDay)} - ${formatDateTime(event.end, event.isAllDay)}`);
         if (event.organizer) {
           console.log(`   Organizer: ${event.organizer}`);
@@ -903,10 +884,7 @@ async function main() {
 
       case 'propose-time': {
         if (!args[0] || !args[1] || !args[2]) {
-          console.error('ERROR: eventId, start, and end are required');
-          console.error('Usage: propose-time <eventId> <newStart> <newEnd>');
-          console.error('Example: propose-time abc123 "2026-01-23T15:00" "2026-01-23T16:00"');
-          process.exit(1);
+          throw new Error('eventId, start, and end are required. Usage: propose-time <eventId> <newStart> <newEnd>. Example: propose-time abc123 "2026-01-23T15:00" "2026-01-23T16:00"');
         }
 
         const [eventId, newStart, newEnd] = args;
@@ -916,7 +894,7 @@ async function main() {
         validateDateTime(newEnd, 'Proposed end time');
 
         const result = await calendarClient.proposeNewTime(eventId, newStart, newEnd);
-        console.log(`\nProposed new time for: ${result.summary}`);
+        console.log(`\n📬 Proposed new time for: ${result.summary}`);
         console.log(`   Original: ${formatDateTime(result.start, result.isAllDay)} - ${formatDateTime(result.end, result.isAllDay)}`);
         console.log(`   Proposed: ${formatDateTime(result.proposedStart)} - ${formatDateTime(result.proposedEnd)}`);
         if (result.organizer) {
@@ -930,10 +908,7 @@ async function main() {
 
       case 'create-recurring': {
         if (!args[0] || !args[1] || !args[2] || !args[3]) {
-          console.error('ERROR: title, start, end, and rrule are required');
-          console.error('Usage: create-recurring <title> <start> <end> <rrule> [--attendees "a@x.com"] [--meet]');
-          console.error('Example: create-recurring "Daily Standup" "2026-01-21T09:00" "2026-01-21T09:15" "RRULE:FREQ=DAILY;COUNT=5"');
-          process.exit(1);
+          throw new Error('title, start, end, and rrule are required. Usage: create-recurring <title> <start> <end> <rrule> [--attendees "a@x.com"] [--meet]. Example: create-recurring "Daily Standup" "2026-01-21T09:00" "2026-01-21T09:15" "RRULE:FREQ=DAILY;COUNT=5"');
         }
 
         const [title, start, end, rrule] = args;
@@ -955,7 +930,7 @@ async function main() {
           ...options
         });
 
-        console.log(`\nRecurring event created: ${event.summary}`);
+        console.log(`\n✅ Recurring event created: ${event.summary}`);
         console.log(`   First occurrence: ${formatDateTime(event.start)} - ${formatDateTime(event.end)}`);
         console.log(`   Recurrence: ${rrule}`);
         if (event.meetLink) {
@@ -971,9 +946,7 @@ async function main() {
 
       case 'instances': {
         if (!args[0]) {
-          console.error('ERROR: eventId is required');
-          console.error('Usage: instances <eventId> [days]');
-          process.exit(1);
+          throw new Error('eventId is required. Usage: instances <eventId> [days]');
         }
 
         const eventId = args[0];
@@ -987,7 +960,7 @@ async function main() {
           timeMax: future
         });
 
-        console.log(`\nRecurring event instances (next ${days} days):\n`);
+        console.log(`\n📅 Recurring event instances (next ${days} days):\n`);
 
         if (instances.length === 0) {
           console.log('   No instances found in this time range.');
@@ -1002,10 +975,7 @@ async function main() {
 
       case 'update-series': {
         if (!args[0] || !args[1] || !args[2]) {
-          console.error('ERROR: eventId, field, and value are required');
-          console.error('Usage: update-series <eventId> <field> <value>');
-          console.error('Fields: summary, location, description, attendees');
-          process.exit(1);
+          throw new Error('eventId, field, and value are required. Usage: update-series <eventId> <field> <value>. Fields: summary, location, description, attendees');
         }
 
         const [eventId, field, value] = args;
@@ -1018,7 +988,7 @@ async function main() {
         }
 
         // Warn about updating entire series
-        console.log(`\nThis will update ALL instances of the recurring series.`);
+        console.log(`\n⚠️  This will update ALL instances of the recurring series.`);
         console.log(`   Field: ${field}`);
         console.log(`   New value: ${value}`);
 
@@ -1029,8 +999,216 @@ async function main() {
         }
 
         const event = await calendarClient.updateRecurringSeries(eventId, updates);
-        console.log(`\nRecurring series updated: ${event.summary}`);
+        console.log(`\n✅ Recurring series updated: ${event.summary}`);
         console.log(`   ${field}: ${value}`);
+        break;
+      }
+
+      // ============ Standup Commands ============
+
+      case 'standup': {
+        const subCommand = args[0];
+
+        switch (subCommand) {
+          case 'list': {
+            const standups = await standupManager.listStandups();
+
+            console.log(`\n📅 Configured Standups:\n`);
+
+            for (const standup of standups) {
+              const status = standup.eventId ? '✅ Created' : '⏳ Not created';
+              console.log(`   ${standup.key}:`);
+              console.log(`      Name: ${standup.name}`);
+              console.log(`      Schedule: ${standup.schedule} @ ${standup.time}`);
+              console.log(`      Duration: ${standup.duration} minutes`);
+              console.log(`      Attendees: ${standup.attendeeCount} (groups: ${standup.attendeeGroups.join(', ')})`);
+              console.log(`      Status: ${status}`);
+              if (standup.eventId) {
+                console.log(`      Event ID: ${standup.eventId}`);
+              }
+              console.log('');
+            }
+            break;
+          }
+
+          case 'preview': {
+            if (!args[1]) {
+              throw new Error('standup key is required. Usage: standup preview <key>');
+            }
+
+            const preview = standupManager.previewStandup(args[1]);
+
+            console.log(`\n📅 Standup Preview: ${args[1]}\n`);
+            console.log(`   Summary: ${preview.summary}`);
+            console.log(`   Description: ${preview.description?.substring(0, 100)}...`);
+            console.log(`   First occurrence: ${formatDateTime(preview.start)}`);
+            console.log(`   Duration: ${formatDateTime(preview.start)} - ${formatDateTime(preview.end)}`);
+            console.log(`   Recurrence: ${preview.recurrence}`);
+            console.log(`   Attendees (${preview.attendees.length}):`);
+            for (const email of preview.attendees) {
+              console.log(`      - ${email}`);
+            }
+            console.log(`   Google Meet: ${preview.addMeet ? 'Yes' : 'No'}`);
+            break;
+          }
+
+          case 'create': {
+            if (!args[1]) {
+              throw new Error('standup key is required. Usage: standup create <key>');
+            }
+
+            console.log(`\nCreating standup: ${args[1]}...`);
+            const event = await standupManager.createStandup(args[1]);
+
+            console.log(`\n✅ Standup created: ${event.summary}`);
+            console.log(`   First occurrence: ${formatDateTime(event.start)}`);
+            if (event.meetLink) {
+              console.log(`   Meet: ${event.meetLink}`);
+            }
+            console.log(`   Event ID: ${event.id}`);
+            console.log(`   Link: ${event.htmlLink}`);
+            break;
+          }
+
+          case 'create-all': {
+            console.log(`\nCreating all standups...`);
+            const results = await standupManager.createAllStandups();
+
+            console.log(`\n📅 Results:\n`);
+            for (const result of results) {
+              if (result.status === 'created') {
+                console.log(`   ✅ ${result.key}: Created (${result.eventId})`);
+              } else if (result.status === 'skipped') {
+                console.log(`   ⏭️  ${result.key}: ${result.reason}`);
+              } else {
+                console.log(`   ❌ ${result.key}: Error - ${result.error}`);
+              }
+            }
+            break;
+          }
+
+          case 'sync': {
+            if (args[1]) {
+              // Sync specific standup
+              const standup = standupManager.getStandup(args[1]);
+              console.log(`\nSyncing attendees for: ${args[1]}...`);
+
+              const event = await standupManager.updateStandupAttendees(args[1], standup.attendees);
+              console.log(`\n✅ Synced ${standup.attendees.length} attendees to ${event.summary}`);
+            } else {
+              // Sync all standups
+              console.log(`\nSyncing all standup attendees...`);
+              const results = await standupManager.syncAllStandupAttendees();
+
+              console.log(`\n📅 Sync Results:\n`);
+              for (const result of results) {
+                if (result.status === 'synced') {
+                  console.log(`   ✅ ${result.key}: Synced ${result.attendeeCount} attendees`);
+                } else if (result.status === 'skipped') {
+                  console.log(`   ⏭️  ${result.key}: ${result.reason}`);
+                } else {
+                  console.log(`   ❌ ${result.key}: Error - ${result.error}`);
+                }
+              }
+            }
+            break;
+          }
+
+          case 'delete': {
+            if (!args[1]) {
+              throw new Error('standup key is required. Usage: standup delete <key>');
+            }
+
+            const standupToDelete = standupManager.getStandup(args[1]);
+            console.log(`\n⚠️  About to delete standup: ${standupToDelete.name || args[1]}`);
+            console.log(`   This will cancel all future occurrences and send notifications.`);
+
+            const confirmed = await confirmAction('Are you sure you want to delete this standup series?');
+            if (!confirmed) {
+              console.log('Cancelled.');
+              break;
+            }
+
+            console.log(`\nDeleting standup: ${args[1]}...`);
+            await standupManager.deleteStandup(args[1]);
+            console.log(`\n✅ Standup deleted: ${args[1]}`);
+            break;
+          }
+
+          default:
+            throw new Error(`Unknown standup command: ${subCommand}. Usage: standup [list|preview|create|create-all|sync|delete]`);
+        }
+        break;
+      }
+
+      // ============ Group Commands ============
+
+      case 'group': {
+        const subCommand = args[0];
+
+        switch (subCommand) {
+          case 'list': {
+            const config = standupManager.loadConfig();
+
+            console.log(`\n👥 Attendee Groups:\n`);
+
+            for (const [name, group] of Object.entries(config.attendee_groups)) {
+              console.log(`   ${name}:`);
+              console.log(`      Description: ${group.description}`);
+              console.log(`      Members (${(group.members || []).length}):`);
+              for (const email of (group.members || [])) {
+                console.log(`         - ${email}`);
+              }
+              console.log('');
+            }
+            break;
+          }
+
+          case 'show': {
+            if (!args[1]) {
+              throw new Error('group name is required. Usage: group show <name>');
+            }
+
+            const members = standupManager.resolveAttendeeGroup(args[1]);
+
+            console.log(`\n👥 Group: ${args[1]}\n`);
+            if (members.length === 0) {
+              console.log('   No members');
+            } else {
+              console.log(`   ${members.length} members:`);
+              for (const email of members) {
+                console.log(`      - ${email}`);
+              }
+            }
+            break;
+          }
+
+          case 'add': {
+            if (!args[1] || !args[2]) {
+              throw new Error('group name and email are required. Usage: group add <name> <email>');
+            }
+
+            // Validate email format
+            validateEmail(args[2], 'Member email');
+
+            standupManager.addToAttendeeGroup(args[1], args[2]);
+            console.log(`\n✅ Added ${args[2]} to ${args[1]}`);
+            break;
+          }
+
+          case 'remove': {
+            if (!args[1] || !args[2]) {
+              throw new Error('group name and email are required. Usage: group remove <name> <email>');
+            }
+
+            standupManager.removeFromAttendeeGroup(args[1], args[2]);
+            console.log(`\n✅ Removed ${args[2]} from ${args[1]}`);
+            break;
+          }
+
+          default:
+            throw new Error(`Unknown group command: ${subCommand}. Usage: group [list|show|add|remove]`);
+        }
         break;
       }
 
@@ -1045,18 +1223,19 @@ async function main() {
           console.error(`Unknown command: ${command}`);
         }
         showHelp();
-        process.exit(command ? 1 : 0);
+        if (command) throw new Error(`Unknown command: ${command}`);
+        return;
     }
+
   } catch (error) {
-    console.error(`\nError: ${error.message}`);
+    console.error(`\n❌ Error: ${error.message}`);
     if (error.errors) {
       console.error('Details:', JSON.stringify(error.errors, null, 2));
     }
     if (error.response?.data?.error) {
       console.error('API Error:', JSON.stringify(error.response.data.error, null, 2));
     }
-    process.exit(1);
+    throw error;
   }
-}
+});
 
-main();

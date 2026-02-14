@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated": "2026-02-13",
+  "updated": "2026-02-12",
   "description": "PM AI Skills Registry - Central index for routing and discovery",
   "schema": {
     "skill": {
@@ -16,7 +16,7 @@
   "skills": {
     "blog-content-writer": {
       "path": "core/blog-content-writer/SKILL.md",
-      "description": "Transform articles and drafts into [Your Company]-branded blog posts for the app news feed",
+      "description": "Transform articles and drafts into Cloaked-branded blog posts for the app news feed",
       "category": "core",
       "routing_keywords": [
         "write blog",
@@ -81,7 +81,7 @@
     },
     "content-creator": {
       "path": "core/content-creator/SKILL.md",
-      "description": "Create feed items + blog articles for [Your Company]'s user feed system",
+      "description": "Create feed items + blog articles for Cloaked's user feed system",
       "category": "core",
       "routing_keywords": [
         "create feed item",
@@ -128,7 +128,7 @@
     },
     "feed-manager": {
       "path": "core/feed-manager/SKILL.md",
-      "description": "Manage, visualize, and modify [Your Company]'s user feed system",
+      "description": "Manage, visualize, and modify Cloaked's user feed system",
       "category": "core",
       "routing_keywords": [
         "feed structure",
@@ -355,7 +355,7 @@
     },
     "weekly-update-writer": {
       "path": "core/weekly-update-writer/SKILL.md",
-      "description": "Extract from [Transcript Tool] meetings and help write team/manager weekly updates",
+      "description": "Extract from Granola meetings and help write team/manager weekly updates",
       "category": "core",
       "routing_keywords": [
         "weekly update",
@@ -630,7 +630,7 @@
     },
     "eng-fullstack": {
       "path": "specialized/eng-fullstack/SKILL.md",
-      "description": "Principal engineer (striving for Distinguished) with deep system mastery across all [Your Product] platforms",
+      "description": "Principal engineer (striving for Distinguished) with deep system mastery across all Cloaked platforms",
       "category": "specialized",
       "routing_keywords": [
         "engineering help",
@@ -682,7 +682,7 @@
       "semantic_tags": [
         "ocr-processing",
         "text-extraction",
-        "product-first",
+        "privacy-first",
         "local-processing"
       ],
       "mcp_tools": [],
@@ -709,7 +709,7 @@
     },
     "prototype-builder": {
       "path": "specialized/prototype-builder/SKILL.md",
-      "description": "Build interactive UI prototypes using your product's component libraries",
+      "description": "Build interactive UI prototypes using Cloaked's component libraries",
       "category": "specialized",
       "routing_keywords": [
         "build prototype",
@@ -861,12 +861,29 @@
     },
     "pr-review": {
       "path": "workflows/pr-review/SKILL.md",
-      "description": "Multi-dimensional PR review with parallel analysis agents",
+      "description": "Dynamic Dream Team PR review - triages changes, maps files to domains, assembles 3-8 agents with full codebase access, scales context by PR size",
       "category": "workflows",
-      "routing_keywords": [],
-      "semantic_tags": [],
-      "mcp_tools": [],
-      "estimated_tokens": 2500
+      "routing_keywords": [
+        "review pr",
+        "code review",
+        "pr review",
+        "check my pr",
+        "review pull request"
+      ],
+      "semantic_tags": [
+        "code-review",
+        "pull-request",
+        "security-audit",
+        "dynamic-team",
+        "parallel-review",
+        "triage-driven",
+        "file-mapping",
+        "codebase-access"
+      ],
+      "mcp_tools": [
+        "github"
+      ],
+      "estimated_tokens": 8000
     },
     "research-to-doc": {
       "path": "workflows/research-to-doc/SKILL.md",
@@ -879,7 +896,7 @@
     },
     "casual-user": {
       "path": "personas/casual-user/SKILL.md",
-      "description": "[Your Product] user who doesn't fully understand the product value proposition and finds it kind of boring",
+      "description": "Cloaked user who doesn't fully understand the privacy problem and finds it kind of boring",
       "category": "personas",
       "routing_keywords": [
         "casual user",
@@ -897,7 +914,7 @@
     },
     "pragmatic-user": {
       "path": "personas/pragmatic-user/SKILL.md",
-      "description": "[Your Product] user who fully understands the product value proposition but treats it as boring maintenance, like insurance",
+      "description": "Cloaked user who fully understands the privacy problem but treats it as boring maintenance, like insurance",
       "category": "personas",
       "routing_keywords": [
         "pragmatic user",
@@ -915,16 +932,16 @@
     },
     "privacy-advocate": {
       "path": "personas/privacy-advocate/SKILL.md",
-      "description": "[Your Product] power user who deeply understands the product and is passionately committed to its mission",
+      "description": "Cloaked power user who deeply understands privacy issues and is passionately committed to solving them",
       "category": "personas",
       "routing_keywords": [
-        "power-user",
+        "privacy advocate",
         "expert user",
         "morgan",
-        "product-expertise"
+        "power user"
       ],
       "semantic_tags": [
-        "product-first",
+        "privacy-advocate",
         "expert-user",
         "high-understanding",
         "power-user"
@@ -934,14 +951,14 @@
     },
     "urgent-user": {
       "path": "personas/urgent-user/SKILL.md",
-      "description": "[Your Product] user with urgent product needs who doesn't understand the technical details but desperately needs help",
+      "description": "Cloaked user with urgent privacy needs who doesn't understand the technical details but desperately needs help",
       "category": "personas",
       "routing_keywords": [
         "urgent user",
         "safety perspective",
         "alex",
-        "urgent-need",
-        "critical-situation"
+        "stalker",
+        "doxxing"
       ],
       "semantic_tags": [
         "urgent-user",
@@ -954,7 +971,7 @@
     },
     "auto-pull-manager": {
       "path": "utilities/auto-pull-manager/SKILL.md",
-      "description": "Manage the [your company] repos auto-pull automation system",
+      "description": "Manage the Cloaked repos auto-pull automation system",
       "category": "utilities",
       "routing_keywords": [
         "auto pull",
@@ -973,39 +990,25 @@
     },
     "desktop-launcher": {
       "path": "utilities/desktop-launcher/SKILL.md",
-      "description": "Helps users launch PMDesktop native macOS app based on setup state",
+      "description": "Helps users launch PMDesktop native Swift macOS app based on setup state",
       "category": "utilities",
       "routing_keywords": [
         "launch",
         "open",
         "start",
         "pmdesktop",
-        "swift"
-      ],
-      "semantic_tags": [
-        "app-launch",
-        "pmdesktop",
-        "desktop-app",
+        "desktop app",
+        "swift",
+        "swiftui",
+        "native",
         "macos"
       ],
-      "mcp_tools": [],
-      "estimated_tokens": 2500
-    },
-    "electron-launcher": {
-      "path": "utilities/electron-launcher/SKILL.md",
-      "description": "Helps users launch PM AI desktop app based on setup state",
-      "category": "utilities",
-      "routing_keywords": [
-        "launch",
-        "open",
-        "start",
-        "electron",
-        "desktop app"
-      ],
       "semantic_tags": [
         "app-launch",
-        "electron-app",
-        "desktop-app"
+        "pmdesktop",
+        "swift-desktop",
+        "desktop-app",
+        "macos-app"
       ],
       "mcp_tools": [],
       "estimated_tokens": 2500
@@ -1140,7 +1143,6 @@
       "skills": [
         "auto-pull-manager",
         "desktop-launcher",
-        "electron-launcher",
         "env-health-check",
         "pm-librarian",
         "ralph-manager"
@@ -1516,6 +1518,21 @@
     "panel discussion": [
       "expert-panel-orchestrator"
     ],
+    "review pr": [
+      "pr-review"
+    ],
+    "code review": [
+      "pr-review"
+    ],
+    "pr review": [
+      "pr-review"
+    ],
+    "check my pr": [
+      "pr-review"
+    ],
+    "review pull request": [
+      "pr-review"
+    ],
     "feature debate": [
       "feature-design-debate"
     ],
@@ -1552,7 +1569,7 @@
     "sam": [
       "pragmatic-user"
     ],
-    "power-user": [
+    "privacy advocate": [
       "privacy-advocate"
     ],
     "expert user": [
@@ -1580,16 +1597,13 @@
       "auto-pull-manager"
     ],
     "launch": [
-      "desktop-launcher",
-      "electron-launcher"
+      "desktop-launcher"
     ],
     "open": [
-      "desktop-launcher",
-      "electron-launcher"
+      "desktop-launcher"
     ],
     "start": [
-      "desktop-launcher",
-      "electron-launcher"
+      "desktop-launcher"
     ],
     "cleanup": [
       "pm-librarian"

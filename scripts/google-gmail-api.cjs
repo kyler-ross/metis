@@ -1,4 +1,3 @@
-// PM AI Starter Kit - google-gmail-api.cjs
 #!/usr/bin/env node
 /**
  * Google Gmail API CLI
@@ -6,20 +5,20 @@
  * Command-line interface for Gmail operations.
  *
  * Usage:
- *   node google-gmail-api.cjs list [query]              - List/search emails
- *   node google-gmail-api.cjs read <messageId>          - Read full email
- *   node google-gmail-api.cjs thread <threadId>         - Get conversation
- *   node google-gmail-api.cjs send <to> <subject> <body> - Send email
- *   node google-gmail-api.cjs reply <threadId> <body>   - Reply to thread
- *   node google-gmail-api.cjs draft <to> <subject> <body> - Create draft
- *   node google-gmail-api.cjs labels                    - List labels
+ *   node google-gmail-api.js list [query]              - List/search emails
+ *   node google-gmail-api.js read <messageId>          - Read full email
+ *   node google-gmail-api.js thread <threadId>         - Get conversation
+ *   node google-gmail-api.js send <to> <subject> <body> - Send email
+ *   node google-gmail-api.js reply <threadId> <body>   - Reply to thread
+ *   node google-gmail-api.js draft <to> <subject> <body> - Create draft
+ *   node google-gmail-api.js labels                    - List labels
  *
  * Convenience commands:
- *   node google-gmail-api.cjs today                     - Today's emails
- *   node google-gmail-api.cjs yesterday                 - Yesterday's emails
- *   node google-gmail-api.cjs week                      - This week's emails
- *   node google-gmail-api.cjs inbox                     - Inbox only
- *   node google-gmail-api.cjs unread                    - Unread emails
+ *   node google-gmail-api.js today                     - Today's emails
+ *   node google-gmail-api.js yesterday                 - Yesterday's emails
+ *   node google-gmail-api.js week                      - This week's emails
+ *   node google-gmail-api.js inbox                     - Inbox only
+ *   node google-gmail-api.js unread                    - Unread emails
  *
  * Flags:
  *   --limit N, -n N       - Max results (default: 50)
@@ -27,10 +26,10 @@
  *   --raw-html            - Don't strip HTML from email bodies
  *
  * Examples:
- *   node google-gmail-api.cjs list "from:john subject:meeting"
- *   node google-gmail-api.cjs list "is:unread newer_than:7d" --limit 100
- *   node google-gmail-api.cjs today --json
- *   node google-gmail-api.cjs read 18abc123def
+ *   node google-gmail-api.js list "from:john subject:meeting"
+ *   node google-gmail-api.js list "is:unread newer_than:7d" --limit 100
+ *   node google-gmail-api.js today --json
+ *   node google-gmail-api.js read 18abc123def
  */
 
 const path = require('path');
@@ -40,6 +39,8 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const gmailClient = require('./lib/gmail-client.cjs');
 const googleAuth = require('./lib/google-auth.cjs');
+const { run } = require('./lib/script-runner.cjs');
+const { track } = require('./lib/telemetry.cjs');
 
 // Parse arguments
 const rawArgs = process.argv.slice(2);
@@ -130,13 +131,13 @@ Search Query Examples:
   label:INBOX                         In inbox
 
 Examples:
-  node google-gmail-api.cjs list
-  node google-gmail-api.cjs today --json
-  node google-gmail-api.cjs list "from:teammate subject:planning" --limit 100
-  node google-gmail-api.cjs list "is:unread newer_than:7d"
-  node google-gmail-api.cjs read 18abc123def
-  node google-gmail-api.cjs thread 18abc123def
-  node google-gmail-api.cjs send "team@your-company.com" "Update" "Here's the update..."
+  node google-gmail-api.js list
+  node google-gmail-api.js today --json
+  node google-gmail-api.js list "from:arjun subject:planning" --limit 100
+  node google-gmail-api.js list "is:unread newer_than:7d"
+  node google-gmail-api.js read 18abc123def
+  node google-gmail-api.js thread 18abc123def
+  node google-gmail-api.js send "team@company.com" "Update" "Here's the update..."
 `);
 }
 
@@ -146,11 +147,11 @@ function formatDate(dateStr) {
   const date = new Date(dateStr);
   const now = new Date();
   const isToday = date.toDateString() === now.toDateString();
-
+  
   const month = date.toLocaleDateString('en-US', { month: 'short' });
   const day = date.getDate();
   const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-
+  
   if (isToday) {
     return `Today ${time}`;
   }
@@ -177,7 +178,7 @@ function extractName(str) {
 function getDateQuery(type) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
+  
   switch (type) {
     case 'today':
       return 'newer_than:1d';
@@ -198,7 +199,7 @@ function getDateQuery(type) {
 // List messages with enhanced output
 async function handleList(query, options) {
   const result = await gmailClient.listMessages(query, { maxResults: options.limit });
-
+  
   if (options.json) {
     console.log(JSON.stringify(result, null, 2));
     return;
@@ -212,7 +213,7 @@ async function handleList(query, options) {
   }
 
   // Summary line
-  let summary = `${messages.length} messages`;
+  let summary = `📬 ${messages.length} messages`;
   if (stats.unread > 0) {
     summary += ` (${stats.unread} unread`;
     if (stats.withAttachments > 0) {
@@ -232,15 +233,15 @@ async function handleList(query, options) {
 
   // Message list
   for (const msg of messages) {
-    const unread = msg.labelIds.includes('UNREAD') ? '*' : ' ';
-    const attachment = msg.hasAttachments ? '[att]' : '    ';
+    const unread = msg.labelIds.includes('UNREAD') ? '●' : ' ';
+    const attachment = msg.hasAttachments ? '📎' : '  ';
     const from = truncate(extractName(msg.from), 20).padEnd(20);
     const subject = truncate(msg.subject || '(no subject)', 45);
     const date = formatDate(msg.date);
-
+    
     console.log(`${unread} ${from}  ${subject}`);
     console.log(`  ${attachment} ${date.padEnd(18)}  thread:${msg.threadId}`);
-
+    
     // Show snippet preview
     if (msg.snippet) {
       console.log(`  ${truncate(msg.snippet, 75)}`);
@@ -259,7 +260,7 @@ async function handleRead(messageId, options) {
     return;
   }
 
-  console.log(`\n${'='.repeat(70)}`);
+  console.log(`\n${'─'.repeat(70)}`);
   console.log(`From:    ${message.from}`);
   console.log(`To:      ${message.to}`);
   if (message.cc) {
@@ -269,11 +270,11 @@ async function handleRead(messageId, options) {
   console.log(`Subject: ${message.subject}`);
   console.log(`Thread:  ${message.threadId}`);
   console.log(`URL:     ${message.url}`);
-  console.log(`${'='.repeat(70)}\n`);
+  console.log(`${'─'.repeat(70)}\n`);
   console.log(message.body);
 
   if (message.attachments.length > 0) {
-    console.log(`\nAttachments (${message.attachments.length}):`);
+    console.log(`\n📎 Attachments (${message.attachments.length}):`);
     message.attachments.forEach(att => {
       console.log(`   - ${att.filename} (${att.mimeType})`);
     });
@@ -283,7 +284,7 @@ async function handleRead(messageId, options) {
 // Handle thread command - accepts both threadId and messageId
 async function handleThread(id, options) {
   let threadId = id;
-
+  
   // Try to get thread directly first, if it fails, try as messageId
   try {
     const thread = await gmailClient.getThread(threadId, { rawHtml: options.rawHtml });
@@ -312,22 +313,26 @@ function outputThread(thread, options) {
     return;
   }
 
-  console.log(`\nThread: ${thread.messageCount} messages`);
+  console.log(`\n📧 Thread: ${thread.messageCount} messages`);
   console.log(`   URL: ${thread.url}\n`);
 
   for (const msg of thread.messages) {
-    console.log(`${'='.repeat(70)}`);
+    console.log(`${'─'.repeat(70)}`);
     console.log(`From: ${msg.from}`);
     console.log(`Date: ${msg.date}`);
     console.log(`URL:  ${msg.url}`);
-    console.log(`${'='.repeat(70)}`);
+    console.log(`${'─'.repeat(70)}`);
     console.log(msg.body);
     console.log('');
   }
 }
 
 // Main execution
-async function main() {
+run({
+  name: 'google-gmail-api',
+  mode: 'operational',
+  services: ['google'],
+}, async (ctx) => {
   const options = { limit, json: jsonOutput, rawHtml };
 
   try {
@@ -340,7 +345,7 @@ async function main() {
         } else if (accounts.length === 0) {
           console.log('\nNo accounts configured. Run "add-account" to add one.\n');
         } else {
-          console.log('\nConfigured accounts:\n');
+          console.log('\n📧 Configured accounts:\n');
           accounts.forEach(email => {
             const isDefault = email === defaultAccount ? ' (default)' : '';
             console.log(`   ${email}${isDefault}`);
@@ -353,29 +358,25 @@ async function main() {
       case 'add-account': {
         console.log('\nAdding new Google account...');
         const { email } = await googleAuth.addAccount();
-        console.log(`\nAccount added: ${email}\n`);
+        console.log(`\n✅ Account added: ${email}\n`);
         break;
       }
 
       case 'remove-account': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: email is required');
-          console.error('Usage: remove-account <email>');
-          process.exit(1);
+          throw new Error('email is required. Usage: remove-account <email>');
         }
         googleAuth.removeAccount(cmdArgs[0]);
-        console.log(`\nAccount removed: ${cmdArgs[0]}\n`);
+        console.log(`\n✅ Account removed: ${cmdArgs[0]}\n`);
         break;
       }
 
       case 'set-default': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: email is required');
-          console.error('Usage: set-default <email>');
-          process.exit(1);
+          throw new Error('email is required. Usage: set-default <email>');
         }
         googleAuth.setDefaultAccount(cmdArgs[0]);
-        console.log(`\nDefault account set to: ${cmdArgs[0]}\n`);
+        console.log(`\n✅ Default account set to: ${cmdArgs[0]}\n`);
         break;
       }
 
@@ -416,10 +417,7 @@ async function main() {
 
       case 'read': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: messageId is required');
-          console.error('Usage: read <messageId>');
-          console.error('Tip: Get message IDs from the "list" command output');
-          process.exit(1);
+          throw new Error('messageId is required. Usage: read <messageId>. Tip: Get message IDs from the "list" command output');
         }
         await handleRead(cmdArgs[0], options);
         break;
@@ -427,10 +425,7 @@ async function main() {
 
       case 'thread': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: threadId is required');
-          console.error('Usage: thread <threadId|messageId>');
-          console.error('Tip: Thread IDs are shown as "thread:XXXXX" in list output');
-          process.exit(1);
+          throw new Error('threadId is required. Usage: thread <threadId|messageId>. Tip: Thread IDs are shown as "thread:XXXXX" in list output');
         }
         await handleThread(cmdArgs[0], options);
         break;
@@ -438,18 +433,17 @@ async function main() {
 
       case 'send': {
         if (!cmdArgs[0] || !cmdArgs[1] || !cmdArgs[2]) {
-          console.error('ERROR: to, subject, and body are required');
-          console.error('Usage: send <to> <subject> <body>');
-          process.exit(1);
+          throw new Error('to, subject, and body are required. Usage: send <to> <subject> <body>');
         }
 
         const [to, subject, body] = cmdArgs;
         const result = await gmailClient.sendEmail(to, subject, body);
+        track('gmail_send', { body_length: body.length });
 
         if (options.json) {
           console.log(JSON.stringify(result, null, 2));
         } else {
-          console.log(`\nEmail sent!`);
+          console.log(`\n✅ Email sent!`);
           console.log(`   To: ${to}`);
           console.log(`   Subject: ${subject}`);
           console.log(`   Message ID: ${result.id}`);
@@ -459,18 +453,17 @@ async function main() {
 
       case 'reply': {
         if (!cmdArgs[0] || !cmdArgs[1]) {
-          console.error('ERROR: threadId and body are required');
-          console.error('Usage: reply <threadId> <body>');
-          process.exit(1);
+          throw new Error('threadId and body are required. Usage: reply <threadId> <body>');
         }
 
         const [threadId, body] = cmdArgs;
         const result = await gmailClient.replyToThread(threadId, body);
+        track('gmail_reply', { body_length: body.length });
 
         if (options.json) {
           console.log(JSON.stringify(result, null, 2));
         } else {
-          console.log(`\nReply sent!`);
+          console.log(`\n✅ Reply sent!`);
           console.log(`   Thread ID: ${result.threadId}`);
           console.log(`   Message ID: ${result.id}`);
         }
@@ -479,9 +472,7 @@ async function main() {
 
       case 'draft': {
         if (!cmdArgs[0] || !cmdArgs[1] || !cmdArgs[2]) {
-          console.error('ERROR: to, subject, and body are required');
-          console.error('Usage: draft <to> <subject> <body>');
-          process.exit(1);
+          throw new Error('to, subject, and body are required. Usage: draft <to> <subject> <body>');
         }
 
         const [to, subject, body] = cmdArgs;
@@ -490,7 +481,7 @@ async function main() {
         if (options.json) {
           console.log(JSON.stringify(result, null, 2));
         } else {
-          console.log(`\nDraft created!`);
+          console.log(`\n✅ Draft created!`);
           console.log(`   To: ${to}`);
           console.log(`   Subject: ${subject}`);
           console.log(`   Draft ID: ${result.id}`);
@@ -506,7 +497,7 @@ async function main() {
         } else if (drafts.length === 0) {
           console.log('\nNo drafts found.');
         } else {
-          console.log(`\n${drafts.length} drafts:\n`);
+          console.log(`\n📝 ${drafts.length} drafts:\n`);
           for (const draft of drafts) {
             console.log(`   ${draft.id}`);
           }
@@ -516,8 +507,7 @@ async function main() {
 
       case 'send-draft': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: draftId is required');
-          process.exit(1);
+          throw new Error('draftId is required');
         }
 
         const result = await gmailClient.sendDraft(cmdArgs[0]);
@@ -525,7 +515,7 @@ async function main() {
         if (options.json) {
           console.log(JSON.stringify(result, null, 2));
         } else {
-          console.log(`\nDraft sent!`);
+          console.log(`\n✅ Draft sent!`);
           console.log(`   Message ID: ${result.id}`);
         }
         break;
@@ -537,7 +527,7 @@ async function main() {
         if (options.json) {
           console.log(JSON.stringify(labels, null, 2));
         } else {
-          console.log(`\n${labels.length} labels:\n`);
+          console.log(`\n🏷️  ${labels.length} labels:\n`);
 
           const system = labels.filter(l => l.type === 'system');
           const user = labels.filter(l => l.type === 'user');
@@ -555,8 +545,7 @@ async function main() {
 
       case 'archive': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: messageId is required');
-          process.exit(1);
+          throw new Error('messageId is required');
         }
 
         await gmailClient.archive(cmdArgs[0]);
@@ -564,15 +553,14 @@ async function main() {
         if (options.json) {
           console.log(JSON.stringify({ success: true, messageId: cmdArgs[0], action: 'archived' }, null, 2));
         } else {
-          console.log(`\nMessage archived: ${cmdArgs[0]}`);
+          console.log(`\n✅ Message archived: ${cmdArgs[0]}`);
         }
         break;
       }
 
       case 'trash': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: messageId is required');
-          process.exit(1);
+          throw new Error('messageId is required');
         }
 
         await gmailClient.trash(cmdArgs[0]);
@@ -580,15 +568,14 @@ async function main() {
         if (options.json) {
           console.log(JSON.stringify({ success: true, messageId: cmdArgs[0], action: 'trashed' }, null, 2));
         } else {
-          console.log(`\nMessage moved to trash: ${cmdArgs[0]}`);
+          console.log(`\n✅ Message moved to trash: ${cmdArgs[0]}`);
         }
         break;
       }
 
       case 'mark-read': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: messageId is required');
-          process.exit(1);
+          throw new Error('messageId is required');
         }
 
         await gmailClient.markAsRead(cmdArgs[0]);
@@ -596,15 +583,14 @@ async function main() {
         if (options.json) {
           console.log(JSON.stringify({ success: true, messageId: cmdArgs[0], action: 'marked_read' }, null, 2));
         } else {
-          console.log(`\nMarked as read: ${cmdArgs[0]}`);
+          console.log(`\n✅ Marked as read: ${cmdArgs[0]}`);
         }
         break;
       }
 
       case 'mark-unread': {
         if (!cmdArgs[0]) {
-          console.error('ERROR: messageId is required');
-          process.exit(1);
+          throw new Error('messageId is required');
         }
 
         await gmailClient.markAsUnread(cmdArgs[0]);
@@ -612,7 +598,7 @@ async function main() {
         if (options.json) {
           console.log(JSON.stringify({ success: true, messageId: cmdArgs[0], action: 'marked_unread' }, null, 2));
         } else {
-          console.log(`\nMarked as unread: ${cmdArgs[0]}`);
+          console.log(`\n✅ Marked as unread: ${cmdArgs[0]}`);
         }
         break;
       }
@@ -628,13 +614,15 @@ async function main() {
           console.error(`Unknown command: ${command}`);
         }
         showHelp();
-        process.exit(command ? 1 : 0);
+        if (command) throw new Error(`Unknown command: ${command}`);
+        return;
     }
+
   } catch (error) {
     if (options.json) {
       console.log(JSON.stringify({ error: error.message }, null, 2));
     } else {
-      console.error(`\nError: ${error.message}`);
+      console.error(`\n❌ Error: ${error.message}`);
       if (error.errors) {
         console.error('Details:', JSON.stringify(error.errors, null, 2));
       }
@@ -642,8 +630,6 @@ async function main() {
         console.error('API Error:', JSON.stringify(error.response.data.error, null, 2));
       }
     }
-    process.exit(1);
+    throw error;
   }
-}
-
-main();
+});

@@ -3,7 +3,7 @@ name: pm-document
 description: Documentation partner - daily logs, rolling context, Jira/Confluence updates
 ---
 
-**Base rules apply.** See `CLAUDE.md` for CLI-first, file safety, and output style.
+**Base rules apply.** See `.cursorrules` for CLI-first, file safety, and output style.
 
 # PM Document Agent
 
@@ -40,10 +40,10 @@ Most importantly, it ensures **nothing falls through the cracks** by systematica
    **Daily Log additions:**
    [show full content to be added]
 
-   **[Team A] rolling context changes:**
+   **App Experience rolling context changes:**
    [show specific changes]
 
-   **[Your Team] rolling context changes:**
+   **Cloaked Labs rolling context changes:**
    [show specific changes]
 
    Does this look correct? Should I proceed?"
@@ -57,7 +57,7 @@ Most importantly, it ensures **nothing falls through the cracks** by systematica
 
 This agent works with any PM using the system. It loads the user's profile to personalize behavior.
 
-- **Profile location**: `local/user-profile.json`
+- **Profile location**: `.ai/local/user-profile.json`
 - **Required fields**: `name`, `pm_key`, `pm_owner`, `teams_managed`
 
 If the profile doesn't exist or is incomplete, prompt the user to run the Chief of Staff first to initialize their profile.
@@ -81,32 +81,32 @@ Determine what the user needs and load the appropriate resource:
 
 1. **Daily Log Update**
    - Use when: End of day, documenting what was accomplished
-   - **Load**: `skills/core/pm-document/daily-log-workflow.md`
+   - **Load**: `./references/daily-log-workflow.md`
    - What it does: Creates/updates today's daily log with decisions, actions, and Jira activity
 
 2. **Rolling Context Update**
    - Use when: Updating team context after major decisions or changes
-   - **Load**: `skills/core/pm-document/rolling-context-workflow.md`
+   - **Load**: `./references/rolling-context-workflow.md`
    - What it does: Refreshes team context files with new work, decisions, and learnings
 
 3. **Decision Documentation**
    - Use when: Documenting a specific decision that was made
-   - **Load**: `skills/core/pm-document/decision-capture.md`
+   - **Load**: `./references/decision-capture.md`
    - What it does: Structures decision documentation with rationale, impact, and follow-ups
 
 4. **Documentation Gap Analysis**
    - Use when: Identifying what needs formal documentation
-   - **Load**: `skills/core/pm-document/gap-analysis.md`
+   - **Load**: `./references/gap-analysis.md`
    - What it does: Analyzes conversation/work and suggests PRD/Confluence updates
 
 5. **Input Sources**
    - Use when: Need detailed methodology for gathering documentation inputs
-   - **Load**: `skills/core/pm-document/input-sources.md`
+   - **Load**: `./references/input-sources.md`
    - What it does: Shows how to pull from transcripts, Jira, Confluence, and conversation
 
 6. **Templates**
    - Use when: Need output format templates
-   - **Load**: `skills/core/pm-document/templates.md`
+   - **Load**: `./references/templates.md`
    - What it does: Provides structured templates for logs, context, and decision docs
 
 ### Workflow Selection Process
@@ -128,7 +128,7 @@ Determine what the user needs and load the appropriate resource:
 ### Quick Reference
 
 **Daily log requests**: "Log today", "Update my daily log", "Document what I did"
-**Rolling context requests**: "Update team context", "Refresh [Team A] context", "Update what we're working on"
+**Rolling context requests**: "Update team context", "Refresh App Experience context", "Update what we're working on"
 **Decision requests**: "Document this decision", "Record what we decided about X"
 **Gap analysis requests**: "What should I document?", "What needs updates?", "Review my work for docs"
 
@@ -152,11 +152,11 @@ The agent pulls from these sources (details in `input-sources.md`):
 2. **Recent Jira Activity**: Tickets created, updated, or commented on today
 3. **Recent Confluence Changes**: Pages created or edited today
 4. **Existing Context Files**: Daily logs and rolling context to append/update
-5. **Team Data**: Team members and scopes from `config/team-members.json`
+5. **Team Data**: Team members and scopes from `.ai/config/team-members.json`
 
 **Tools used**:
-- Jira/Confluence: `node scripts/atlassian-api.js ...` (NEVER use MCP)
-- Transcripts: Read from `local/private_transcripts/` or `knowledge/meeting_transcripts/`
+- Jira/Confluence: `node .ai/scripts/atlassian-api.js ...` (NEVER use MCP)
+- Transcripts: Read from `.ai/local/private_transcripts/` or `.ai/knowledge/meeting_transcripts/`
 
 ---
 
@@ -164,7 +164,7 @@ The agent pulls from these sources (details in `input-sources.md`):
 
 The agent produces (details in `templates.md`):
 
-1. **Daily Logs**: `context/daily-logs/[YYYY-MM-DD]-[pm_owner].md`
+1. **Daily Logs**: `.ai/context/daily-logs/[YYYY-MM-DD]-[pm_owner].md`
    - What I did today
    - Decisions made
    - Jira activity
@@ -172,7 +172,7 @@ The agent produces (details in `templates.md`):
    - Open questions
    - Notes & learnings
 
-2. **Rolling Context Updates**: `context/rolling/[team_key]-context.md`
+2. **Rolling Context Updates**: `.ai/context/rolling/[team_key]-context.md`
    - Current sprint focus
    - Active work (in progress, recently completed)
    - Recent decisions
@@ -195,10 +195,10 @@ The agent produces (details in `templates.md`):
 
 ```bash
 # Query Jira for today's activity
-node scripts/atlassian-api.js search-issues --jql "..."
+node .ai/scripts/atlassian-api.js search-issues --jql "..."
 
 # Query Confluence for today's changes
-node scripts/atlassian-api.js search-confluence --cql "..."
+node .ai/scripts/atlassian-api.js search-confluence --cql "..."
 ```
 
 ### 2. Preview Everything
@@ -247,17 +247,17 @@ Before presenting any documentation:
 ## File Locations
 
 **Daily Logs**:
-- Path: `context/daily-logs/[YYYY-MM-DD]-[pm_owner].md`
-- Example: `context/daily-logs/2025-01-15-alice.md`
+- Path: `.ai/context/daily-logs/[YYYY-MM-DD]-[pm_owner].md`
+- Example: `.ai/context/daily-logs/2025-01-15-lucas.md`
 - Scope: Individual PM's daily work log
 
 **Rolling Context**:
-- Path: `context/rolling/[team_key]-context.md`
-- Examples: `context/rolling/team-a-context.md`, `context/rolling/team-b-context.md`
+- Path: `.ai/context/rolling/[team_key]-context.md`
+- Examples: `.ai/context/rolling/app-experience-context.md`, `.ai/context/rolling/cloaked-labs-context.md`
 - Scope: Team-level ongoing context
 
 **User Profile**:
-- Path: `local/user-profile.json`
+- Path: `.ai/local/user-profile.json`
 - Gitignored: Each PM has their own local profile
 
 ---

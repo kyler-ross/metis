@@ -42,7 +42,7 @@
   "execution": {
     "estimated_tokens": 2500,
     "mcp_tools": [],
-    "cli_tools": ["scripts/atlassian-api.cjs"],
+    "cli_tools": [".ai/scripts/atlassian-api.cjs"],
     "can_orchestrate": false,
     "compatible_skills": ["jira-ticket-writer"]
   },
@@ -80,10 +80,10 @@
     }
   },
   "meta": {
-    "author": "starter-kit",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/confluence-manager.md",
     "migration_date": "2026-02-02"
   }
 }

@@ -1,4 +1,3 @@
-// PM AI Starter Kit - google-docs-creator.cjs
 #!/usr/bin/env node
 /**
  * Google Docs Creator with Markdown Support
@@ -6,24 +5,24 @@
  * Creates, reads, and updates Google Docs with proper markdown formatting:
  * - # Title, ## Heading 1, ### Heading 2, #### Heading 3
  * - **bold**, *italic*, ***bold italic***
- * - Bullet lists (- item or * item) -> Native Google Docs bullets
- * - Numbered lists (1. item) -> Native Google Docs numbered lists
- * - Horizontal rules (---) -> Actual horizontal line
+ * - Bullet lists (- item or * item) → Native Google Docs bullets
+ * - Numbered lists (1. item) → Native Google Docs numbered lists
+ * - Horizontal rules (---) → Actual horizontal line
  *
  * Usage:
- *   node google-docs-creator.cjs create <docName> <content|filepath> [--file]
- *   node google-docs-creator.cjs read <docId>
- *   node google-docs-creator.cjs update <docId> <content|filepath> [--file]
- *   node google-docs-creator.cjs append <docId> <content|filepath> [--file]
- *   node google-docs-creator.cjs search <docId> "text"
- *   node google-docs-creator.cjs insert <docId> <position> "text"
- *   node google-docs-creator.cjs replace <docId> "old text" "new text"
- *   node google-docs-creator.cjs delete <docId> "text"
- *   node google-docs-creator.cjs copy <docId> "new name"
+ *   node google-docs-creator.js create <docName> <content|filepath> [--file]
+ *   node google-docs-creator.js read <docId>
+ *   node google-docs-creator.js update <docId> <content|filepath> [--file]
+ *   node google-docs-creator.js append <docId> <content|filepath> [--file]
+ *   node google-docs-creator.js search <docId> "text"
+ *   node google-docs-creator.js insert <docId> <position> "text"
+ *   node google-docs-creator.js replace <docId> "old text" "new text"
+ *   node google-docs-creator.js delete <docId> "text"
+ *   node google-docs-creator.js copy <docId> "new name"
  *
  *   # Legacy (no command):
- *   node google-docs-creator.cjs <docName> <content|filepath> [--file]  # Creates new doc
- *   node google-docs-creator.cjs <content|filepath> <docId> [--file]    # Updates if docId detected
+ *   node google-docs-creator.js <docName> <content|filepath> [--file]  # Creates new doc
+ *   node google-docs-creator.js <content|filepath> <docId> [--file]    # Updates if docId detected
  */
 
 const { google } = require('googleapis');
@@ -32,6 +31,7 @@ const path = require('path');
 const http = require('http');
 const { URL } = require('url');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
+const { run } = require('./lib/script-runner.cjs');
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -39,8 +39,7 @@ const REDIRECT_URL = 'http://localhost:3000/oauth2callback';
 const TOKEN_PATH = path.join(__dirname, '.google-token.json');
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
-  console.error('ERROR: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET not set in .env');
-  process.exit(1);
+  throw new Error('GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET not set in .env');
 }
 
 const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
@@ -76,7 +75,7 @@ async function authorizeAndGetToken() {
         res.end(`
           <html>
             <body style="font-family: Arial; text-align: center; padding: 50px;">
-              <h1>Success!</h1>
+              <h1>✅ Success!</h1>
               <p>Authorization complete. You can close this window.</p>
             </body>
           </html>
@@ -98,7 +97,7 @@ async function authorizeAndGetToken() {
         scope: ['https://www.googleapis.com/auth/docs', 'https://www.googleapis.com/auth/drive']
       });
 
-      console.log('\nOpening browser for authorization...\n');
+      console.log('\n🔐 Opening browser for authorization...\n');
       require('child_process').spawn('open', [authUrl], { stdio: 'ignore' });
     });
 
@@ -209,7 +208,7 @@ async function insertTableAtIndex(docs, documentId, tableData, insertIndex) {
   }
 
   if (!table) {
-    console.warn('Warning: Could not find inserted table');
+    console.warn('⚠️  Could not find inserted table');
     return insertIndex;
   }
 
@@ -299,13 +298,13 @@ function parseMarkdown(markdown) {
     let listType = null;
     let nestLevel = 0;
     let isHorizontalRule = false;
-
+    
     // Check for horizontal rule FIRST (before other processing)
     if (line.trim() === '---' || line.trim() === '***' || line.trim() === '___') {
       isHorizontalRule = true;
       line = ''; // Will be handled specially
     }
-
+    
     // Check for headings
     if (!isHorizontalRule) {
       if (line.startsWith('#### ')) {
@@ -322,7 +321,7 @@ function parseMarkdown(markdown) {
         line = line.substring(2);
       }
     }
-
+    
     // Check for bullet lists (- item or * item), including nested
     if (!isHorizontalRule && !headingType) {
       const bulletMatch = line.match(/^(\s*)([-*])\s+(.*)$/);
@@ -331,7 +330,7 @@ function parseMarkdown(markdown) {
         listType = 'bullet';
         line = bulletMatch[3]; // Just the content after the bullet
       }
-
+      
       // Check for numbered lists (1. item, 2. item)
       const numberedMatch = line.match(/^(\s*)(\d+)\.\s+(.*)$/);
       if (numberedMatch) {
@@ -340,11 +339,11 @@ function parseMarkdown(markdown) {
         line = numberedMatch[3]; // Just the content after the number
       }
     }
-
+    
     // Parse inline formatting (bold, italic) - skip for horizontal rules
     const inlineFormats = [];
     let processedLine = '';
-
+    
     if (!isHorizontalRule) {
       let j = 0;
       while (j < line.length) {
@@ -360,7 +359,7 @@ function parseMarkdown(markdown) {
             continue;
           }
         }
-
+        
         // Bold (**text**)
         if (line.substring(j, j + 2) === '**') {
           const endIdx = line.indexOf('**', j + 2);
@@ -373,10 +372,10 @@ function parseMarkdown(markdown) {
             continue;
           }
         }
-
+        
         // Italic (*text* or _text_) - careful not to match list markers
-        if ((line[j] === '*' || line[j] === '_') &&
-            line[j + 1] !== '*' && line[j + 1] !== '_' &&
+        if ((line[j] === '*' || line[j] === '_') && 
+            line[j + 1] !== '*' && line[j + 1] !== '_' && 
             line[j + 1] !== ' ' && line[j + 1] !== undefined) {
           const marker = line[j];
           let endIdx = -1;
@@ -396,13 +395,13 @@ function parseMarkdown(markdown) {
             continue;
           }
         }
-
+        
         processedLine += line[j];
         j++;
       }
       line = processedLine;
     }
-
+    
     // Build the final line
     let fullLine;
     if (isHorizontalRule) {
@@ -410,9 +409,9 @@ function parseMarkdown(markdown) {
     } else {
       fullLine = line + '\n';
     }
-
+    
     plainText += fullLine;
-
+    
     // Store segment info for formatting
     if (headingType) {
       segments.push({
@@ -422,7 +421,7 @@ function parseMarkdown(markdown) {
         end: lineStart + fullLine.length
       });
     }
-
+    
     // Store list info
     if (listType) {
       segments.push({
@@ -433,7 +432,7 @@ function parseMarkdown(markdown) {
         end: lineStart + fullLine.length
       });
     }
-
+    
     // Store horizontal rule info
     if (isHorizontalRule) {
       segments.push({
@@ -441,7 +440,7 @@ function parseMarkdown(markdown) {
         index: lineStart
       });
     }
-
+    
     // Store inline formatting
     for (const fmt of inlineFormats) {
       segments.push({
@@ -449,10 +448,10 @@ function parseMarkdown(markdown) {
         ...fmt
       });
     }
-
+    
     currentIndex += fullLine.length;
   }
-
+  
   return { plainText, segments, totalLength: currentIndex };
 }
 
@@ -465,7 +464,7 @@ function buildFormattingRequests(segments) {
   const paragraphStyleRequests = [];
   const listRequests = [];
   const hrRequests = [];
-
+  
   for (const segment of segments) {
     if (segment.type === 'heading') {
       paragraphStyleRequests.push({
@@ -482,10 +481,10 @@ function buildFormattingRequests(segments) {
       });
     } else if (segment.type === 'list') {
       // Use native Google Docs bullets/numbering
-      const bulletPreset = segment.listType === 'numbered'
+      const bulletPreset = segment.listType === 'numbered' 
         ? 'NUMBERED_DECIMAL_ALPHA_ROMAN'
         : 'BULLET_DISC_CIRCLE_SQUARE';
-
+      
       listRequests.push({
         createParagraphBullets: {
           range: {
@@ -495,7 +494,7 @@ function buildFormattingRequests(segments) {
           bulletPreset: bulletPreset
         }
       });
-
+      
       // Handle nesting with indentation
       if (segment.nestLevel > 0) {
         paragraphStyleRequests.push({
@@ -540,7 +539,7 @@ function buildFormattingRequests(segments) {
     } else if (segment.type === 'inline') {
       const textStyle = {};
       const fields = [];
-
+      
       if (segment.bold) {
         textStyle.bold = true;
         fields.push('bold');
@@ -549,7 +548,7 @@ function buildFormattingRequests(segments) {
         textStyle.italic = true;
         fields.push('italic');
       }
-
+      
       if (fields.length > 0) {
         textStyleRequests.push({
           updateTextStyle: {
@@ -564,7 +563,7 @@ function buildFormattingRequests(segments) {
       }
     }
   }
-
+  
   // Order matters: text styles, then paragraph styles, then lists, then HRs
   return [...textStyleRequests, ...paragraphStyleRequests, ...listRequests, ...hrRequests];
 }
@@ -574,7 +573,7 @@ async function createFormattedDoc(markdownContent, docName) {
     const auth = await authorizeAndGetToken();
     const docs = google.docs({ version: 'v1', auth });
 
-    console.log('Creating document...');
+    console.log('📝 Creating document...');
     const createResponse = await docs.documents.create({
       requestBody: {
         title: docName || `Document - ${new Date().toISOString().split('T')[0]}`
@@ -588,11 +587,11 @@ async function createFormattedDoc(markdownContent, docName) {
     const { tables, remainingMarkdown } = extractTables(markdownContent);
 
     // Parse markdown (with table placeholders)
-    console.log('Parsing markdown...');
+    console.log('🔍 Parsing markdown...');
     const { plainText, segments } = parseMarkdown(remainingMarkdown);
 
     // Insert plain text first
-    console.log('Inserting content...');
+    console.log('✏️  Inserting content...');
     await docs.documents.batchUpdate({
       documentId,
       requestBody: {
@@ -608,7 +607,7 @@ async function createFormattedDoc(markdownContent, docName) {
     // Apply formatting
     const formattingRequests = buildFormattingRequests(segments);
     if (formattingRequests.length > 0) {
-      console.log(`Applying ${formattingRequests.length} formatting rules...`);
+      console.log(`🎨 Applying ${formattingRequests.length} formatting rules...`);
 
       // Apply in batches to avoid API limits
       const batchSize = 50;
@@ -620,14 +619,14 @@ async function createFormattedDoc(markdownContent, docName) {
             requestBody: { requests: batch }
           });
         } catch (batchError) {
-          console.warn(`Warning: Some formatting in batch ${Math.floor(i/batchSize) + 1} failed, continuing...`);
+          console.warn(`⚠️  Some formatting in batch ${Math.floor(i/batchSize) + 1} failed, continuing...`);
         }
       }
     }
 
     // Insert tables at their placeholder positions
     if (tables.length > 0) {
-      console.log(`Inserting ${tables.length} table(s)...`);
+      console.log(`📊 Inserting ${tables.length} table(s)...`);
 
       // Process tables in reverse order to maintain correct indexes
       for (let t = tables.length - 1; t >= 0; t--) {
@@ -675,14 +674,14 @@ async function createFormattedDoc(markdownContent, docName) {
       }
     }
 
-    console.log(`\nDocument created: ${docUrl}\n`);
+    console.log(`\n✅ Document created: ${docUrl}\n`);
     return { documentId, url: docUrl };
   } catch (error) {
-    console.error('\nError creating document:', error.message);
+    console.error('\n❌ Error creating document:', error.message);
     if (error.errors) {
       console.error('Details:', JSON.stringify(error.errors, null, 2));
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -694,7 +693,7 @@ async function readDoc(documentId) {
     const auth = await authorizeAndGetToken();
     const docs = google.docs({ version: 'v1', auth });
 
-    console.log('Reading document...');
+    console.log('📖 Reading document...');
     const docResponse = await docs.documents.get({ documentId });
     const doc = docResponse.data;
 
@@ -729,7 +728,7 @@ async function readDoc(documentId) {
     }
 
     const docUrl = `https://docs.google.com/document/d/${documentId}/edit`;
-    console.log(`\nDocument read successfully\n`);
+    console.log(`\n✅ Document read successfully\n`);
     console.log(`Title: ${doc.title}`);
     console.log(`URL: ${docUrl}\n`);
     console.log('--- Content ---\n');
@@ -738,11 +737,11 @@ async function readDoc(documentId) {
 
     return { documentId, title: doc.title, url: docUrl, content: textContent };
   } catch (error) {
-    console.error('\nError reading document:', error.message);
+    console.error('\n❌ Error reading document:', error.message);
     if (error.code === 404) {
       console.error('Document not found. Check the document ID and permissions.');
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -754,7 +753,7 @@ async function replaceDocContent(documentId, markdownContent) {
     const auth = await authorizeAndGetToken();
     const docs = google.docs({ version: 'v1', auth });
 
-    console.log('Fetching document...');
+    console.log('📝 Fetching document...');
     const docResponse = await docs.documents.get({ documentId });
     const content = docResponse.data.body.content;
 
@@ -767,7 +766,7 @@ async function replaceDocContent(documentId, markdownContent) {
     }
 
     // Delete all existing content (except the first character which we can't delete)
-    console.log('Clearing existing content...');
+    console.log('🗑️  Clearing existing content...');
     if (endIndex > 2) {
       await docs.documents.batchUpdate({
         documentId,
@@ -788,11 +787,11 @@ async function replaceDocContent(documentId, markdownContent) {
     const { tables, remainingMarkdown } = extractTables(markdownContent);
 
     // Parse markdown
-    console.log('Parsing markdown...');
+    console.log('🔍 Parsing markdown...');
     const { plainText, segments } = parseMarkdown(remainingMarkdown);
 
     // Insert plain text
-    console.log('Inserting new content...');
+    console.log('✏️  Inserting new content...');
     await docs.documents.batchUpdate({
       documentId,
       requestBody: {
@@ -808,7 +807,7 @@ async function replaceDocContent(documentId, markdownContent) {
     // Apply formatting
     const formattingRequests = buildFormattingRequests(segments);
     if (formattingRequests.length > 0) {
-      console.log(`Applying ${formattingRequests.length} formatting rules...`);
+      console.log(`🎨 Applying ${formattingRequests.length} formatting rules...`);
 
       const batchSize = 50;
       for (let i = 0; i < formattingRequests.length; i += batchSize) {
@@ -823,14 +822,14 @@ async function replaceDocContent(documentId, markdownContent) {
             await new Promise(r => setTimeout(r, 2000));
           }
         } catch (batchError) {
-          console.warn(`Warning: Some formatting in batch ${Math.floor(i/batchSize) + 1} failed, continuing...`);
+          console.warn(`⚠️  Some formatting in batch ${Math.floor(i/batchSize) + 1} failed, continuing...`);
         }
       }
     }
 
     // Pause before table insertion phase to stay within rate limits
     if (tables.length > 0) {
-      console.log(`Inserting ${tables.length} table(s)...`);
+      console.log(`📊 Inserting ${tables.length} table(s)...`);
       await new Promise(r => setTimeout(r, 5000));
 
       for (let t = tables.length - 1; t >= 0; t--) {
@@ -881,14 +880,14 @@ async function replaceDocContent(documentId, markdownContent) {
     }
 
     const docUrl = `https://docs.google.com/document/d/${documentId}/edit`;
-    console.log(`\nDocument replaced: ${docUrl}\n`);
+    console.log(`\n✅ Document replaced: ${docUrl}\n`);
     return { documentId, url: docUrl };
   } catch (error) {
-    console.error('\nError replacing document:', error.message);
+    console.error('\n❌ Error replacing document:', error.message);
     if (error.code === 404) {
       console.error('Document not found. Check the document ID and permissions.');
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -900,7 +899,7 @@ async function searchText(documentId, searchTerm) {
     const auth = await authorizeAndGetToken();
     const docs = google.docs({ version: 'v1', auth });
 
-    console.log(`Searching for "${searchTerm}" in document...`);
+    console.log(`🔍 Searching for "${searchTerm}" in document...`);
     const docResponse = await docs.documents.get({ documentId });
     const doc = docResponse.data;
 
@@ -943,25 +942,25 @@ async function searchText(documentId, searchTerm) {
 
     const docUrl = `https://docs.google.com/document/d/${documentId}/edit`;
 
-    console.log(`\nDocument: ${doc.title}`);
-    console.log(`URL: ${docUrl}\n`);
+    console.log(`\n📄 Document: ${doc.title}`);
+    console.log(`🔗 URL: ${docUrl}\n`);
 
     if (matches.length > 0) {
-      console.log(`Found ${matches.length} occurrence(s):\n`);
+      console.log(`✅ Found ${matches.length} occurrence(s):\n`);
       matches.forEach((match, i) => {
         console.log(`  ${i + 1}. Index ${match.index}-${match.endIndex}: "${match.context}"`);
       });
     } else {
-      console.log(`No occurrences of "${searchTerm}" found\n`);
+      console.log(`⚠️  No occurrences of "${searchTerm}" found\n`);
     }
 
     return { documentId, url: docUrl, matches };
   } catch (error) {
-    console.error('\nError searching document:', error.message);
+    console.error('\n❌ Error searching document:', error.message);
     if (error.code === 404) {
       console.error('Document not found. Check the document ID and permissions.');
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -974,7 +973,7 @@ async function insertText(documentId, position, text) {
     const auth = await authorizeAndGetToken();
     const docs = google.docs({ version: 'v1', auth });
 
-    console.log('Fetching document...');
+    console.log('📝 Fetching document...');
     const docResponse = await docs.documents.get({ documentId });
     const content = docResponse.data.body.content;
 
@@ -1014,18 +1013,16 @@ async function insertText(documentId, position, text) {
       }
 
       if (!found) {
-        console.error(`\nCould not find "${searchTerm}" in document`);
-        process.exit(1);
+        throw new Error(`\n❌ Could not find "${searchTerm}" in document`);
       }
     } else {
       insertIndex = parseInt(position, 10);
       if (isNaN(insertIndex)) {
-        console.error('\nInvalid position. Use "start", "end", a number, or "after:text"');
-        process.exit(1);
+        throw new Error('\\n❌ Invalid position. Use "start", "end", a number, or "after:text"');
       }
     }
 
-    console.log(`Inserting at index ${insertIndex}...`);
+    console.log(`✏️  Inserting at index ${insertIndex}...`);
     await docs.documents.batchUpdate({
       documentId,
       requestBody: {
@@ -1039,14 +1036,14 @@ async function insertText(documentId, position, text) {
     });
 
     const docUrl = `https://docs.google.com/document/d/${documentId}/edit`;
-    console.log(`\nText inserted: ${docUrl}\n`);
+    console.log(`\n✅ Text inserted: ${docUrl}\n`);
     return { documentId, url: docUrl, insertIndex };
   } catch (error) {
-    console.error('\nError inserting text:', error.message);
+    console.error('\n❌ Error inserting text:', error.message);
     if (error.code === 404) {
       console.error('Document not found. Check the document ID and permissions.');
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -1058,7 +1055,7 @@ async function deleteText(documentId, textToDelete) {
     const auth = await authorizeAndGetToken();
     const docs = google.docs({ version: 'v1', auth });
 
-    console.log(`Deleting "${textToDelete}" from document...`);
+    console.log(`🗑️  Deleting "${textToDelete}" from document...`);
 
     // Use replaceAllText with empty string to delete
     const response = await docs.documents.batchUpdate({
@@ -1080,18 +1077,18 @@ async function deleteText(documentId, textToDelete) {
     const docUrl = `https://docs.google.com/document/d/${documentId}/edit`;
 
     if (occurrences > 0) {
-      console.log(`\nDeleted ${occurrences} occurrence(s): ${docUrl}\n`);
+      console.log(`\n✅ Deleted ${occurrences} occurrence(s): ${docUrl}\n`);
     } else {
-      console.log(`\nNo occurrences of "${textToDelete}" found in document\n`);
+      console.log(`\n⚠️  No occurrences of "${textToDelete}" found in document\n`);
     }
 
     return { documentId, url: docUrl, occurrences };
   } catch (error) {
-    console.error('\nError deleting text:', error.message);
+    console.error('\n❌ Error deleting text:', error.message);
     if (error.code === 404) {
       console.error('Document not found. Check the document ID and permissions.');
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -1103,7 +1100,7 @@ async function copyDoc(documentId, newName) {
     const auth = await authorizeAndGetToken();
     const drive = google.drive({ version: 'v3', auth });
 
-    console.log('Copying document...');
+    console.log('📋 Copying document...');
 
     const response = await drive.files.copy({
       fileId: documentId,
@@ -1115,16 +1112,16 @@ async function copyDoc(documentId, newName) {
     const newDocId = response.data.id;
     const docUrl = `https://docs.google.com/document/d/${newDocId}/edit`;
 
-    console.log(`\nDocument copied: ${docUrl}`);
+    console.log(`\n✅ Document copied: ${docUrl}`);
     console.log(`   New ID: ${newDocId}\n`);
 
     return { documentId: newDocId, url: docUrl, name: newName };
   } catch (error) {
-    console.error('\nError copying document:', error.message);
+    console.error('\n❌ Error copying document:', error.message);
     if (error.code === 404) {
       console.error('Document not found. Check the document ID and permissions.');
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -1136,7 +1133,7 @@ async function replaceText(documentId, oldText, newText) {
     const auth = await authorizeAndGetToken();
     const docs = google.docs({ version: 'v1', auth });
 
-    console.log(`Finding "${oldText}" in document...`);
+    console.log(`🔍 Finding "${oldText}" in document...`);
 
     const response = await docs.documents.batchUpdate({
       documentId,
@@ -1157,18 +1154,18 @@ async function replaceText(documentId, oldText, newText) {
     const docUrl = `https://docs.google.com/document/d/${documentId}/edit`;
 
     if (occurrences > 0) {
-      console.log(`\nReplaced ${occurrences} occurrence(s): ${docUrl}\n`);
+      console.log(`\n✅ Replaced ${occurrences} occurrence(s): ${docUrl}\n`);
     } else {
-      console.log(`\nNo occurrences of "${oldText}" found in document\n`);
+      console.log(`\n⚠️  No occurrences of "${oldText}" found in document\n`);
     }
 
     return { documentId, url: docUrl, occurrences };
   } catch (error) {
-    console.error('\nError replacing text:', error.message);
+    console.error('\n❌ Error replacing text:', error.message);
     if (error.code === 404) {
       console.error('Document not found. Check the document ID and permissions.');
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -1180,7 +1177,7 @@ async function appendDocContent(documentId, markdownContent) {
     const auth = await authorizeAndGetToken();
     const docs = google.docs({ version: 'v1', auth });
 
-    console.log('Fetching document...');
+    console.log('📝 Fetching document...');
     const docResponse = await docs.documents.get({ documentId });
     const content = docResponse.data.body.content;
 
@@ -1204,7 +1201,7 @@ async function appendDocContent(documentId, markdownContent) {
     }));
 
     // Insert text
-    console.log('Appending content...');
+    console.log('✏️  Appending content...');
     await docs.documents.batchUpdate({
       documentId,
       requestBody: {
@@ -1220,7 +1217,7 @@ async function appendDocContent(documentId, markdownContent) {
     // Apply formatting
     const formattingRequests = buildFormattingRequests(offsetSegments);
     if (formattingRequests.length > 0) {
-      console.log(`Applying ${formattingRequests.length} formatting rules...`);
+      console.log(`🎨 Applying ${formattingRequests.length} formatting rules...`);
       const batchSize = 50;
       for (let i = 0; i < formattingRequests.length; i += batchSize) {
         const batch = formattingRequests.slice(i, i + batchSize);
@@ -1230,20 +1227,20 @@ async function appendDocContent(documentId, markdownContent) {
             requestBody: { requests: batch }
           });
         } catch (batchError) {
-          console.warn(`Warning: Some formatting failed, continuing...`);
+          console.warn(`⚠️  Some formatting failed, continuing...`);
         }
       }
     }
 
     const docUrl = `https://docs.google.com/document/d/${documentId}/edit`;
-    console.log(`\nDocument appended: ${docUrl}\n`);
+    console.log(`\n✅ Document appended: ${docUrl}\n`);
     return { documentId, url: docUrl };
   } catch (error) {
-    console.error('\nError appending to document:', error.message);
+    console.error('\n❌ Error appending to document:', error.message);
     if (error.code === 404) {
       console.error('Document not found. Check the document ID and permissions.');
     }
-    process.exit(1);
+    throw error;
   }
 }
 
@@ -1282,10 +1279,10 @@ if (args.length === 0) {
 Google Docs API - Create, Read, Update Google Docs with Markdown
 
 Usage:
-  node google-docs-creator.cjs create <docName> <content|filepath> [--file]
-  node google-docs-creator.cjs read <docId>
-  node google-docs-creator.cjs update <docId> <content|filepath> [--file]
-  node google-docs-creator.cjs append <docId> <content|filepath> [--file]
+  node google-docs-creator.js create <docName> <content|filepath> [--file]
+  node google-docs-creator.js read <docId>
+  node google-docs-creator.js update <docId> <content|filepath> [--file]
+  node google-docs-creator.js append <docId> <content|filepath> [--file]
 
 Commands:
   create   Create a new Google Doc with markdown content
@@ -1299,67 +1296,67 @@ Commands:
   copy     Duplicate a document with a new name
 
 Markdown Support:
-  # Title          -> Title style
-  ## Heading       -> Heading 1
-  ### Subheading   -> Heading 2
-  #### Minor       -> Heading 3
-  **bold**         -> Bold text
-  *italic*         -> Italic text
-  - item           -> Native bullet list
-  1. item          -> Native numbered list
-  ---              -> Horizontal rule
+  # Title          → Title style
+  ## Heading       → Heading 1
+  ### Subheading   → Heading 2
+  #### Minor       → Heading 3
+  **bold**         → Bold text
+  *italic*         → Italic text
+  - item           → Native bullet list
+  1. item          → Native numbered list
+  ---              → Horizontal rule
 
 Examples:
   # Create new doc (name first, then content)
-  node google-docs-creator.cjs create "My Document" "# My Doc\\n\\nHello world"
-  node google-docs-creator.cjs create "My Document" ./doc.md --file
+  node google-docs-creator.js create "My Document" "# My Doc\\n\\nHello world"
+  node google-docs-creator.js create "My Document" ./doc.md --file
 
   # Create new doc (heredoc - title first, content piped)
-  node google-docs-creator.cjs create "My Document" << 'EOF'
+  node google-docs-creator.js create "My Document" << 'EOF'
   # My Doc
 
   Hello world with **bold** and *italic*.
   EOF
 
   # Read existing doc
-  node google-docs-creator.cjs read 1abc...xyz789
+  node google-docs-creator.js read 1abc...xyz789
 
   # Replace content (heredoc supported)
-  node google-docs-creator.cjs update 1abc...xyz789 "# Updated\\n\\nNew content"
-  node google-docs-creator.cjs update 1abc...xyz789 ./updated.md --file
-  node google-docs-creator.cjs update 1abc...xyz789 << 'EOF'
+  node google-docs-creator.js update 1abc...xyz789 "# Updated\\n\\nNew content"
+  node google-docs-creator.js update 1abc...xyz789 ./updated.md --file
+  node google-docs-creator.js update 1abc...xyz789 << 'EOF'
   # New Content
   EOF
 
   # Append content (heredoc supported)
-  node google-docs-creator.cjs append 1abc...xyz789 "## More content\\n\\nAdded text"
-  node google-docs-creator.cjs append 1abc...xyz789 ./addition.md --file
-  node google-docs-creator.cjs append 1abc...xyz789 << 'EOF'
+  node google-docs-creator.js append 1abc...xyz789 "## More content\\n\\nAdded text"
+  node google-docs-creator.js append 1abc...xyz789 ./addition.md --file
+  node google-docs-creator.js append 1abc...xyz789 << 'EOF'
   ## Added Section
   EOF
 
   # Search for text
-  node google-docs-creator.cjs search 1abc...xyz789 "quarterly"
+  node google-docs-creator.js search 1abc...xyz789 "quarterly"
 
   # Insert text at position
-  node google-docs-creator.cjs insert 1abc...xyz789 start "New intro\\n\\n"
-  node google-docs-creator.cjs insert 1abc...xyz789 end "\\n\\nConclusion"
-  node google-docs-creator.cjs insert 1abc...xyz789 "after:## Goals" "\\n\\nNew section here"
+  node google-docs-creator.js insert 1abc...xyz789 start "New intro\\n\\n"
+  node google-docs-creator.js insert 1abc...xyz789 end "\\n\\nConclusion"
+  node google-docs-creator.js insert 1abc...xyz789 "after:## Goals" "\\n\\nNew section here"
 
   # Find and replace text
-  node google-docs-creator.cjs replace 1abc...xyz789 "old text" "new text"
+  node google-docs-creator.js replace 1abc...xyz789 "old text" "new text"
 
   # Delete text
-  node google-docs-creator.cjs delete 1abc...xyz789 "text to remove"
+  node google-docs-creator.js delete 1abc...xyz789 "text to remove"
 
   # Copy document
-  node google-docs-creator.cjs copy 1abc...xyz789 "My Document - Copy"
+  node google-docs-creator.js copy 1abc...xyz789 "My Document - Copy"
 
 Legacy Usage (no command):
-  node google-docs-creator.cjs <docName> <content|filepath>     # Creates new doc
-  node google-docs-creator.cjs <content|filepath> <docId>       # Appends to doc (if ID detected)
+  node google-docs-creator.js <docName> <content|filepath>     # Creates new doc
+  node google-docs-creator.js <content|filepath> <docId>       # Appends to doc (if ID detected)
 `);
-  process.exit(0);
+  return;
 }
 
 // Parse command and arguments
@@ -1383,8 +1380,12 @@ function loadContent(contentOrPath, requireFile = false) {
   return contentOrPath;
 }
 
-// Route commands - wrap in async IIFE for stdin support
-(async () => {
+// Route commands - wrap in run() for resilient execution
+run({
+  name: 'google-docs-creator',
+  mode: 'operational',
+  services: ['google'],
+}, async (ctx) => {
   try {
   // Read stdin first (for heredoc/pipe support)
   const stdinContent = await readStdin();
@@ -1396,23 +1397,17 @@ if (command === 'create') {
   // If stdin has content, first arg is the doc name, content comes from stdin
   if (stdinContent) {
     if (!docName) {
-      console.error('ERROR: Document name required for create command');
-      console.error('Usage: create <docName> << EOF');
-      process.exit(1);
+      throw new Error('Document name required for create command. Usage: create <docName> << EOF');
     }
     createFormattedDoc(stdinContent, docName);
   } else {
     // Traditional: first arg is name, second is content
     if (!docName) {
-      console.error('ERROR: Document name required for create command');
-      console.error('Usage: create <docName> <content|filepath> [--file]');
-      process.exit(1);
+      throw new Error('Document name required for create command. Usage: create <docName> <content|filepath> [--file]');
     }
 
     if (!contentArg) {
-      console.error('ERROR: Content or filepath required for create command');
-      console.error('Usage: create <docName> <content|filepath> [--file]');
-      process.exit(1);
+      throw new Error('Content or filepath required for create command. Usage: create <docName> <content|filepath> [--file]');
     }
 
     // Validate argument order - detect if args appear swapped
@@ -1420,17 +1415,11 @@ if (command === 'create') {
     const contentIsShort = contentArg.length < 100 && !contentArg.includes('\n') && !fs.existsSync(contentArg);
 
     if (nameHasNewlines || contentIsShort) {
-      console.error('ERROR: Arguments appear to be in wrong order.');
-      console.error('');
-      console.error('Expected: create <docName> <content|filepath>');
-      console.error('');
-      console.error('Your docName contains newlines or your content looks like a title.');
-      console.error('The first argument should be the document title (short, no newlines).');
-      console.error('The second argument should be the content (markdown text or filepath).');
-      process.exit(1);
+      throw new Error('Arguments appear to be in wrong order.. . Expected: create <docName> <content|filepath>. . Your docName contains newlines or your content looks like a title.. The first argument should be the document title (short, no newlines).. The second argument should be the content (markdown text or filepath).');
     }
 
     const content = loadContent(contentArg, isFile);
+    track('docs_create', { from_file: isFile, content_length: content.length });
     createFormattedDoc(content, docName);
   }
 
@@ -1438,13 +1427,11 @@ if (command === 'create') {
   const docId = args[1];
 
   if (!docId) {
-    console.error('ERROR: Document ID required for read command');
-    process.exit(1);
+    throw new Error('Document ID required for read command');
   }
 
   if (!isDocumentId(docId)) {
-    console.error('ERROR: Invalid document ID format');
-    process.exit(1);
+    throw new Error('Invalid document ID format');
   }
 
   readDoc(docId);
@@ -1457,20 +1444,15 @@ if (command === 'create') {
   const content = stdinContent || loadContent(contentArg, isFile);
 
   if (!docId) {
-    console.error('ERROR: Document ID required for update command');
-    process.exit(1);
+    throw new Error('Document ID required for update command');
   }
 
   if (!content) {
-    console.error('ERROR: Content required for update command');
-    console.error('Usage: node google-docs-creator.cjs update <docId> "content"');
-    console.error('   or: node google-docs-creator.cjs update <docId> << EOF');
-    process.exit(1);
+    throw new Error('Content required for update command. Usage: node google-docs-creator.js update <docId> "content".    or: node google-docs-creator.js update <docId> << EOF');
   }
 
   if (!isDocumentId(docId)) {
-    console.error('ERROR: Invalid document ID format');
-    process.exit(1);
+    throw new Error('Invalid document ID format');
   }
 
   replaceDocContent(docId, content);
@@ -1483,20 +1465,15 @@ if (command === 'create') {
   const content = stdinContent || loadContent(contentArg, isFile);
 
   if (!docId) {
-    console.error('ERROR: Document ID required for append command');
-    process.exit(1);
+    throw new Error('Document ID required for append command');
   }
 
   if (!content) {
-    console.error('ERROR: Content required for append command');
-    console.error('Usage: node google-docs-creator.cjs append <docId> "content"');
-    console.error('   or: node google-docs-creator.cjs append <docId> << EOF');
-    process.exit(1);
+    throw new Error('Content required for append command. Usage: node google-docs-creator.js append <docId> "content".    or: node google-docs-creator.js append <docId> << EOF');
   }
 
   if (!isDocumentId(docId)) {
-    console.error('ERROR: Invalid document ID format');
-    process.exit(1);
+    throw new Error('Invalid document ID format');
   }
 
   appendDocContent(docId, content);
@@ -1506,14 +1483,11 @@ if (command === 'create') {
   const searchTerm = args[2];
 
   if (!docId || !searchTerm) {
-    console.error('ERROR: Document ID and search term required for search command');
-    console.error('Usage: search <docId> "text to find"');
-    process.exit(1);
+    throw new Error('Document ID and search term required for search command. Usage: search <docId> "text to find"');
   }
 
   if (!isDocumentId(docId)) {
-    console.error('ERROR: Invalid document ID format');
-    process.exit(1);
+    throw new Error('Invalid document ID format');
   }
 
   searchText(docId, searchTerm);
@@ -1524,15 +1498,11 @@ if (command === 'create') {
   const text = args[3];
 
   if (!docId || !position || text === undefined) {
-    console.error('ERROR: Document ID, position, and text required for insert command');
-    console.error('Usage: insert <docId> <position> "text"');
-    console.error('Position: "start", "end", a number, or "after:search text"');
-    process.exit(1);
+    throw new Error('Document ID, position, and text required for insert command. Usage: insert <docId> <position> "text". Position: "start", "end", a number, or "after:search text"');
   }
 
   if (!isDocumentId(docId)) {
-    console.error('ERROR: Invalid document ID format');
-    process.exit(1);
+    throw new Error('Invalid document ID format');
   }
 
   insertText(docId, position, text);
@@ -1543,14 +1513,11 @@ if (command === 'create') {
   const newText = args[3];
 
   if (!docId || !oldText || newText === undefined) {
-    console.error('ERROR: Document ID, old text, and new text required for replace command');
-    console.error('Usage: replace <docId> "old text" "new text"');
-    process.exit(1);
+    throw new Error('Document ID, old text, and new text required for replace command. Usage: replace <docId> "old text" "new text"');
   }
 
   if (!isDocumentId(docId)) {
-    console.error('ERROR: Invalid document ID format');
-    process.exit(1);
+    throw new Error('Invalid document ID format');
   }
 
   replaceText(docId, oldText, newText);
@@ -1560,14 +1527,11 @@ if (command === 'create') {
   const textToDelete = args[2];
 
   if (!docId || !textToDelete) {
-    console.error('ERROR: Document ID and text required for delete command');
-    console.error('Usage: delete <docId> "text to delete"');
-    process.exit(1);
+    throw new Error('Document ID and text required for delete command. Usage: delete <docId> "text to delete"');
   }
 
   if (!isDocumentId(docId)) {
-    console.error('ERROR: Invalid document ID format');
-    process.exit(1);
+    throw new Error('Invalid document ID format');
   }
 
   deleteText(docId, textToDelete);
@@ -1577,14 +1541,11 @@ if (command === 'create') {
   const newName = args[2];
 
   if (!docId || !newName) {
-    console.error('ERROR: Document ID and new name required for copy command');
-    console.error('Usage: copy <docId> "New Document Name"');
-    process.exit(1);
+    throw new Error('Document ID and new name required for copy command. Usage: copy <docId> "New Document Name"');
   }
 
   if (!isDocumentId(docId)) {
-    console.error('ERROR: Invalid document ID format');
-    process.exit(1);
+    throw new Error('Invalid document ID format');
   }
 
   copyDoc(docId, newName);
@@ -1597,13 +1558,11 @@ if (command === 'create') {
   // If stdin has content, treat first arg as doc name
   if (stdinContent) {
     if (!docNameArg) {
-      console.error('ERROR: Document name required');
-      console.error('Usage: <docName> << EOF');
-      process.exit(1);
+      throw new Error('Document name required. Usage: <docName> << EOF');
     }
 
     if (isDocumentId(docNameArg)) {
-      console.log('Detected document ID - appending to existing document');
+      console.log('⚠️  Detected document ID - appending to existing document');
       console.log('    (Use explicit commands: create, read, update, append)\n');
       appendDocContent(docNameArg, stdinContent);
     } else {
@@ -1611,30 +1570,26 @@ if (command === 'create') {
     }
   } else {
     if (!docNameArg) {
-      console.error('ERROR: Document name required');
-      console.error('Usage: <docName> <content|filepath>');
-      process.exit(1);
+      throw new Error('Document name required. Usage: <docName> <content|filepath>');
     }
 
     // Document ID check for legacy mode - if second arg is a doc ID, we're appending
     if (isDocumentId(contentOrIdArg)) {
       // First arg is content, second is doc ID (append mode)
       const content = loadContent(docNameArg, isFile);
-      console.log('Detected document ID - appending to existing document');
+      console.log('⚠️  Detected document ID - appending to existing document');
       console.log('    (Use explicit commands: create, read, update, append)\n');
       appendDocContent(contentOrIdArg, content);
     } else if (isDocumentId(docNameArg)) {
       // First arg is doc ID (legacy update mode)
       const content = loadContent(contentOrIdArg, isFile);
-      console.log('Detected document ID - appending to existing document');
+      console.log('⚠️  Detected document ID - appending to existing document');
       console.log('    (Use explicit commands: create, read, update, append)\n');
       appendDocContent(docNameArg, content);
     } else {
       // Create mode: first arg is name, second is content
       if (!contentOrIdArg) {
-        console.error('ERROR: Content or filepath required');
-        console.error('Usage: <docName> <content|filepath>');
-        process.exit(1);
+        throw new Error('Content or filepath required. Usage: <docName> <content|filepath>');
       }
 
       // Validate argument order - detect if args appear swapped
@@ -1642,14 +1597,7 @@ if (command === 'create') {
       const contentIsShort = contentOrIdArg.length < 100 && !contentOrIdArg.includes('\n') && !fs.existsSync(contentOrIdArg);
 
       if (nameHasNewlines || contentIsShort) {
-        console.error('ERROR: Arguments appear to be in wrong order.');
-        console.error('');
-        console.error('Expected: <docName> <content|filepath>');
-        console.error('');
-        console.error('Your docName contains newlines or your content looks like a title.');
-        console.error('The first argument should be the document title (short, no newlines).');
-        console.error('The second argument should be the content (markdown text or filepath).');
-        process.exit(1);
+        throw new Error('Arguments appear to be in wrong order.. . Expected: <docName> <content|filepath>. . Your docName contains newlines or your content looks like a title.. The first argument should be the document title (short, no newlines).. The second argument should be the content (markdown text or filepath).');
       }
 
       const content = loadContent(contentOrIdArg, isFile);
@@ -1660,6 +1608,6 @@ if (command === 'create') {
 
   } catch (error) {
     console.error(`\nError: ${error.message}`);
-    process.exit(1);
+    throw error;
   }
-})();
+});

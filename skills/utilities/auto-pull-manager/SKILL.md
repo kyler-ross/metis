@@ -1,11 +1,11 @@
 ---
 name: auto-pull-manager
-description: Manage the [your company] repos auto-pull automation system
+description: Manage the Cloaked repos auto-pull automation system
 ---
 
 # Auto-Pull Manager Agent
 
-You manage the [your company] repos auto-pull automation system. This system automatically pulls tracked repositories hourly (while the computer is on) with comprehensive safety checks.
+You manage the Cloaked repos auto-pull automation system. This system automatically pulls tracked repositories hourly (while the computer is on) with comprehensive safety checks.
 
 ## Your Capabilities
 
@@ -18,16 +18,16 @@ You manage the [your company] repos auto-pull automation system. This system aut
 
 | File | Purpose |
 |------|---------|
-| `scripts/safe-auto-pull.sh` | Main script (install/uninstall/status/run) |
-| `local/auto-pull-config.json` | User configuration (editable) |
-| `local/auto-pull-status.json` | Last run status (read-only, auto-updated) |
-| `local/auto-pull.log` | Full activity log |
+| `.ai/scripts/safe-auto-pull.sh` | Main script (install/uninstall/status/run) |
+| `.ai/local/auto-pull-config.json` | User configuration (editable) |
+| `.ai/local/auto-pull-status.json` | Last run status (read-only, auto-updated) |
+| `.ai/local/auto-pull.log` | Full activity log |
 
 ## Configuration File Format
 
 ```json
 {
-  "repos": ["pm", "backend", "mobile", "dashboard", "[your-ios-app]", "[backend-service]"],
+  "repos": ["pm", "backend", "mobile", "dashboard", "cloaked-ios", "backend-core"],
   "intervalMinutes": 60,
   "notifications": true
 }
@@ -55,84 +55,84 @@ The script checks ALL of these before pulling:
 
 ### Check if auto-pull is working
 ```bash
-bash scripts/safe-auto-pull.sh status
+bash .ai/scripts/safe-auto-pull.sh status
 ```
-Or read `local/auto-pull-status.json` for programmatic access.
+Or read `.ai/local/auto-pull-status.json` for programmatic access.
 
 ### Add a repo to tracking
-Edit `local/auto-pull-config.json` and add the repo name to the `repos` array.
+Edit `.ai/local/auto-pull-config.json` and add the repo name to the `repos` array.
 
 ### Remove a repo from tracking
-Edit `local/auto-pull-config.json` and remove the repo name from the `repos` array.
+Edit `.ai/local/auto-pull-config.json` and remove the repo name from the `repos` array.
 
 ### Change pull interval
-Edit `local/auto-pull-config.json` and change `intervalMinutes`. Then reinstall:
+Edit `.ai/local/auto-pull-config.json` and change `intervalMinutes`. Then reinstall:
 ```bash
-bash scripts/safe-auto-pull.sh install
+bash .ai/scripts/safe-auto-pull.sh install
 ```
 
 ### Disable notifications
-Edit `local/auto-pull-config.json` and set `notifications` to `false`.
+Edit `.ai/local/auto-pull-config.json` and set `notifications` to `false`.
 
 ### Enable/disable auto-pull entirely
 ```bash
 # Enable (one-time, persists across reboots)
-bash scripts/safe-auto-pull.sh install
+bash .ai/scripts/safe-auto-pull.sh install
 
 # Disable
-bash scripts/safe-auto-pull.sh uninstall
+bash .ai/scripts/safe-auto-pull.sh uninstall
 ```
 
 ### Force a manual pull
 ```bash
-bash scripts/safe-auto-pull.sh run
+bash .ai/scripts/safe-auto-pull.sh run
 ```
 
 ### View recent activity
 ```bash
-cat local/auto-pull.log | tail -50
+cat .ai/local/auto-pull.log | tail -50
 ```
 
 ## Responding to User Requests
 
 ### "Show auto-pull status" / "Is auto-pull working?"
-1. Read `local/auto-pull-status.json` to get last run time and per-repo status
-2. Check if launchd agent is loaded: `launchctl list | grep com.yourcompany.auto-pull`
+1. Read `.ai/local/auto-pull-status.json` to get last run time and per-repo status
+2. Check if launchd agent is loaded: `launchctl list | grep com.cloaked.auto-pull`
 3. Report: enabled/disabled, last run time, any repos with issues
 
 ### "Add [repo] to auto-pull" / "Track [repo]"
-1. Read current `local/auto-pull-config.json`
+1. Read current `.ai/local/auto-pull-config.json`
 2. Add repo name to `repos` array
 3. Write updated config
 4. Tell user the change is immediate (no reinstall needed)
 
 ### "Remove [repo] from auto-pull" / "Stop tracking [repo]"
-1. Read current `local/auto-pull-config.json`
+1. Read current `.ai/local/auto-pull-config.json`
 2. Remove repo name from `repos` array
 3. Write updated config
 
 ### "Why isn't [repo] getting pulled?"
-1. Read `local/auto-pull-status.json`
+1. Read `.ai/local/auto-pull-status.json`
 2. Find the repo's status entry
 3. Explain the skip reason (e.g., "on branch feature/xyz", "uncommitted changes")
 4. Suggest fix if applicable
 
 ### "What's been updated recently?"
-1. Read `local/auto-pull-status.json` for latest run
-2. Read `local/auto-pull.log` for history
+1. Read `.ai/local/auto-pull-status.json` for latest run
+2. Read `.ai/local/auto-pull.log` for history
 3. Summarize: which repos updated, how many commits, any issues
 
 ### "Change interval to X minutes"
-1. Read current `local/auto-pull-config.json`
+1. Read current `.ai/local/auto-pull-config.json`
 2. Update `intervalMinutes`
 3. Write config
-4. Run `bash scripts/safe-auto-pull.sh install` to apply new interval
+4. Run `bash .ai/scripts/safe-auto-pull.sh install` to apply new interval
 5. Confirm to user
 
 ## Example Status Output
 
 ```
-[Your Product] Auto-Pull Status
+Cloaked Auto-Pull Status
 ========================
 
 Enabled: YES (launchd agent loaded)
@@ -154,7 +154,7 @@ Recent activity (last 10 lines):
   [2025-12-03 14:32:04] === Auto-pull completed ===
 
 Configuration:
-  Repos: pm backend mobile dashboard [your-ios-app] [backend-service]
+  Repos: pm backend mobile dashboard cloaked-ios backend-core
   Interval: 60 minutes
   Notifications: true
 ```
@@ -164,5 +164,5 @@ Configuration:
 - The script uses `git pull --ff-only` so it NEVER creates merge commits
 - Only pulls when on main/master branch - feature branches are always safe
 - Notifications only appear when actual updates happen (not for "up to date")
-- All activity is logged to `local/auto-pull.log`
+- All activity is logged to `.ai/local/auto-pull.log`
 - Status JSON is updated every run for programmatic access

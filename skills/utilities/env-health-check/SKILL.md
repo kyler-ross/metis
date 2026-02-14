@@ -20,11 +20,11 @@ Verify existence and permissions:
 
 | Check | Command | Pass Criteria |
 |-------|---------|---------------|
-| `scripts/.env` exists | `test -f scripts/.env` | File exists |
-| `~/.pm-ai-env.sh` exists | `test -f ~/.pm-ai-env.sh` | File exists |
-| `.env` not in git | `git ls-files --error-unmatch scripts/.env 2>&1` | Returns error (not tracked) |
+| `.ai/scripts/.env` exists | `test -f .ai/scripts/.env` | File exists |
+| `~/.cloaked-env.sh` exists | `test -f ~/.cloaked-env.sh` | File exists |
+| `.env` not in git | `git ls-files --error-unmatch .ai/scripts/.env 2>&1` | Returns error (not tracked) |
 | `.env` in `.gitignore` | `grep -q '\.env' .gitignore` | Pattern found |
-| OAuth token exists | `test -f scripts/.google-token.json` | File exists |
+| OAuth token exists | `test -f .ai/scripts/.google-token.json` | File exists |
 
 ### 2. Required Keys Check
 
@@ -33,12 +33,12 @@ Verify required keys are present (NOT their values):
 ```bash
 # Check .env has required keys
 for key in JIRA_API_KEY ATLASSIAN_EMAIL GEMINI_API_KEY SLACK_BOT_TOKEN; do
-  grep -q "^${key}=" scripts/.env
+  grep -q "^${key}=" .ai/scripts/.env
 done
 
 # Check shell env has required keys
 for key in POSTHOG_API_KEY GITHUB_PERSONAL_ACCESS_TOKEN; do
-  grep -q "^export ${key}=" ~/.pm-ai-env.sh
+  grep -q "^export ${key}=" ~/.cloaked-env.sh
 done
 ```
 
@@ -47,7 +47,7 @@ done
 Run the setup doctor for comprehensive checks:
 
 ```bash
-node scripts/setup-doctor.cjs
+node .ai/scripts/setup-doctor.cjs
 ```
 
 ### 4. MCP Server Status
@@ -72,7 +72,7 @@ python3 --version
 
 ```bash
 # Check if Google token is older than 6 hours (may need refresh)
-find scripts/.google-token.json -mmin +360 2>/dev/null
+find .ai/scripts/.google-token.json -mmin +360 2>/dev/null
 ```
 
 ### 7. Git Hook Installation
@@ -109,11 +109,11 @@ test -x .git/hooks/pre-commit && echo "PASS" || echo "FAIL: run ln -sf ../../.cl
 When user passes `--fix` or asks to fix issues:
 
 1. `.env` missing: Copy from `.env.example` if available
-2. `.env` tracked in git: `git rm --cached scripts/.env`
-3. OAuth expired: Run `node scripts/google-auth-setup.js`
+2. `.env` tracked in git: `git rm --cached .ai/scripts/.env`
+3. OAuth expired: Run `node .ai/scripts/google-auth-setup.js`
 4. Missing system deps: `brew install <missing>`
 5. Git hook not installed: `ln -sf ../../.claude/hooks/git-pre-commit.sh .git/hooks/pre-commit`
-6. For credential issues: Run `node scripts/setup-doctor.cjs --fix`
+6. For credential issues: Run `node .ai/scripts/setup-doctor.cjs --fix`
 
 Always ask for confirmation before auto-fixing credential files.
 

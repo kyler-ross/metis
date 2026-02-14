@@ -55,14 +55,14 @@ Repro:
 
 Evidence: [data, Sentry link, screenshot, or blank]
 
-Priority: [Use the matrix in knowledge/jira-priority-matrix.md]
+Priority: [Use the matrix in .ai/knowledge/jira-priority-matrix.md]
   - Assess Severity (S1-S4) based on User Pain
   - Assess Likelihood (L1-L4) based on Impact
   - Cross-reference to get: Highest, High, Medium, or Low
 
 Labels: [iOS | Android | Mobile | Dashboard | Extension | Platform] + [feature labels]
 
-Components: [Mobile | Dashboard | Extension | Platform | Feature-1 | Feature-2 | Feature-3]
+Components: [Mobile | Dashboard | Extension | Platform | Pay | MFA | Spam Blocker]
 
 Notes: [Constraints, dependencies, edge cases - WHAT to think about, not HOW to fix]
 ```
@@ -100,12 +100,12 @@ What happened: App crashes immediately when user taps "Delete Account" in Settin
 What should have happened: Should show confirmation dialog, then delete account and log out
 
 Repro:
-1. Open [Your Company] app on iOS
+1. Open Cloaked app on iOS
 2. Navigate to Settings > Account
 3. Tap "Delete Account"
 4. App crashes before confirmation dialog appears
 
-Evidence: Sentry error log: https://sentry.io/[your-org]/issues/12345
+Evidence: Sentry error log: https://sentry.io/cloaked/issues/12345
 
 Priority: High (S1 severity, L2 likelihood)
 
@@ -115,7 +115,7 @@ Components: Mobile
 
 Notes:
 - Only affects iOS 16+; iOS 15 works correctly
-- May be related to recent keychain changes in PROJ-XXX
+- May be related to recent keychain changes in ALL-1234
 - Consider: What if user has pending transactions?
 - Constraint: Must comply with GDPR deletion requirements
 ```
@@ -153,12 +153,12 @@ Notes: [Constraints, dependencies - WHAT matters, not HOW to build]
 ```
 Title: Add urgent tasks section to Feed
 
-User Story: As a [Your Company] user, I want to see my most urgent tasks prominently in the Feed so that I can quickly address high-priority items
+User Story: As a Cloaked user, I want to see my most urgent tasks prominently in the Feed so that I can quickly address high-priority items
 
 Acceptance Criteria:
 - Urgent tasks appear at top of Feed above other cards
-- Tasks are sorted by priority ([Feature A] requests first, then [Feature B] actions, then other)
-- Tapping a task navigates to appropriate action (e.g., [Feature A] flow)
+- Tasks are sorted by priority (data removal requests first, then password resets, then other)
+- Tapping a task navigates to appropriate action (e.g., Data Removal flow)
 - Section is hidden if user has no urgent tasks
 - PostHog events: feed_urgent_task_viewed, feed_urgent_task_tapped
 
@@ -166,7 +166,7 @@ Designs: https://figma.com/file/abc123/Feed-V2
 
 Notes:
 - Constraint: Must load in <200ms to avoid Feed lag
-- Dependency: Requires task prioritization logic from [Feature Name] experiment (PROJ-XXX)
+- Dependency: Requires task prioritization logic from Health Meter experiment (ALL-1200)
 - Edge case: What if user has 50+ urgent tasks? (Show max 5, link to full list)
 - Business context: Experiment shows 2x conversion lift for urgent tasks CTA vs "scan again"
 ```
@@ -203,13 +203,13 @@ Dependencies: [What's needed first]
 ### Task Template - Example
 
 ```
-Title: Conduct user research on [Feature Tab] discoverability
+Title: Conduct user research on Wallet tab discoverability
 
-Objective: Understand why users aren't discovering the [Feature Tab] in Basic mode and identify UX improvements
+Objective: Understand why users aren't discovering the Wallet tab in Basic mode and identify UX improvements
 
 Success Metrics:
 - 10+ user interviews completed
-- Clear themes identified for why users miss [Feature Tab]
+- Clear themes identified for why users miss Wallet tab
 - 3+ actionable recommendations for improving discoverability
 
 Deliverables:
@@ -221,7 +221,7 @@ Deliverables:
 Timeline: Jan 5 → Jan 19
 
 Dependencies:
-- [Feature Tab] Basic mode must be live in production (PROJ-XXX)
+- Wallet tab Basic mode must be live in production (ALL-1234)
 - Recruiting coordinator availability for user scheduling
 ```
 
@@ -239,7 +239,7 @@ Dependencies:
 - **Success metrics**: How to measure done
   - Example: "95% of users complete flow", "PostHog event firing correctly"
 - **Dependencies**: What must happen first
-  - Example: "Requires API endpoint from PROJ-XXX", "Blocked by design review"
+  - Example: "Requires API endpoint from ALL-123", "Blocked by design review"
 
 ### ❌ NEVER Include
 
@@ -275,9 +275,9 @@ Notes:
 - Consider: Session storage lifecycle - what happens if user logs out mid-flow?
 - Edge case: What if user has no network during this operation?
 - Constraint: Must support iOS 15+ (can't use iOS 16-only APIs)
-- Related: Similar Android issue in PROJ-XXX; may want to align approach
+- Related: Similar Android issue in ALL-123; may want to align approach
 - Business context: Part of Q1 OKR to improve user onboarding completion rate
-- Dependency: Requires new API endpoint from backend team (see PROJ-XXX)
+- Dependency: Requires new API endpoint from backend team (see ALL-456)
 - Compliance: Must comply with GDPR right-to-deletion requirements
 ```
 

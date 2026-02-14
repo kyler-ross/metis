@@ -36,11 +36,11 @@
   },
   "required_context": [],
   "meta": {
-    "author": "pm-system",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
     "agent_type": "personas",
-    "migrated_from": "",
+    "migrated_from": ".ai/agents/personas/pragmatic-user.md",
     "migration_date": "2026-02-03"
   }
 }

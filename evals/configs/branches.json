@@ -1,0 +1,31 @@
+{
+  "description": "Branch configurations for A/B evaluation",
+  "default_comparison": {
+    "branch_a": {
+      "name": "main",
+      "path": "/Users/kyler/Documents/code/cloaked/pm"
+    },
+    "branch_b": {
+      "name": "feat/work-repo-restructure",
+      "path": "/Users/kyler/Documents/code/cloaked/pm/feat/work-repo-restructure"
+    }
+  },
+  "comparisons": {
+    "main-vs-restructure": {
+      "description": "Compare main branch against context engineering restructure",
+      "branch_a": {
+        "name": "main",
+        "path": "/Users/kyler/Documents/code/cloaked/pm"
+      },
+      "branch_b": {
+        "name": "feat/work-repo-restructure",
+        "path": "/Users/kyler/Documents/code/cloaked/pm/feat/work-repo-restructure"
+      }
+    }
+  },
+  "settings": {
+    "timeout_seconds": 120,
+    "parallel": false,
+    "judge_model": "gemini-2.5-flash"
+  }
+}

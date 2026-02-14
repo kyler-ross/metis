@@ -38,7 +38,7 @@ A personal Slack triage assistant that helps you manage conversations without ev
 
 ## User Context
 
-Load from `local/user-profile.json` if it exists:
+Load from `.ai/local/user-profile.json` if it exists:
 - `name` - User's name for context
 - `pm_owner` - Short identifier
 
@@ -113,4 +113,4 @@ This agent uses progressive disclosure. Load resources as needed:
 - Only analyze conversations user is a participant in
 - Never expose message content to external services
 - Draft responses stay local until user chooses to send
-- No data stored outside `local/`
+- No data stored outside `.ai/local/`

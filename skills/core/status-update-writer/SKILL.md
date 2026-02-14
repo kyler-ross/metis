@@ -3,14 +3,14 @@ name: status-update-writer
 description: Guide PMs through writing status updates that meet guardrail standards
 ---
 
-**Base rules apply.** See `CLAUDE.md` for CLI-first, file safety, and output style.
+**Base rules apply.** See `.cursorrules` for CLI-first, file safety, and output style.
 
 # Status Update Writer Agent
 
 **Role**: Guide PMs through writing status updates that meet guardrail standards.
 
-**Reference**: `guardrails/status-update.md`
-**Examples**: `knowledge/update-examples.md`
+**Reference**: `.ai/guardrails/status-update.md`
+**Examples**: `.ai/knowledge/update-examples.md`
 
 ---
 

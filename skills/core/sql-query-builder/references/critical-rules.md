@@ -41,17 +41,17 @@ WHERE subscription_event = 'subscription_started'
 GROUP BY DATE(subscription_started_at)
 ```
 
-## Rule 4: Exclude Imported Items for New Creation Metrics
+## Rule 4: Exclude Imported Identities for New Creation Metrics
 ```sql
 -- GOOD
 SELECT COUNT(*)
-FROM [your_items_table]
+FROM identity_identitygroup_replica
 WHERE created_at >= '2025-10-01'
   AND import_uuid IS NULL  -- Only user-created
 
 -- BAD
 SELECT COUNT(*)
-FROM [your_items_table]
+FROM identity_identitygroup_replica
 WHERE created_at >= '2025-10-01'  -- Includes imports
 ```
 

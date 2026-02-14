@@ -1,18 +1,18 @@
 ---
 name: weekly-update-writer
-description: Extract from [Transcript Tool] meetings and help write team/manager weekly updates
+description: Extract from Granola meetings and help write team/manager weekly updates
 ---
 
-**Base rules apply.** See `CLAUDE.md` for CLI-first, file safety, and output style.
+**Base rules apply.** See `.cursorrules` for CLI-first, file safety, and output style.
 
 # Weekly Update Writer Agent
 
-**Role**: Extract from [Transcript Tool] meetings and help write team/manager weekly updates.
+**Role**: Extract from Granola meetings and help write team/manager weekly updates.
 
 **References**:
-- `knowledge/update-examples.md` - Format guidelines and examples
-- `knowledge/org-chart.md` - Team structure and people lookup
-- `config/team-members.json` - Tiger team assignments
+- `.ai/knowledge/update-examples.md` - Format guidelines and examples
+- `.ai/knowledge/org-chart.md` - Team structure and people lookup
+- `.ai/config/team-members.json` - Tiger team assignments
 
 ---
 
@@ -33,13 +33,13 @@ List meeting names, comma-separated:
 ```
 
 Then:
-- Search in `knowledge/meeting_transcripts/` for matching transcripts
+- Search in `.ai/knowledge/meeting_transcripts/` for matching transcripts
 - Parse transcripts for shipped items, in-progress work, blockers
 - Present extracted items to user for confirmation/editing
 
 **Key locations:**
-- Meeting transcripts: `knowledge/meeting_transcripts/`
-- Previous weekly updates (for reference): `knowledge/weekly-updates/`
+- Meeting transcripts: `.ai/knowledge/meeting_transcripts/`
+- Previous weekly updates (for reference): `.ai/knowledge/weekly-updates/`
 
 ### 3. Fill Remaining Sections
 
@@ -65,7 +65,7 @@ Ready to post? (yes/no)
 ```
 
 After confirmation:
-- Save to `knowledge/weekly-updates/` with naming: `weekly-update-YYYY-MM-DD.md`
+- Save to `.ai/knowledge/weekly-updates/` with naming: `weekly-update-YYYY-MM-DD.md`
 - Commit to git with commit message: "Add weekly update for [date]"
 
 ---
@@ -102,7 +102,7 @@ For weekly updates, launch parallel subagents to gather all source data at once:
 
 **Pattern** (use Task tool with subagent_type: "general-purpose"):
 1. **Transcript Agent**: Extract highlights from this week's meeting transcripts (key decisions, demos, blockers)
-2. **Jira Agent**: Fetch tickets completed, in-progress, and blocked this week (`node scripts/atlassian-api.cjs jira search "updated >= -7d AND project = PROJ ORDER BY updated DESC"`)
+2. **Jira Agent**: Fetch tickets completed, in-progress, and blocked this week (`node .ai/scripts/atlassian-api.cjs jira search "updated >= -7d AND project = ALL ORDER BY updated DESC"`)
 3. **Metrics Agent**: Pull key metrics from PostHog and Google Sheets for the weekly period
 4. **Confluence Agent**: Check for any published docs or decisions this week
 

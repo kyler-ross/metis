@@ -10,7 +10,7 @@ Run a comprehensive health check across the entire file system. This is the defa
 
 ## Audit Checklist
 
-### 1. Knowledge Files (knowledge/)
+### 1. Knowledge Files (.ai/knowledge/)
 
 - [ ] Count files and compare against knowledge-index.json entries
 - [ ] Identify files present on disk but missing from index
@@ -18,17 +18,17 @@ Run a comprehensive health check across the entire file system. This is the defa
 - [ ] Flag " 2.md" duplicate files (Mac copy artifacts)
 - [ ] Check for .bak files that should be cleaned
 - [ ] Identify compressed/variant copies (e.g., about-me-compact.md alongside about-me.md)
-- [ ] Check Confluence-synced files for staleness: `node scripts/confluence-sync.cjs --check`
+- [ ] Check Confluence-synced files for staleness: `node .ai/scripts/confluence-sync.cjs --check`
 - [ ] Report files not modified in 90+ days (potential staleness)
 
-### 2. Configuration (config/)
+### 2. Configuration (.ai/config/)
 
 - [ ] Validate all JSON files parse correctly
 - [ ] Flag duplicate config files (e.g., "confluence-sync-config 2.json")
 - [ ] Check agent-manifest.json references still resolve
 - [ ] Verify CLAUDE.md and cursor-rules.md are in sync (diff key sections)
 
-### 3. Local Data (local/)
+### 3. Local Data (.ai/local/)
 
 - [ ] Report total size and breakdown by category
 - [ ] Count backup files and calculate wasted space (keep 2 most recent per type)
@@ -36,7 +36,7 @@ Run a comprehensive health check across the entire file system. This is the defa
 - [ ] Report private_transcripts/ count and date range
 - [ ] Check for orphaned temp files
 
-### 4. Work Directory (work/)
+### 4. Work Directory (.ai/work/)
 
 - [ ] Count total files and subdirectories
 - [ ] Identify work items older than 30 days
@@ -49,7 +49,7 @@ Run a comprehensive health check across the entire file system. This is the defa
 - [ ] Compare skills/_index.json against actual skill directories
 - [ ] Check marketplace.json references all valid skill paths
 
-### 6. Scripts (scripts/)
+### 6. Scripts (.ai/scripts/)
 
 - [ ] Count files in _archive/ (candidates for compression)
 - [ ] Check for duplicate node_modules nesting

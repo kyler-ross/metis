@@ -1,20 +1,20 @@
-// PM AI Starter Kit - daily-report-dm.cjs
-// See scripts/README.md for setup
 #!/usr/bin/env node
 /**
  * daily-report-dm.cjs - Daily chief-of-staff briefing via email.
  *
- * Gathers data from Calendar, Jira, Email, and Slack in parallel,
- * then calls the Anthropic API to synthesize a chief-of-staff briefing,
- * and delivers it as an email.
+ * Gathers data from Granola, Calendar, Jira, Email, and Slack in parallel,
+ * then calls the Anthropic API directly (Sonnet 4.5) to synthesize a
+ * chief-of-staff briefing, and delivers it as an email.
  *
  * Usage:
- *   node scripts/daily-report-dm.cjs [--dry-run] [--date=YYYY-MM-DD]
+ *   node .ai/scripts/daily-report-dm.cjs [--dry-run] [--date=YYYY-MM-DD] [--user=<id>]
  */
 'use strict';
 
 const { spawnSync } = require('child_process');
 const path = require('path');
+const { loadUserContext, resolveUserId } = require('./lib/user-context.cjs');
+const { run } = require('./lib/script-runner.cjs');
 
 // Load env vars for CLI scripts
 require('dotenv').config({ path: path.join(__dirname, '.env') });
@@ -27,16 +27,18 @@ const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const dateArg = args.find(a => a.startsWith('--date='));
 
-// Configure user - customize these for your setup
-const USER = {
-  name: process.env.USER_NAME || 'PM',
-  email: process.env.USER_EMAIL || 'user@example.com',
-  timezone: process.env.USER_TIMEZONE || 'America/New_York',
-  slack_dm_channel: process.env.SLACK_DM_CHANNEL || '',
-  persona: process.env.DAILY_REPORT_PERSONA || 'You are the chief of staff for a product manager at [Your Company].',
-};
+// Load user profile (defaults to kyler for backward compat)
+const userId = resolveUserId(args);
+const { profile: USER } = loadUserContext(userId);
+console.log(`User: ${USER.name} (${userId})`);
 
-console.log(`User: ${USER.name}`);
+// Validate required fields
+if (!USER.email) throw new Error(`User profile ${userId} missing required field: email`);
+if (!USER.slack_dm_channel) console.warn(`Warning: User ${userId} has no slack_dm_channel - Slack context will be unavailable`);
+if (!USER.persona) {
+  console.warn(`Warning: User ${userId} has no persona template - using generic`);
+  USER.persona = `You are the chief of staff for ${USER.name || userId} at Cloaked.`;
+}
 
 const DM_CHANNEL = USER.slack_dm_channel;
 const RECIPIENT_EMAIL = USER.email;
@@ -56,13 +58,15 @@ function getDateStrings() {
   return { today: fmt(now), yesterday: fmt(y) };
 }
 
-function run(cmd, args = [], { timeout = 30000 } = {}) {
+function runCmd(cmd, args = [], { timeout = 30000 } = {}) {
   try {
     const result = spawnSync(cmd, args, {
-      cwd: path.resolve(__dirname, '..'),
+      cwd: path.resolve(__dirname, '../..'),
       timeout,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
+      // Unlike handle-claim.cjs (which uses an env allowlist for untrusted agent subprocesses),
+      // daily-report runs trusted first-party scripts that need full env access for API keys.
       env: { ...process.env, TZ: 'America/New_York' },
     });
     if (result.error) throw result.error;
@@ -79,29 +83,60 @@ async function gatherData() {
 
   // Run all data sources in parallel
   const results = await Promise.allSettled([
+    // Granola meetings
+    Promise.resolve().then(() => {
+      const listResult = runCmd(process.execPath, ['.ai/scripts/granola-fetch.cjs', 'list', '--limit', '20'], { timeout: 45000 });
+      if (!listResult.ok) return { source: 'granola', data: `[Error: ${listResult.error}]` };
+
+      let docs;
+      try { docs = JSON.parse(listResult.output); } catch { return { source: 'granola', data: '[Error: Invalid JSON from granola-fetch]' }; }
+
+      // Filter to last 2 days
+      const cutoff = new Date(yesterday + 'T00:00:00');
+      const recent = docs.filter(d => new Date(d.created_at) >= cutoff);
+
+      // Fetch transcripts for recent meetings (limit to 5 to avoid timeouts)
+      const transcripts = [];
+      for (const doc of recent.slice(0, 5)) {
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(doc.id)) {
+          transcripts.push({ id: doc.id, title: doc.title, created_at: doc.created_at, markdown: doc.markdown, transcript: '[Error: Invalid doc ID format]' });
+          continue;
+        }
+        const tResult = runCmd(process.execPath, ['.ai/scripts/granola-fetch.cjs', 'transcript', doc.id], { timeout: 30000 });
+        transcripts.push({
+          id: doc.id,
+          title: doc.title,
+          created_at: doc.created_at,
+          markdown: doc.markdown,
+          transcript: !tResult.ok ? `[Error: ${tResult.error}]` : tResult.output.substring(0, 15000), // cap transcript size
+        });
+      }
+      return { source: 'granola', meetings: recent.length, transcripts };
+    }),
+
     // Calendar - today
     Promise.resolve().then(() => {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(today)) throw new Error('Invalid date format');
-      const calResult = run(process.execPath, ['scripts/google-calendar-api.js', 'events', `--date=${today}`], { timeout: 30000 });
+      const calResult = runCmd(process.execPath, ['.ai/scripts/google-calendar-api.js', 'events', `--date=${today}`], { timeout: 30000 });
       return { source: 'calendar_today', date: today, data: calResult.ok ? calResult.output : `[Error: ${calResult.error}]` };
     }),
 
     // Calendar - yesterday
     Promise.resolve().then(() => {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(yesterday)) throw new Error('Invalid date format');
-      const calResult = run(process.execPath, ['scripts/google-calendar-api.js', 'events', `--date=${yesterday}`], { timeout: 30000 });
+      const calResult = runCmd(process.execPath, ['.ai/scripts/google-calendar-api.js', 'events', `--date=${yesterday}`], { timeout: 30000 });
       return { source: 'calendar_yesterday', date: yesterday, data: calResult.ok ? calResult.output : `[Error: ${calResult.error}]` };
     }),
 
     // Jira
     Promise.resolve().then(() => {
-      const jiraResult = run(process.execPath, ['scripts/atlassian-api.cjs', 'jira', 'search', "assignee = currentUser() AND updated >= '-2d' ORDER BY updated DESC"], { timeout: 30000 });
+      const jiraResult = runCmd(process.execPath, ['.ai/scripts/atlassian-api.cjs', 'jira', 'search', "assignee = currentUser() AND updated >= '-2d' ORDER BY updated DESC"], { timeout: 30000 });
       return { source: 'jira', data: jiraResult.ok ? jiraResult.output : `[Error: ${jiraResult.error}]` };
     }),
 
     // Email
     Promise.resolve().then(() => {
-      const emailResult = run(process.execPath, ['scripts/google-gmail-api.cjs', 'today'], { timeout: 30000 });
+      const emailResult = runCmd(process.execPath, ['.ai/scripts/google-gmail-api.cjs', 'today'], { timeout: 30000 });
       return { source: 'email', data: emailResult.ok ? emailResult.output : `[Error: ${emailResult.error}]` };
     }),
 
@@ -109,10 +144,10 @@ async function gatherData() {
     DM_CHANNEL
       ? Promise.resolve().then(() => {
           if (!/^[CDGW][A-Za-z0-9]+$/.test(DM_CHANNEL)) throw new Error('Invalid Slack channel ID format');
-          const slackResult = run(process.execPath, ['scripts/slack-api.cjs', 'history', DM_CHANNEL, '10'], { timeout: 15000 });
+          const slackResult = runCmd(process.execPath, ['.ai/scripts/slack-api.cjs', 'history', DM_CHANNEL, '10'], { timeout: 15000 });
           return { source: 'slack_dm', data: slackResult.ok ? slackResult.output : `[Error: ${slackResult.error}]` };
         })
-      : Promise.resolve({ source: 'slack_dm', data: 'Slack DM channel not configured' }),
+      : Promise.resolve({ source: 'slack_dm', data: 'Slack DM channel not configured for this user' }),
   ]);
 
   // Collect results
@@ -136,6 +171,22 @@ function buildPrompt(data) {
 
   let context = `# Data Sources (gathered ${today})\n\n`;
 
+  // Granola
+  if (data.granola?.transcripts) {
+    context += `## Granola Meetings (${data.granola.meetings} in last 2 days)\n`;
+    for (const t of data.granola.transcripts) {
+      context += `\n### ${t.title} (${t.created_at})\n`;
+      if (t.markdown) context += `Notes:\n${t.markdown}\n`;
+      if (t.transcript && !t.transcript.startsWith('[Error:')) {
+        context += `Transcript:\n${t.transcript}\n`;
+      } else if (t.transcript) {
+        context += `Transcript: ${t.transcript}\n`;
+      }
+    }
+  } else {
+    context += `## Granola Meetings\n${data.granola?.data || 'No data available'}\n`;
+  }
+
   // Calendar
   context += `\n## Calendar - Today (${today})\n${data.calendar_today?.data || 'No data'}\n`;
   context += `\n## Calendar - Yesterday (${yesterday})\n${data.calendar_yesterday?.data || 'No data'}\n`;
@@ -154,7 +205,7 @@ function buildPrompt(data) {
 Your job: produce a daily briefing that a seasoned chief of staff would write - someone who
 knows ${USER.name}'s priorities, understands what actually matters, and filters ruthlessly.
 
-The system timezone is ${USER.timezone} (Eastern Time). All times are already in the local timezone.`;
+The system timezone is ${USER.timezone || 'America/New_York'} (Eastern Time). All times are already in the local timezone.`;
 
   const userPrompt = `${context}
 
@@ -190,14 +241,16 @@ NOT a list of meetings. Write flowing paragraphs.</p>
 <ul>
 <li><strong>Time</strong> - Meeting name. What ${USER.name} should know going in.</li>
 <li>Flag conflicts, prep needed, or meetings that could be skipped.</li>
+<li>For 1:1s: the most important topic based on recent context.</li>
 </ul>
 
 <h3>Action Items</h3>
-<p>Things ${USER.name} personally committed to (from emails, Jira). Each with source.
+<p>Things ${USER.name} personally committed to (from transcripts, emails, Jira). Each with source.
 Use <span style="color: #dc2626">red</span> for overdue or at-risk items.</p>
 
 <h3>Strategic Signals</h3>
-<p>Patterns worth noticing: recurring themes, emerging risks, opportunities.</p>
+<p>Patterns worth noticing: recurring themes, emerging risks, opportunities.
+This is where a good chief of staff adds value - connecting dots ${USER.name} might miss.</p>
 
 <h3>Decisions Needed</h3>
 <p>Things blocked on ${USER.name} making a call.</p>
@@ -206,7 +259,7 @@ Use <span style="color: #dc2626">red</span> for overdue or at-risk items.</p>
 <p>Briefly note what came in but doesn't need attention.</p>
 
 Formatting rules:
-- ALL styles must be inline (style="...") on each element.
+- ALL styles must be inline (style="...") on each element. Do not rely on CSS classes or <style> blocks.
 - Use <strong> for emphasis, <ul>/<li> for lists, <p> for paragraphs.
 - Use background-color: #f8f9fa; padding: 12px; border-radius: 6px; for callout boxes.
 - Use border-left: 3px solid #2563eb for highlighted sections.
@@ -215,11 +268,17 @@ Formatting rules:
 Content rules:
 - Write like a trusted advisor, not a robot listing bullet points.
 - Be substantive. Include enough context that each item is actionable without clicking through.
-- Connect information across sources.
+- Connect information across sources. A Jira ticket + a meeting discussion + an email = one story.
+- Do NOT use <hr> tags or em-dashes.
 - Do NOT fabricate. If a source returned no data or had errors, say so.
-- AGGRESSIVE EMAIL FILTERING: Only include emails where ${USER.name} must personally act or decide.
-  IGNORE: newsletters, monitoring alerts, CC'd emails, automated notifications.
+- NEVER attribute quotes or ideas to specific individuals from Granola transcripts. Speaker
+  attribution in transcripts is unreliable. Instead say "the team discussed", "it was noted",
+  "the meeting covered", etc. You can reference what meetings topics came from, just not who said what.
+- Sentry/monitoring alerts are noise unless they indicate a pattern affecting product decisions.
 - Times are already in ET from the calendar API. Do not convert or offset them.
+- AGGRESSIVE EMAIL FILTERING: Only include emails where ${USER.name} must personally act or decide.
+  IGNORE: newsletters, Sentry/PagerDuty/monitoring alerts, CC'd emails, automated notifications,
+  marketing emails, Linear/GitHub/Figma notifications, Firebase/analytics digests.
 - Output ONLY the HTML body content (starting from <h2>). No <html>, <head>, <body> wrappers, no code fences, no preamble.`;
 
   return { systemPrompt, userPrompt, dayName };
@@ -227,7 +286,7 @@ Content rules:
 
 async function callAnthropic(systemPrompt, userPrompt) {
   const key = ANTHROPIC_API_KEY;
-  if (!key) throw new Error('ANTHROPIC_API_KEY required in .env');
+  if (!key) throw new Error('ANTHROPIC_API_KEY required');
 
   console.log(`Calling Anthropic API (${MODEL})...`);
 
@@ -283,35 +342,43 @@ ${bodyContent}
 </html>`;
 }
 
-async function main() {
-  const startTime = Date.now();
+async function sendEmail(htmlBody, dayName, today) {
+  const googleAuth = require(path.join(__dirname, '../tools/lib/google-auth.cjs'));
+  const gmailClient = require(path.join(__dirname, '../tools/lib/gmail-client.cjs'));
 
-  try {
-    // 1. Gather all data in parallel
-    const data = await gatherData();
+  // Ensure we send from the correct account
+  googleAuth.setCurrentAccount(RECIPIENT_EMAIL);
 
-    // 2. Build and send to Anthropic for synthesis
-    const { systemPrompt, userPrompt, dayName } = buildPrompt(data);
-    const report = await callAnthropic(systemPrompt, userPrompt);
+  const subject = `Daily Briefing - ${dayName}, ${today}`;
+  const fullHtml = wrapHtml(htmlBody);
 
-    // 3. Deliver
-    if (dryRun) {
-      console.log('\n--- DRY RUN OUTPUT ---\n');
-      console.log(report);
-    } else {
-      // To send email, implement your own email delivery here
-      // Example: use nodemailer, SendGrid, or Google Gmail API
-      console.log('\n--- REPORT ---\n');
-      console.log(wrapHtml(report));
-      console.log('\nTo send via email, configure an email delivery method in this script.');
-    }
-
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`Done in ${elapsed}s`);
-  } catch (err) {
-    console.error('Fatal error:', err.message);
-    process.exit(1);
-  }
+  console.log(`Sending email to ${RECIPIENT_EMAIL}...`);
+  const result = await gmailClient.sendEmail(RECIPIENT_EMAIL, subject, fullHtml, { html: true });
+  console.log(`Email sent (id: ${result.id})`);
 }
 
-main();
+run({
+  name: 'daily-report-dm',
+  mode: 'operational',
+  services: ['google', 'jira', 'slack'],
+}, async (ctx) => {
+  const startTime = Date.now();
+
+  // 1. Gather all data in parallel
+  const data = await gatherData();
+
+  // 2. Build and send to Anthropic for synthesis
+  const { systemPrompt, userPrompt, dayName } = buildPrompt(data);
+  const report = await callAnthropic(systemPrompt, userPrompt);
+
+  // 3. Deliver
+  if (dryRun) {
+    console.log('\n--- DRY RUN OUTPUT ---\n');
+    console.log(report);
+  } else {
+    await sendEmail(report, dayName, data.today);
+  }
+
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  console.log(`Done in ${elapsed}s`);
+});

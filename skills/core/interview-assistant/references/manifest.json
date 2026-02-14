@@ -41,14 +41,14 @@
   },
   "required_context": [
     "about-me.md",
-    "about-company.md",
+    "about-cloaked.md",
     "team-glossary.md"
   ],
   "meta": {
-    "author": "starter-kit",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/interview-assistant.md",
     "migration_date": "2026-02-03"
   }
 }

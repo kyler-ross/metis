@@ -27,7 +27,7 @@ Help PMs start each day with clarity by:
 ### Phase 1: Ingest
 
 1. **Check for recent daily logs (multi-session support):**
-   - Look for daily logs from the **past 7 days**: `context/daily-logs/$(date-7d to today)-[pm_owner].md`
+   - Look for daily logs from the **past 7 days**: `.ai/context/daily-logs/$(date-7d to today)-[pm_owner].md`
    - **If any exist:**
      - Read "What I Did Today" and "Jira Activity" sections from all found logs
      - Extract completed items and decisions already handled
@@ -39,12 +39,12 @@ Help PMs start each day with clarity by:
 
    **Why 7 days:** Work from last week might still be in today's transcripts (meetings that happened days ago but you're processing now). This ensures you don't see duplicate priorities for work already completed.
 
-2. Read `work/granola-input-TODAY.md`.
-   - If empty or template only: ask you to paste today's [Transcript Tool] transcripts.
+2. Read `.ai/work/granola-input-TODAY.md`.
+   - If empty or template only: ask you to paste today's Granola transcripts.
 
-3. Query Jira via CLI: `node scripts/atlassian-api.cjs jira search "assignee = currentUser()"`
+3. Query Jira via CLI: `node .ai/scripts/atlassian-api.cjs jira search "assignee = currentUser()"`
 
-4. **Query Gmail for recent emails** via CLI: `node scripts/google-gmail-api.cjs week --limit 50`
+4. **Query Gmail for recent emails** via CLI: `node .ai/scripts/google-gmail-api.cjs week --limit 50`
    - Categorize by:
      - **Action Required**: Emails awaiting your response, approvals, document requests
      - **Calendar/Meeting**: Invites, rescheduling, acceptances/declines
@@ -55,12 +55,12 @@ Help PMs start each day with clarity by:
 5. Optionally query Confluence for PRDs/docs you own or in your spaces.
 
 6. Load team context if present:
-   - `context/rolling/team-a-context.md`
-   - `context/rolling/team-b-context.md`
+   - `.ai/context/rolling/app-experience-context.md`
+   - `.ai/context/rolling/cloaked-labs-context.md`
 
 ### Phase 2: Analyze & Categorize
 
-For each meeting in [Transcript Tool] transcripts:
+For each meeting in Granola transcripts:
 
 1. **Identify PM-specific items** (PRIORITIZE `Me:` statements):
    - Highest priority: anything said by `Me:` – your own statements, commitments, decisions, or questions
@@ -262,7 +262,7 @@ Interactive loop:
 5. **Only after approval**, execute the action:
    - "Great! Loading jira-ticket-writer to create the ticket..."
    - Work with you and the helper agent to finish the task
-   - Confirm when complete: "✅ Ticket PROJ-XXX created"
+   - Confirm when complete: "✅ Ticket ALL-123 created"
 6. **Ask what's next:**
    - "Item complete! What would you like to work on next?"
    - Optionally remind: "We have [X] items remaining: [Y] high priority, [Z] medium priority"
@@ -283,7 +283,7 @@ While doing this, **log substantial changes** to an internal `changes`/`actions_
 - Major context changes agreed on
 
 After each substantial change, the agent should **suggest next-step documentation/context updates**, for example:
-- "We just created PROJ-XXX for [Feature Redesign]. Should we add this to the [Team A] rolling context and update the Feed PRD?"
+- "We just created ALL-123 for Feed Redesign. Should we add this to the App Experience rolling context and update the Feed PRD?"
 
 ### Phase 4.5: Final Sweep - Catch Anything Missed
 
@@ -441,7 +441,7 @@ Is there anything else you'd like to work on today?
 
 ### Decision & Question Tracking
 
-While analyzing [Transcript Tool], Jira, and Confluence, track:
+While analyzing Granola, Jira, and Confluence, track:
 
 - **Decisions**:
   - Decision text

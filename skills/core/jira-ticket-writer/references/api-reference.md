@@ -12,7 +12,7 @@ This resource contains technical reference for Jira API operations, ADF formatti
 
 ## CLI Command Reference
 
-**Primary method**: Use CLI scripts at `scripts/atlassian-api.js`
+**Primary method**: Use CLI scripts at `.ai/scripts/atlassian-api.js`
 
 **Why CLI over MCP**: <3 second response time, no timeouts, proven reliable
 
@@ -23,8 +23,8 @@ This resource contains technical reference for Jira API operations, ADF formatti
 ### Basic Ticket Creation
 
 ```bash
-node scripts/atlassian-api.js jira create \
-  --project "PROJ" \
+node .ai/scripts/atlassian-api.js jira create \
+  --project "ALL" \
   --type "Task" \
   --summary "Title here" \
   --description "[ADF formatted JSON or plain text]" \
@@ -36,7 +36,7 @@ node scripts/atlassian-api.js jira create \
 ### Using JavaScript Library
 
 ```javascript
-const { jira } = require('./scripts/atlassian-api.js');
+const { jira } = require('./.ai/scripts/atlassian-api.js');
 
 const issue = await jira.createIssue(
   'ALL',                    // project key
@@ -46,7 +46,7 @@ const issue = await jira.createIssue(
 );
 
 console.log(`Created: ${issue.key}`);
-console.log(`URL: https://[your-domain].atlassian.net/browse/${issue.key}`);
+console.log(`URL: https://yourcompany.atlassian.net/browse/${issue.key}`);
 ```
 
 ---
@@ -204,7 +204,7 @@ const bugDescription = {
           type: 'listItem',
           content: [{
             type: 'paragraph',
-            content: [{ type: 'text', text: 'Open [Your Company] app on iOS' }]
+            content: [{ type: 'text', text: 'Open Cloaked app on iOS' }]
           }]
         },
         {
@@ -249,7 +249,7 @@ const bugDescription = {
           type: 'listItem',
           content: [{
             type: 'paragraph',
-            content: [{ type: 'text', text: 'May be related to recent keychain changes in PROJ-XXX' }]
+            content: [{ type: 'text', text: 'May be related to recent keychain changes in ALL-1234' }]
           }]
         }
       ]
@@ -265,14 +265,14 @@ const bugDescription = {
 ### Search Tickets
 
 ```bash
-node scripts/atlassian-api.js jira search "project = PROJ AND status = 'In Progress'"
+node .ai/scripts/atlassian-api.js jira search "project = ALL AND status = 'In Progress'"
 ```
 
 ### Common JQL Patterns
 
 **By project**:
 ```jql
-project = PROJ
+project = ALL
 ```
 
 **By status**:
@@ -285,7 +285,7 @@ status IN ("To Do", "In Progress")
 **By assignee**:
 ```jql
 assignee = currentUser()
-assignee = "john.doe@company.com"
+assignee = "john.doe@cloaked.id"
 assignee IN (john, jane, bob)
 ```
 
@@ -316,13 +316,13 @@ sprint = "Sprint 47"
 
 **By parent (epic)**:
 ```jql
-parent = PROJ-XXX
-"Epic Link" = PROJ-XXX
+parent = ALL-123
+"Epic Link" = ALL-123
 ```
 
 **Complex queries**:
 ```jql
-project = PROJ
+project = ALL
   AND status = "In Progress"
   AND assignee = currentUser()
   AND labels IN (iOS, Android)
@@ -333,16 +333,16 @@ ORDER BY priority DESC, updated DESC
 ### JavaScript Usage
 
 ```javascript
-const { jira } = require('./scripts/atlassian-api.js');
+const { jira } = require('./.ai/scripts/atlassian-api.js');
 
 // Recent tickets
-const recent = await jira.searchJQL('project = PROJ AND created >= -7d');
+const recent = await jira.searchJQL('project = ALL AND created >= -7d');
 
 // My open tickets
 const mine = await jira.searchJQL('assignee = currentUser() AND status != Done');
 
 // By label
-const labeled = await jira.searchJQL('project = PROJ AND labels = product-analytics');
+const labeled = await jira.searchJQL('project = ALL AND labels = product-analytics');
 ```
 
 ---
@@ -364,18 +364,18 @@ console.log(`Created epic: ${epic.key}`);
 ### Link Task to Epic
 
 ```javascript
-await jira.linkToEpic('PROJ-XXX', 'PROJ-XXX');
-// Links PROJ-XXX as a child of epic PROJ-XXX
+await jira.linkToEpic('ALL-456', 'ALL-123');
+// Links ALL-456 as a child of epic ALL-123
 ```
 
 ### Search Epic's Tasks
 
 ```jql
-parent = PROJ-XXX
+parent = ALL-123
 ```
 
 ```javascript
-const tasks = await jira.searchJQL('parent = PROJ-XXX');
+const tasks = await jira.searchJQL('parent = ALL-123');
 console.log(`Epic has ${tasks.issues.length} tasks`);
 ```
 
@@ -386,13 +386,13 @@ console.log(`Epic has ${tasks.issues.length} tasks`);
 ### Add Comment
 
 ```javascript
-await jira.addComment('PROJ-XXX', 'Status update: Implementation complete, testing in progress');
+await jira.addComment('ALL-123', 'Status update: Implementation complete, testing in progress');
 ```
 
 ### Update Fields
 
 ```javascript
-await jira.updateIssue('PROJ-XXX', {
+await jira.updateIssue('ALL-123', {
   labels: ['Q1-2025', 'high-priority'],
   priority: { name: 'High' },
   assignee: { name: 'john.doe' }
@@ -402,7 +402,7 @@ await jira.updateIssue('PROJ-XXX', {
 ### Get Ticket Details
 
 ```javascript
-const issue = await jira.getIssue('PROJ-XXX');
+const issue = await jira.getIssue('ALL-123');
 console.log(`Status: ${issue.fields.status.name}`);
 console.log(`Assignee: ${issue.fields.assignee?.displayName || 'Unassigned'}`);
 console.log(`Priority: ${issue.fields.priority.name}`);
@@ -415,8 +415,8 @@ console.log(`Priority: ${issue.fields.priority.name}`);
 ### Required Environment Variables
 
 ```bash
-export ATLASSIAN_URL="https://[your-domain].atlassian.net"
-export ATLASSIAN_EMAIL="your.email@company.com"
+export ATLASSIAN_URL="https://yourcompany.atlassian.net"
+export ATLASSIAN_EMAIL="your.email@cloaked.id"
 export JIRA_API_KEY="your_api_token"
 ```
 
@@ -477,7 +477,7 @@ try {
 
 **Fix**:
 - Verify project key is correct ("ALL", not "all" or "All")
-- Check issue key exists (e.g., PROJ-XXX is a real ticket)
+- Check issue key exists (e.g., ALL-123 is a real ticket)
 
 ### Timeout / No Response
 
@@ -534,7 +534,7 @@ description: {
 ### Endpoint
 
 ```
-POST https://[your-domain].atlassian.net/rest/api/3/issue
+POST https://yourcompany.atlassian.net/rest/api/3/issue
 ```
 
 ### Headers
@@ -565,9 +565,9 @@ Authorization: Basic [base64(email:api_token)]
 ```bash
 curl -X POST \
   -H "Content-Type: application/json" \
-  -u "your.email@company.com:your_api_token" \
+  -u "your.email@cloaked.id:your_api_token" \
   -d '{"fields":{"project":{"key":"ALL"},"summary":"Test ticket","issuetype":{"name":"Task"}}}' \
-  https://[your-domain].atlassian.net/rest/api/3/issue
+  https://yourcompany.atlassian.net/rest/api/3/issue
 ```
 
 ---
@@ -579,6 +579,6 @@ curl -X POST \
 **JQL Reference**: https://support.atlassian.com/jira-service-management-cloud/docs/use-advanced-search-with-jira-query-language-jql/
 
 **Internal docs**:
-- Priority matrix: `knowledge/jira-priority-matrix.md`
-- Components/labels: `knowledge/jira-components-labels.md`
-- Integration guide: `knowledge/jira-integration.md`
+- Priority matrix: `.ai/knowledge/jira-priority-matrix.md`
+- Components/labels: `.ai/knowledge/jira-components-labels.md`
+- Integration guide: `.ai/knowledge/jira-integration.md`

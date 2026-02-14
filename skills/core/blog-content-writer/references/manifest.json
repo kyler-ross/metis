@@ -8,7 +8,7 @@
       "rewrite article",
       "content transformation",
       "blog article",
-      "product guide"
+      "privacy guide"
     ],
     "semantic_tags": [
       "blog-transformation",
@@ -64,13 +64,13 @@
   },
   "required_context": [
     "product-copy-guidelines.md",
-    "product-features.md"
+    "cloaked-features.md"
   ],
   "meta": {
-    "author": "alice",
+    "author": "lucas",
     "version": "1.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/blog-content-writer.md",
     "migration_date": "2026-02-03"
   }
 }

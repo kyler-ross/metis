@@ -30,15 +30,15 @@
     "failure_modes": []
   },
   "required_context": [
-    "knowledge/product-overview.md",
-    "knowledge/product-principles.md"
+    ".ai/knowledge/cloaked-product-overview.md",
+    ".ai/knowledge/product-principles.md"
   ],
   "meta": {
-    "author": "pm-system",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
     "agent_type": "specialized",
-    "migrated_from": "",
+    "migrated_from": ".ai/agents/specialized/visual-designer.md",
     "migration_date": "2026-02-03"
   }
 }

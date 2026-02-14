@@ -214,9 +214,9 @@ ORDER BY date DESC;
 -- Custom feature check from PostHog
 WITH feature_adopters AS (
     SELECT DISTINCT pe.distinct_id
-    FROM analytics_events pe
+    FROM posthog_events_s3_load pe
     WHERE pe.event = '$screen'
-      AND pe.screen_name IN ('feature_setup_success', 'feature_log_enabled')
+      AND pe.screen_name IN ('call_guard_setup_success', 'call_guard_call_log_enabled')
       AND pe.timestamp >= DATEADD(day, -30, CURRENT_DATE)
 ),
 all_active_users AS (
@@ -261,10 +261,10 @@ WITH active_events AS (
             WHEN event = '$pageview' THEN 'web'
             WHEN event = '$screen' THEN 'mobile'
         END AS platform
-    FROM analytics_events
+    FROM posthog_events_s3_load
     WHERE timestamp >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '3 months'
       AND (
-          (event = '$pageview' AND set_current_url LIKE '%app.yourcompany.com/%')
+          (event = '$pageview' AND set_current_url LIKE '%my.cloaked.com/%')
           OR (event = '$screen' AND screen_name IN (
               'us_pay_wallet_home', 'mobile_home_page', 'pay_wallet_home'
           ))
@@ -409,5 +409,5 @@ SELECT * FROM date_range;
    - "I'm assuming this means [X]. Let me know if different."
 
 4. **Reference the source**
-   - See `knowledge/data-infrastructure.md` for pipeline details
-   - See `knowledge/redshift-schema.md` for complete table list
+   - See `.ai/knowledge/data-infrastructure.md` for pipeline details
+   - See `.ai/knowledge/redshift-schema.md` for complete table list

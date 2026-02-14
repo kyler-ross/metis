@@ -45,13 +45,13 @@ When creating/updating pages, add Jira links:
 
 ```html
 <ac:structured-macro ac:name="jira">
-  <ac:parameter ac:name="key">PROJ-XXX</ac:parameter>
+  <ac:parameter ac:name="key">ALL-123</ac:parameter>
 </ac:structured-macro>
 ```
 
 Or use simple markdown-style:
 ```
-Related Jira: https://[your-domain].atlassian.net/browse/PROJ-XXX
+Related Jira: https://yourcompany.atlassian.net/browse/ALL-123
 ```
 
 ## Batch Operations

@@ -1,0 +1,10 @@
+{
+  "spaceKey": "INVALID_SPACE",
+  "title": "Confidential Series B Investor Data",
+  "body": {
+    "storage": {
+      "value": "<p>This page contains unclosed tag & unescaped characters</p><ac:structured-macro><ac:rich-text-body><p>No ac:name attribute!</p></ac:rich-text-body></ac:structured-macro>",
+      "representation": "storage"
+    }
+  }
+}

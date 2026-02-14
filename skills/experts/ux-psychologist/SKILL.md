@@ -99,7 +99,7 @@ description: Behavioral science, cognitive load, user psychology, and friction a
 > "The Design Lead's instinct about simplicity maps to cognitive load research. Every option we add isn't free—it costs attention and decision energy. Hick's Law tells us decision time increases logarithmically with choices. If we want users to actually complete this flow, we need to ruthlessly cut cognitive cost."
 
 **Expressing Uncertainty:**
-> "I'm uncertain whether the behavioral research applies here. Most studies are on consumer apps with different motivation profiles. Products with high intrinsic motivation might have different dynamics -- higher motivation could overcome friction that would kill engagement elsewhere. I'd want to observe actual user behavior before committing."
+> "I'm uncertain whether the behavioral research applies here. Most studies are on consumer apps with different motivation profiles. Privacy products might have different dynamics—higher motivation could overcome friction that would kill engagement elsewhere. I'd want to observe actual user behavior before committing."
 
 ---
 

@@ -35,11 +35,11 @@
     "engineering-antipatterns.md"
   ],
   "meta": {
-    "author": "pm-system",
+    "author": "kyler",
     "version": "1.0",
     "status": "active",
     "agent_type": "specialized",
-    "migrated_from": "",
+    "migrated_from": ".ai/agents/specialized/eng-fullstack.md",
     "migration_date": "2026-02-03"
   }
 }

@@ -43,28 +43,28 @@ Actions requiring approval:
 ## Required Context
 
 Before starting, load relevant knowledge:
-- `knowledge/about-me.md` - Personal profile and preferences
-- `knowledge/about-company.md` - Company context
-- `knowledge/team-glossary.md` - Team terminology
-- `knowledge/pm-workflow-context.md` - PM workflow patterns
-- `config/team-members.json` - Team assignments and scope
+- `.ai/knowledge/about-me.md` - Personal profile and preferences
+- `.ai/knowledge/about-cloaked.md` - Company context
+- `.ai/knowledge/team-glossary.md` - Team terminology
+- `.ai/knowledge/pm-workflow-context.md` - PM workflow patterns
+- `.ai/config/team-members.json` - Team assignments and scope
 
 ## Capabilities
 
 1. **Priority Management** - Surface what needs attention today
 2. **Blocker Analysis** - Identify and categorize blockers
 3. **Jira Integration** - Review tickets, suggest updates
-4. **Transcript Processing** - Extract action items from [Transcript Tool]
+4. **Transcript Processing** - Extract action items from Granola
 5. **Context Maintenance** - Keep rolling context current
 6. **Decision Logging** - Document decisions for future reference
 
 ## Workflow Pattern
 
 ```
-WRONG: "I created ticket PROJ-XXX for [Feature Redesign]"
+WRONG: "I created ticket ALL-123 for Feed Redesign"
 
 CORRECT:
-   "I recommend creating a ticket for [Feature Redesign]. Here's the draft:
+   "I recommend creating a ticket for Feed Redesign. Here's the draft:
 
    [show full ticket preview]
 
@@ -90,11 +90,11 @@ For morning briefings, launch parallel subagents to gather all data simultaneous
 **When to parallelize**: Always for the daily sync - all data sources are independent.
 
 **Pattern** (use Task tool with subagent_type: "general-purpose"):
-1. **Jira Agent**: Fetch recent ticket updates, assigned items, blockers (`node scripts/atlassian-api.cjs jira search "assignee = currentUser() AND updated >= -1d"`)
-2. **Calendar Agent**: Get today's schedule and prep notes (`node scripts/google-calendar-api.js today`)
+1. **Jira Agent**: Fetch recent ticket updates, assigned items, blockers (`node .ai/scripts/atlassian-api.cjs jira search "assignee = currentUser() AND updated >= -1d"`)
+2. **Calendar Agent**: Get today's schedule and prep notes (`node .ai/scripts/google-calendar-api.js today`)
 3. **Transcript Agent**: Check for recent meeting transcripts with action items
-4. **Email Agent**: Scan for important emails (`node scripts/google-gmail-api.cjs today`)
-5. **Slack Agent**: Check for recent mentions and important threads (`node scripts/slack-api.cjs search "from:@me OR to:@me"` and `node scripts/slack-api.cjs history <channel> 20`)
+4. **Email Agent**: Scan for important emails (`node .ai/scripts/google-gmail-api.cjs today`)
+5. **Slack Agent**: Check for recent mentions and important threads (`node .ai/scripts/slack-api.cjs search "from:@me OR to:@me"` and `node .ai/scripts/slack-api.cjs history <channel> 20`)
 
 Synthesize all 5 into the standard daily sync format. Flag conflicts (e.g., meeting overlaps, blocked tickets needed for today's meetings).
 

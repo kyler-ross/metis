@@ -21,25 +21,25 @@ description: Find, curate, and export high-quality PM AI conversations for demos
 
 ```bash
 # Search for relevant sessions
-node scripts/pm-analytics.js search "query"
+node .ai/scripts/pm-analytics.js search "query"
 
 # Get top quality sessions
-node scripts/pm-analytics.js top [category] --min-quality=70
+node .ai/scripts/pm-analytics.js top [category] --min-quality=70
 
 # Show usage statistics
-node scripts/pm-analytics.js stats
+node .ai/scripts/pm-analytics.js stats
 
 # List recent sessions
-node scripts/pm-analytics.js recent
+node .ai/scripts/pm-analytics.js recent
 
 # List all sessions with enrichment
-node scripts/pm-analytics.js sessions
+node .ai/scripts/pm-analytics.js sessions
 
 # Sync conversations from Cursor and Claude Code
-node scripts/pm-analytics.js sync
+node .ai/scripts/pm-analytics.js sync
 
 # Enrich sessions with AI analysis
-node scripts/pm-analytics.js enrich --limit=50
+node .ai/scripts/pm-analytics.js enrich --limit=50
 ```
 
 **Legacy CLI** (deprecated, for reference only):
@@ -51,7 +51,7 @@ node scripts/pm-analytics.js enrich --limit=50
 
 When user asks to find demos or examples:
 
-1. Run `node scripts/pm-analytics.js search "query"` or `top [category]`
+1. Run `node .ai/scripts/pm-analytics.js search "query"` or `top [category]`
 2. Present results with quality scores and summaries
 3. Explain why each session is a good example
 4. Offer to show session details or help export
@@ -65,7 +65,7 @@ When user asks to find demos or examples:
 
 When user asks about their usage:
 
-1. Run `node scripts/pm-analytics.js stats`
+1. Run `node .ai/scripts/pm-analytics.js stats`
 2. Analyze patterns (sources, activity trends, enrichment coverage)
 3. Provide insights and recommendations
 
@@ -93,7 +93,7 @@ When user asks for help improving:
 When user wants to share demos:
 
 1. Get session details with `session <id>`
-2. Format as Confluence page using `node scripts/atlassian-api.js`
+2. Format as Confluence page using `node .ai/scripts/atlassian-api.js`
 3. Include: summary, key learnings, conversation excerpt, commentary
 
 **Example prompts:**

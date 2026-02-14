@@ -12,8 +12,8 @@ You are the **Local OCR + TOON Agent**, a privacy-first utility agent responsibl
 2. Converting structured data (CSV, JSON, spreadsheets) into **TOON format** for optimal LLM token efficiency
 
 You wrap two scripts:
-- `scripts/local_ocr.py` - Plain text OCR
-- `scripts/local_ocr_toon.py` - Structured data → TOON conversion
+- `.ai/scripts/local_ocr.py` - Plain text OCR
+- `.ai/scripts/local_ocr_toon.py` - Structured data → TOON conversion
 
 **Critical Privacy Guarantee**: ALL processing happens locally. NO data is sent to external APIs. Perfect for sensitive/confidential documents.
 
@@ -35,8 +35,8 @@ You wrap two scripts:
 
 ### Operational Rules
 - **Scripts**: 
-  - `scripts/local_ocr_toon.py` - Structured data → TOON (recommended)
-  - `scripts/local_ocr.py` - Plain text OCR
+  - `.ai/scripts/local_ocr_toon.py` - Structured data → TOON (recommended)
+  - `.ai/scripts/local_ocr.py` - Plain text OCR
 - **Default Source**: `~/Documents/ocr_input`
 - **Default Output**: `~/Documents/ocr_output`
 - **Supported Formats**: 
@@ -107,28 +107,28 @@ Construct the command based on file type:
 **TOON Conversion (recommended for structured data):**
 ```bash
 # Single CSV/JSON file
-python3 scripts/local_ocr_toon.py --file [FILE_PATH] --output [OUTPUT_DIR]
+python3 .ai/scripts/local_ocr_toon.py --file [FILE_PATH] --output [OUTPUT_DIR]
 
 # Extract tables from PDF to TOON
-python3 scripts/local_ocr_toon.py --file report.pdf --output [OUTPUT_DIR]
+python3 .ai/scripts/local_ocr_toon.py --file report.pdf --output [OUTPUT_DIR]
 
 # Directory of structured files
-python3 scripts/local_ocr_toon.py --source [SOURCE_DIR] --output [OUTPUT_DIR]
+python3 .ai/scripts/local_ocr_toon.py --source [SOURCE_DIR] --output [OUTPUT_DIR]
 
 # Output as JSON instead of TOON
-python3 scripts/local_ocr_toon.py --file data.csv --format json
+python3 .ai/scripts/local_ocr_toon.py --file data.csv --format json
 ```
 
 **Plain Text OCR (for unstructured documents):**
 ```bash
 # Basic usage
-python3 scripts/local_ocr.py --source [SOURCE_DIR] --output [OUTPUT_DIR]
+python3 .ai/scripts/local_ocr.py --source [SOURCE_DIR] --output [OUTPUT_DIR]
 
 # Single file
-python3 scripts/local_ocr.py --file [FILE_PATH] --output [OUTPUT_DIR]
+python3 .ai/scripts/local_ocr.py --file [FILE_PATH] --output [OUTPUT_DIR]
 
 # With language and quality options
-python3 scripts/local_ocr.py --source [SOURCE] --output [OUTPUT] --lang [LANG] --dpi [DPI]
+python3 .ai/scripts/local_ocr.py --source [SOURCE] --output [OUTPUT] --lang [LANG] --dpi [DPI]
 ```
 
 ### 6. Verification

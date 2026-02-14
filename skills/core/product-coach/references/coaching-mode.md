@@ -90,7 +90,7 @@ Use these techniques to unstick thinking:
 - Quantify tech debt impact: velocity drag, incidents, customer pain
 - Create tech debt "budget" (% of sprint capacity)
 - Frame as "investment in future speed" not "slowing down"
-- Identify tech debt that blocks B2G/B2B expansion (reliability, scale)
+- Identify tech debt that blocks B2G/B2B expansion (security, scale)
 - Help communicate tech debt decisions to non-technical stakeholders
 
 ### B2G/B2B Expansion Challenges

@@ -1,4 +1,3 @@
-// PM AI Starter Kit - enrichment-runner.cjs
 #!/usr/bin/env node
 
 /**
@@ -13,9 +12,6 @@
  * 3. Enrich each session (extract facts via Gemini)
  * 4. Run synthesis if new facts were generated
  *
- * Required environment variables:
- *   GEMINI_API_KEY - Gemini API key for fact extraction
- *
  * Usage:
  *   node enrichment-runner.cjs              # Full run
  *   node enrichment-runner.cjs --sync-only  # Just sync conversations
@@ -26,18 +22,10 @@
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+const { run } = require('./lib/script-runner.cjs');
 
 const PM_DIR = path.resolve(__dirname, '..');
 const SCRIPTS_DIR = __dirname;
-
-// Parse args
-const SYNC_ONLY = process.argv.includes('--sync-only');
-const FACTS_ONLY = process.argv.includes('--facts-only');
-const LIMIT = (() => {
-  const idx = process.argv.indexOf('--limit');
-  return idx !== -1 ? parseInt(process.argv[idx + 1]) || 10 : 10;
-})();
 
 /**
  * Run a child script step with standardized logging, error handling, and timeouts.
@@ -68,17 +56,7 @@ function runStep(label, scriptPath, args = [], timeoutMs = 60000) {
 }
 
 async function syncConversations() {
-  // NOTE: pm-data.cjs is not included in the starter kit.
-  // Replace this with your own conversation sync script.
-  const syncScript = path.join(SCRIPTS_DIR, 'pm-data.cjs');
-  const fs = require('fs');
-  if (!fs.existsSync(syncScript)) {
-    console.log('[sync] pm-data.cjs not found - skipping conversation sync');
-    console.log('[sync] Implement your own conversation sync or remove this step');
-    return true;
-  }
-
-  const { success, stdout } = runStep('sync', syncScript, ['sync']);
+  const { success, stdout } = runStep('sync', path.join(SCRIPTS_DIR, 'pm-data.cjs'), ['sync']);
 
   if (success) {
     const newMatch = stdout.match(/(\d+) new/);
@@ -90,7 +68,7 @@ async function syncConversations() {
   return success;
 }
 
-async function enrichSessions() {
+async function enrichSessions(LIMIT = 10, FACTS_ONLY = false) {
   const args = ['run', '--limit', String(LIMIT)];
   if (FACTS_ONLY) args.push('--facts-only');
 
@@ -118,6 +96,8 @@ async function enrichSessions() {
   return { success, newFacts };
 }
 
+// Note: Was 'regenerate' (re-synthesize existing facts). Changed to 'run' (full pipeline)
+// because Layer 4 now uses the incremental curator, making full runs safe.
 async function runSynthesis() {
   const { success } = runStep(
     'synthesis',
@@ -133,7 +113,15 @@ async function runSynthesis() {
   return success;
 }
 
-async function main() {
+run({
+  name: 'enrichment-runner',
+  mode: 'operational',
+  services: [],
+}, async (ctx) => {
+  const SYNC_ONLY = ctx.args.flags['sync-only'] || false;
+  const FACTS_ONLY = ctx.args.flags['facts-only'] || false;
+  const LIMIT = ctx.args.flags.limit ? parseInt(ctx.args.flags.limit) || 10 : 10;
+
   const startTime = Date.now();
   console.log(`[enrichment-runner] Started at ${new Date().toISOString()}`);
 
@@ -149,7 +137,7 @@ async function main() {
   }
 
   // Step 2: Enrich sessions (extract facts)
-  const enrichResult = await enrichSessions();
+  const enrichResult = await enrichSessions(LIMIT, FACTS_ONLY);
 
   if (FACTS_ONLY) {
     console.log(`[enrichment-runner] Facts-only mode, done in ${Date.now() - startTime}ms`);
@@ -165,9 +153,4 @@ async function main() {
 
   const duration = Date.now() - startTime;
   console.log(`[enrichment-runner] Completed in ${Math.round(duration / 1000)}s`);
-}
-
-main().catch(err => {
-  console.error('[enrichment-runner] Fatal error:', err);
-  process.exit(1);
 });

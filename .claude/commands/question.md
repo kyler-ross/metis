@@ -6,7 +6,7 @@ argument-hint: "[how do I... | show demos | stats | help me improve]"
 
 # PM AI Help & Coaching
 
-Load the usage-demo-curator agent and help with: $ARGUMENTS
+Load the usage-demo-curator agent from `skills/specialized/usage-demo-curator/SKILL.md` and help with: $ARGUMENTS
 
 ## Quick Actions
 
@@ -27,12 +27,12 @@ The user wants help understanding how to use PM AI effectively. This could be:
 
 First, check if the chat index exists by running:
 ```bash
-node scripts/chat-analytics.js stats
+node .ai/scripts/chat-analytics.js stats
 ```
 
 If it returns an error or shows 0 sessions, suggest running:
 ```bash
-node scripts/chat-analytics.js index
+node .ai/scripts/chat-analytics.js index
 ```
 
 Then proceed with the user's request.

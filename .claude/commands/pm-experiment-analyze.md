@@ -29,23 +29,23 @@ If no argument provided, ask which experiment to analyze. Valid inputs:
 
 | Source | Command | Required |
 |--------|---------|----------|
-| Knowledge Base | `cat knowledge/experiments/_index.json \| jq ...` | YES |
+| Knowledge Base | `cat .ai/knowledge/experiments/_index.json \| jq ...` | YES |
 | PostHog Experiments | `mcp__posthog__experiment-get` | YES |
 | PostHog Feature Flags | `mcp__posthog__feature-flag-get-all` / `feature-flag-get-definition` | YES |
-| Git History | `git log -S "FLAG_KEY"` in your repos | YES |
+| Git History | `git log -S "FLAG_KEY"` in dashboard, ios, android | YES |
 | GitHub PRs | `gh pr list --search "FLAG_KEY"` | YES |
-| Jira | `node scripts/atlassian-api.cjs search "FLAG_KEY OR experiment_name"` | YES |
-| Slack | `node scripts/slack-api.cjs search "FLAG_KEY OR experiment_name"` | YES |
-| Transcripts | Search `local/private_transcripts/` and `knowledge/meeting_transcripts/` | YES |
+| Jira | `node .ai/scripts/atlassian-api.cjs search "FLAG_KEY OR experiment_name"` | YES |
+| Slack | `node .ai/scripts/slack-api.cjs search "FLAG_KEY OR experiment_name"` | YES |
+| Transcripts | Search `.ai/local/private_transcripts/` and `.ai/knowledge/meeting_transcripts/` | YES |
 | Google Sheets | Check for analysis spreadsheets | YES |
-| Confluence | `node scripts/atlassian-api.cjs confluence search "experiment_name"` | YES |
+| Confluence | `node .ai/scripts/atlassian-api.cjs confluence search "experiment_name"` | YES |
 
 **Document ALL sources checked in `sources` array, even if empty:**
 ```json
 {
   "sources": [
     {"source_type": "slack", "searched": true, "results_found": 0, "search_query": "discounted annual plan"},
-    {"source_type": "jira", "searched": true, "results_found": 2, "tickets": ["PROJ-1234", "PROJ-5678"]}
+    {"source_type": "jira", "searched": true, "results_found": 2, "tickets": ["ALL-1234", "ALL-5678"]}
   ]
 }
 ```
@@ -57,7 +57,7 @@ If no argument provided, ask which experiment to analyze. Valid inputs:
 ### 1.1 Load from Knowledge Base
 ```bash
 # Find experiment in KB
-cat knowledge/experiments/_index.json | jq '.experiments[] | select(.feature_flag_key == "FEATURE_FLAG_KEY" or .experiment_id == "EXPERIMENT_ID")'
+cat .ai/knowledge/experiments/_index.json | jq '.experiments[] | select(.feature_flag_key == "FEATURE_FLAG_KEY" or .experiment_id == "EXPERIMENT_ID")'
 ```
 
 Read the experiment JSON file if it exists.
@@ -105,8 +105,8 @@ Search Slack for experiment discussions, decisions, and concerns:
 
 ```bash
 # Search for experiment by flag key and name
-node scripts/slack-api.cjs search "FEATURE_FLAG_KEY"
-node scripts/slack-api.cjs search "experiment name in quotes"
+node .ai/scripts/slack-api.cjs search "FEATURE_FLAG_KEY"
+node .ai/scripts/slack-api.cjs search "experiment name in quotes"
 ```
 
 Extract:
@@ -123,11 +123,11 @@ Search Jira for related tickets:
 
 ```bash
 # Search by flag key and experiment name
-node scripts/atlassian-api.cjs search "FEATURE_FLAG_KEY"
-node scripts/atlassian-api.cjs search "experiment name"
+node .ai/scripts/atlassian-api.cjs search "FEATURE_FLAG_KEY"
+node .ai/scripts/atlassian-api.cjs search "experiment name"
 
 # Also check for linked tickets
-node scripts/atlassian-api.cjs jira get PROJ-XXXX  # if ticket ID known
+node .ai/scripts/atlassian-api.cjs jira get ALL-XXXX  # if ticket ID known
 ```
 
 Extract:
@@ -141,13 +141,16 @@ Extract:
 Search for related pull requests:
 
 ```bash
-# Search PRs across your repos
-gh pr list --repo your-org/your-repo --search "FEATURE_FLAG_KEY" --state all --limit 20
+# Search PRs across Cloaked repos
+gh pr list --repo your-org/dashboard --search "FEATURE_FLAG_KEY" --state all --limit 20
+gh pr list --repo your-org/cloaked-ios --search "FEATURE_FLAG_KEY" --state all --limit 20
+gh pr list --repo your-org/cloaked-android --search "FEATURE_FLAG_KEY" --state all --limit 20
+gh pr list --repo your-org/backend-core --search "FEATURE_FLAG_KEY" --state all --limit 20
 ```
 
 For each PR found, get details:
 ```bash
-gh pr view PR_NUMBER --repo your-org/your-repo
+gh pr view PR_NUMBER --repo your-org/REPO
 ```
 
 Extract:
@@ -158,12 +161,21 @@ Extract:
 
 ### 1.6 Git History Research
 
-Search for code evidence across your repos:
+Search for code evidence across all repos:
 
 ```bash
-# Search for flag key in git history
+# Dashboard
+cd /Users/kyler/Documents/code/cloaked/dashboard
 git log -S "FEATURE_FLAG_KEY" --all --oneline | head -10
 git log -S "FEATURE_FLAG_KEY" --all -p --since="2025-01-01" | head -200
+
+# iOS
+cd /Users/kyler/Documents/code/cloaked/cloaked-ios
+git log -S "FEATURE_FLAG_KEY" --all --oneline | head -10
+
+# Android
+cd /Users/kyler/Documents/code/cloaked/cloaked-android
+git log -S "FEATURE_FLAG_KEY" --all --oneline | head -10
 ```
 
 Extract:
@@ -186,9 +198,9 @@ Use WebSearch to find industry knowledge about the experiment's topic.
 
 ### 2.1 Topic Extraction
 From the experiment hypothesis, extract the core UX/product question. Examples:
-- "checkout-light-mode" -> "dark mode vs light mode checkout conversion UX"
-- "counter-display" -> "social proof counters e-commerce conversion"
-- "scan-results-feedback" -> "user feedback prompts conversion impact"
+- "checkout-light-mode" → "dark mode vs light mode checkout conversion UX"
+- "counter-display" → "social proof counters e-commerce conversion"
+- "scan-results-feedback" → "user feedback prompts conversion impact"
 
 ### 2.2 Search Industry Sources
 Perform 3-5 targeted searches:
@@ -234,7 +246,7 @@ Ask: "What metrics did we NOT measure that could explain the result?"
 Common unexplored metrics by experiment type:
 - **Checkout experiments**: Time on page, scroll depth, return visits, cart abandonment recovery
 - **Onboarding experiments**: Session duration, feature discovery rate, day-1 retention
-- **Engagement experiments**: Completion rate, accuracy perception, support tickets
+- **Scan experiments**: Scan completion rate, accuracy perception, support tickets
 
 ### 3.2 Query Related Events
 Use PostHog MCP to search for related events:
@@ -270,21 +282,21 @@ Search for variables that might explain the result:
 
 ## Phase 4: SQL Deep Dive (10 min)
 
-Delegate to the sql-query-builder agent for database queries. This phase requires actual database access.
+Delegate to the sql-query-builder agent for Redshift queries. This phase requires actual database access.
 
 ### 4.1 Cohort Retention Analysis
 Request from sql-query-builder:
 ```
-Write a query to compare 7-day and 30-day retention rates between users in the control vs test variant for experiment [FEATURE_FLAG_KEY].
+Write a Redshift query to compare 7-day and 30-day retention rates between users in the control vs test variant for experiment [FEATURE_FLAG_KEY].
 
-Join PostHog experiment assignments with your retention tables.
+Join PostHog experiment assignments with our retention tables.
 Break down by: new vs returning user, platform (ios/android/web).
 ```
 
 ### 4.2 Revenue Impact Analysis
 Request from sql-query-builder:
 ```
-Write a query to compare LTV (lifetime value) between control and test variant users for experiment [FEATURE_FLAG_KEY].
+Write a Redshift query to compare LTV (lifetime value) between control and test variant users for experiment [FEATURE_FLAG_KEY].
 
 Include:
 - Average order value
@@ -295,7 +307,7 @@ Include:
 ### 4.3 Segment Breakdown
 Request from sql-query-builder:
 ```
-Write a query to break down experiment [FEATURE_FLAG_KEY] results by:
+Write a Redshift query to break down experiment [FEATURE_FLAG_KEY] results by:
 - plan_type (free, premium, family)
 - acquisition_source (organic, paid, referral)
 - device_type (ios, android, web)
@@ -344,9 +356,9 @@ Weight the evidence from each source:
 When aggregating data from all sources, explicitly check for conflicts:
 
 **Metric Conflicts:**
-- If PostHog shows +5% lift but Confluence doc says "inconclusive" -> FLAG
-- If Slack says "shipping" but Git shows no merge -> FLAG
-- If transcript says "decided to roll back" but experiment still running -> FLAG
+- If PostHog shows +5% lift but Confluence doc says "inconclusive" → FLAG
+- If Slack says "shipping" but Git shows no merge → FLAG
+- If transcript says "decided to roll back" but experiment still running → FLAG
 
 **For each conflict:**
 1. Document both data points with sources
@@ -380,6 +392,8 @@ When aggregating data from all sources, explicitly check for conflicts:
 - Timeline conflicts (ended_at vs "still running" in Slack)
 - Implementation conflicts (code merged vs "not shipped" in discussion)
 - Metric value conflicts (baseline differs by >10% across sources)
+
+**See `.ai/knowledge/experiments/evidence-weighting-guide.md` for complete conflict resolution workflow.**
 
 ### 5.2 Form Root Cause Hypothesis
 Using weighted evidence, form a clear hypothesis:
@@ -486,12 +500,14 @@ All analysis content goes in **TOP-LEVEL sibling sections**, NOT nested inside `
 **NEVER** nest analysis content inside `deep_analysis`. If you find yourself writing
 `deep_analysis.code_evidence` or `deep_analysis.root_cause`, STOP - those are top-level keys.
 
-### File: `knowledge/experiments/{category}/{experiment_id}.json`
+### File: `.ai/knowledge/experiments/{category}/{experiment_id}.json`
 
 Add these new top-level sections:
 
 ```json
 {
+  // ... existing fields ...
+
   "deep_analysis": {
     "performed_at": "ISO timestamp",
     "performed_by": "pm-experiment-analyze",
@@ -515,34 +531,34 @@ Add these new top-level sections:
   },
 
   "external_research": {
-    "sources": [],
-    "key_findings": [],
+    "sources": [...],
+    "key_findings": [...],
     "synthesis": "...",
     "supports_our_result": true|false
   },
 
   "unexplored_metrics": {
-    "suggested": [],
-    "discovered": [],
-    "confounding_factors_identified": []
+    "suggested": [...],
+    "discovered": [...],
+    "confounding_factors_identified": [...]
   },
 
   "cohort_analysis": {
-    "segments_analyzed": [],
-    "sql_queries": [],
-    "findings": [],
-    "anomalies": []
+    "segments_analyzed": [...],
+    "sql_queries": [...],
+    "findings": [...],
+    "anomalies": [...]
   },
 
   "root_cause": {
     "hypothesis": "...",
     "confidence": "...",
-    "evidence_weight": {},
-    "supporting_evidence": [],
-    "contradicting_evidence": []
+    "evidence_weight": {...},
+    "supporting_evidence": [...],
+    "contradicting_evidence": [...]
   },
 
-  "recommendations": []
+  "recommendations": [...]
 }
 ```
 
@@ -553,7 +569,7 @@ Add these new top-level sections:
 After writing the experiment JSON file, run the post-processor to validate structure:
 
 ```bash
-node scripts/experiment-validator.cjs --post-process knowledge/experiments/{category}/{filename}.json
+node .ai/scripts/experiment-validator.cjs --post-process .ai/knowledge/experiments/{category}/{filename}.json
 ```
 
 If validation fails, fix issues before completing. The validator will:
@@ -572,19 +588,19 @@ After validation passes, publish the experiment to Confluence.
 ### 7.1 Publish Experiment Page
 
 ```bash
-node scripts/experiment-confluence-publisher.cjs --experiment {experiment_id}
+node .ai/scripts/experiment-confluence-publisher.cjs --experiment {experiment_id}
 ```
 
 This will:
 - Convert experiment JSON to rich Confluence page with all sections
-- Create or update the page in your space
+- Create or update the page in the PM space
 - Add status badge, metrics tables, recommendations
 - Store `confluence_page_id` and `confluence_url` back to JSON
 
 ### 7.2 Update Experiment Index
 
 ```bash
-node scripts/experiment-index-publisher.cjs
+node .ai/scripts/experiment-index-publisher.cjs
 ```
 
 This updates the master Experiment Catalog page with:
@@ -610,10 +626,10 @@ Before completing, verify:
 **MANDATORY SOURCE CHECKS (analysis FAILS if any source skipped):**
 - [ ] PostHog experiment searched (`mcp__posthog__experiment-get` or `experiment-results-get`)
 - [ ] PostHog feature flags searched (`mcp__posthog__feature-flag-get-all`)
-- [ ] Slack searched (`node scripts/slack-api.cjs search`)
-- [ ] Jira searched (`node scripts/atlassian-api.cjs search`)
+- [ ] Slack searched (`node .ai/scripts/slack-api.cjs search`)
+- [ ] Jira searched (`node .ai/scripts/atlassian-api.cjs search`)
 - [ ] GitHub PRs searched (`gh pr list --search`)
-- [ ] Git history searched in your repos
+- [ ] Git history searched in dashboard, ios, android repos
 - [ ] Transcripts searched (both private and team)
 - [ ] Google Sheets checked for analysis data
 - [ ] Confluence searched
@@ -636,7 +652,7 @@ Before completing, verify:
 - [ ] At least 3 actionable recommendations generated (each with `implemented: false`)
 - [ ] Experiment JSON file updated with deep analysis
 - [ ] All analysis sections are TOP-LEVEL siblings (not nested in `deep_analysis`)
-- [ ] `node scripts/experiment-validator.cjs --post-process <file>` passes
+- [ ] `node .ai/scripts/experiment-validator.cjs --post-process <file>` passes
 
 **Conflict Detection:**
 - [ ] Source conflicts identified and documented in `lineage.conflicts`

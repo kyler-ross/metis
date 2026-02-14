@@ -15,13 +15,13 @@ You can process entire directories of images with a single text prompt.
 
 **Command**:
 ```bash
-python scripts/nano-banana-batch.py --input [INPUT_DIR] --output [OUTPUT_DIR] --prompt "[PROMPT]"
+python .ai/scripts/nano-banana-batch.py --input [INPUT_DIR] --output [OUTPUT_DIR] --prompt "[PROMPT]"
 ```
 
 **Usage Pattern**:
 1.  Ask the user for the source images location.
 2.  Ask for the desired visual change (the prompt).
-3.  Suggest a destination folder (default to `work/visuals/[date]-[topic]`).
+3.  Suggest a destination folder (default to `.ai/work/visuals/[date]-[topic]`).
 4.  Run the script.
 
 ### 2. Prompt Engineering for Images

@@ -1,5 +1,3 @@
-// PM AI Starter Kit - atlassian-api.cjs
-// See scripts/README.md for setup
 /**
  * Atlassian API CLI - Jira and Confluence operations
  *
@@ -13,6 +11,8 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const { confluence, makeRequest: makeConfluenceRequest } = require('./lib/confluence-client.cjs');
 const { jira } = require('./lib/jira-client.cjs');
+const { formatOutput, formatError } = require('./lib/output-formatter');
+const { run } = require('./lib/script-runner.cjs');
 
 // Re-export both
 module.exports = { jira, confluence };
@@ -51,12 +51,10 @@ async function lookupUser(name) {
   const https = require('https');
   const email = process.env.ATLASSIAN_EMAIL;
   const apiKey = process.env.JIRA_API_KEY;
-  const baseUrl = process.env.JIRA_BASE_URL || 'https://yourcompany.atlassian.net';
-  const hostname = new URL(baseUrl).hostname;
 
   return new Promise((resolve, reject) => {
     const options = {
-      hostname,
+      hostname: 'yourcompany.atlassian.net',
       path: `/rest/api/3/user/search?query=${encodeURIComponent(name)}`,
       headers: {
         'Authorization': 'Basic ' + Buffer.from(`${email}:${apiKey}`).toString('base64'),
@@ -94,7 +92,7 @@ Jira CLI Commands:
   WRITE:
     jira create --type <type> --summary "<title>" --description "<body>" [options]
       Options:
-        --project <key>      Project key (default: PROJ)
+        --project <key>      Project key (default: ALL)
         --type <type>        Issue type: Bug, Task, Story, Epic (required)
         --summary "<text>"   Issue title (required)
         --description "<text>" Issue body (plain text or ADF JSON)
@@ -114,7 +112,7 @@ Jira CLI Commands:
       DR sections include: failure scenarios, impact assessment, monitoring, and rollback plan.
       For other epics, use --with-dr to force DR sections.
       Options:
-        --project <key>      Project key (default: PROJ)
+        --project <key>      Project key (default: ALL)
         --summary "<text>"   Epic title (required)
         --description "<text>" Epic description (plain text or ADF JSON)
         --description-file <path> Read description from file (preferred for ADF JSON)
@@ -127,9 +125,9 @@ Jira CLI Commands:
       Options:
         --description-file <path> Read description from file (preferred for ADF JSON)
       Examples:
-        jira update PROJ-123 --summary "New title"
-        jira update PROJ-123 --assignee "Jane Smith"
-        jira update PROJ-123 --labels "urgent,backend"
+        jira update ALL-123 --summary "New title"
+        jira update ALL-123 --assignee "Trung Phan"
+        jira update ALL-123 --labels "urgent,backend"
 
     jira comment <key> "<comment>"    Add a comment
     jira assign <key> "<name>"        Assign to user
@@ -138,16 +136,43 @@ Jira CLI Commands:
     jira create --type Bug --summary "Login broken" --description "Users cannot log in" --priority High
     jira create --type Task --summary "Update docs" --description "..." --labels "docs,low-priority"
     jira create-epic --summary "User Auth Overhaul" --description "Migrate to OAuth 2.0"
-    jira update PROJ-123 --priority Highest --labels "urgent"
-    jira assign PROJ-123 "Jane Smith"
+    jira update ALL-123 --priority Highest --labels "urgent"
+    jira assign ALL-123 "Trung Phan"
 `;
 
 // CLI interface when run directly
 if (require.main === module) {
   const args = process.argv.slice(2);
 
-  if (args.length === 0) {
-    console.log(`
+  let [service, command, ...params] = args;
+
+  // === Desire Path Support ===
+  // Make what agents naturally try actually work
+
+  // Pattern 1: If first arg is a known Jira command, assume jira service
+  // e.g., "search 'query'" → "jira search 'query'"
+  const jiraCommands = ['get', 'get-issue', 'get-ticket', 'search', 'jql', 'create', 'create-epic', 'update', 'comment', 'assign', 'help', 'get-projects'];
+  if (service && jiraCommands.includes(service)) {
+    params = command ? [command, ...params] : params;
+    command = service;
+    service = 'jira';
+  }
+
+  // Pattern 2: If first arg looks like a ticket key (ALL-123), assume "jira get"
+  // e.g., "ALL-123" → "jira get ALL-123"
+  if (service && /^[A-Z]+-\d+$/.test(service)) {
+    params = [service, command, ...params].filter(Boolean);
+    command = 'get';
+    service = 'jira';
+  }
+
+  run({
+    name: 'atlassian-api',
+    mode: 'operational',
+    services: ['jira'],
+  }, async (ctx) => {
+    if (args.length === 0) {
+      console.log(`
 Atlassian CLI - Jira and Confluence operations
 
 Usage:
@@ -156,39 +181,16 @@ Usage:
 
 Run 'node atlassian-api.cjs jira help' for Jira commands.
 `);
-    process.exit(0);
-  }
+      return;
+    }
 
-  let [service, command, ...params] = args;
+    let result;
 
-  // === Desire Path Support ===
-  // Make what agents naturally try actually work
-
-  // Pattern 1: If first arg is a known Jira command, assume jira service
-  const jiraCommands = ['get', 'get-issue', 'get-ticket', 'search', 'jql', 'create', 'create-epic', 'update', 'comment', 'assign', 'help', 'get-projects'];
-  if (jiraCommands.includes(service)) {
-    params = command ? [command, ...params] : params;
-    command = service;
-    service = 'jira';
-  }
-
-  // Pattern 2: If first arg looks like a ticket key (PROJ-123), assume "jira get"
-  if (/^[A-Z]+-\d+$/.test(service)) {
-    params = [service, command, ...params].filter(Boolean);
-    command = 'get';
-    service = 'jira';
-  }
-
-  (async () => {
-    try {
-      let result;
-
-      if (service === 'jira') {
+    if (service === 'jira') {
         switch (command) {
           case 'help':
             console.log(JIRA_HELP);
-            process.exit(0);
-            break;
+            return;
 
           case 'get':        // alias - short form
           case 'get-issue':
@@ -197,7 +199,7 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
             break;
 
           case 'search':
-          case 'jql': {
+          case 'jql': { // alias - agents naturally think "jql" for JQL queries
             const searchOpts = parseArgs(params.slice(1));
             result = await jira.searchJQL(params[0], {
               maxResults: searchOpts.limit ? parseInt(searchOpts.limit) : undefined,
@@ -211,7 +213,7 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
 
           case 'create': {
             const opts = parseArgs(params);
-            const project = opts.project || 'PROJ';
+            const project = opts.project || 'ALL';
             const type = opts.type;
             const summary = opts.summary;
             let description = opts.description || '';
@@ -221,15 +223,12 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
               try {
                 description = fs.readFileSync(opts['description-file'], 'utf8');
               } catch (e) {
-                console.error(`ERROR: Could not read description file: ${e.message}`);
-                process.exit(1);
+                throw new Error(`Could not read description file: ${e.message}`);
               }
             }
 
             if (!type || !summary) {
-              console.error('ERROR: --type and --summary are required');
-              console.error('Run: node atlassian-api.cjs jira help');
-              process.exit(1);
+              throw new Error('--type and --summary are required. Run: node atlassian-api.cjs jira help');
             }
 
             const createOpts = {};
@@ -250,29 +249,27 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
 
             result = await jira.createIssue(project, summary, description, type, createOpts);
             const ticketKey = result.key;
-            const baseUrl = process.env.JIRA_BASE_URL || 'https://yourcompany.atlassian.net';
 
             // Auto-verify the ticket exists (anti-hallucination)
             try {
               const verification = await jira.getIssue(ticketKey);
               if (verification && verification.key === ticketKey) {
                 console.log(`Created: ${ticketKey}`);
-                console.log(`   URL: ${baseUrl}/browse/${ticketKey}`);
+                console.log(`   URL: https://yourcompany.atlassian.net/browse/${ticketKey}`);
                 console.log(`   Verified: Ticket exists`);
               } else {
-                console.error(`Created ${ticketKey} but verification failed - ticket not found`);
-                process.exit(1);
+                throw new Error(`Created ${ticketKey} but verification failed - ticket not found`);
               }
             } catch (verifyErr) {
-              console.error(`Created ${ticketKey} but verification failed: ${verifyErr.message}`);
-              process.exit(1);
+              if (verifyErr.message.includes('verification failed')) throw verifyErr;
+              throw new Error(`Created ${ticketKey} but verification failed: ${verifyErr.message}`);
             }
-            process.exit(0);
+            return;
           }
 
           case 'create-epic': {
             const opts = parseArgs(params);
-            const project = opts.project || 'PROJ';
+            const project = opts.project || 'ALL';
             const summary = opts.summary;
             let description = opts.description || '';
 
@@ -281,23 +278,23 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
               try {
                 description = fs.readFileSync(opts['description-file'], 'utf8');
               } catch (e) {
-                console.error(`ERROR: Could not read description file: ${e.message}`);
-                process.exit(1);
+                throw new Error(`Could not read description file: ${e.message}`);
               }
             }
 
             if (!summary) {
-              console.error('ERROR: --summary is required');
-              console.error('Run: node atlassian-api.cjs jira help');
-              process.exit(1);
+              throw new Error('--summary is required. Run: node atlassian-api.cjs jira help');
             }
 
             const createOpts = {};
             if (opts.labels) createOpts.labels = opts.labels.split(',').map(s => s.trim());
             if (opts.components) createOpts.components = opts.components.split(',').map(s => s.trim());
             if (opts.priority) createOpts.priority = opts.priority;
+            // Support --with-dr flag to force DR ticket creation
             if (opts['with-dr']) createOpts.forceDR = true;
 
+            // Create epic (DR ticket is conditional based on labels/components or --with-dr)
+            // Note: createEpicWithDR handles its own rollback on failure, so we trust its return value
             const epicResult = await jira.createEpicWithDR(project, summary, description, createOpts);
 
             console.log(`Created Epic: ${epicResult.epic}`);
@@ -313,25 +310,24 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
               console.log(`No DR sections (${epicResult.drReason})`);
               console.log(`   Use --with-dr flag to include DR planning sections`);
             }
-            process.exit(0);
+            return;
           }
 
           case 'update': {
             const issueKey = params[0];
             if (!issueKey) {
-              console.error('ERROR: Issue key required');
-              process.exit(1);
+              throw new Error('Issue key required');
             }
             const opts = parseArgs(params.slice(1));
             const fields = {};
 
             if (opts.summary) fields.summary = opts.summary;
+            // Support --description-file to avoid shell escaping issues with ADF JSON
             if (opts['description-file']) {
               try {
                 fields.description = fs.readFileSync(opts['description-file'], 'utf8');
               } catch (e) {
-                console.error(`ERROR: Could not read description file: ${e.message}`);
-                process.exit(1);
+                throw new Error(`Could not read description file: ${e.message}`);
               }
             } else if (opts.description) {
               fields.description = opts.description;
@@ -349,50 +345,42 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
             }
 
             if (Object.keys(fields).length === 0) {
-              console.error('ERROR: No fields to update');
-              process.exit(1);
+              throw new Error('No fields to update');
             }
 
             await jira.updateIssue(issueKey, fields);
             console.log(`Updated: ${issueKey}`);
-            process.exit(0);
+            return;
           }
 
           case 'comment': {
             const issueKey = params[0];
             const comment = params[1];
             if (!issueKey || !comment) {
-              console.error('ERROR: Issue key and comment text required');
-              console.error('Usage: jira comment PROJ-123 "Your comment here"');
-              process.exit(1);
+              throw new Error('Issue key and comment text required. Usage: jira comment ALL-123 "Your comment here"');
             }
             await jira.addComment(issueKey, comment);
             console.log(`Comment added to ${issueKey}`);
-            process.exit(0);
+            return;
           }
 
           case 'assign': {
             const issueKey = params[0];
             const assigneeName = params[1];
             if (!issueKey || !assigneeName) {
-              console.error('ERROR: Issue key and assignee name required');
-              console.error('Usage: jira assign PROJ-123 "Jane Smith"');
-              process.exit(1);
+              throw new Error('Issue key and assignee name required. Usage: jira assign ALL-123 "Trung Phan"');
             }
             const accountId = await lookupUser(assigneeName);
             if (!accountId) {
-              console.error(`ERROR: Could not find user "${assigneeName}"`);
-              process.exit(1);
+              throw new Error(`Could not find user "${assigneeName}"`);
             }
             await jira.updateIssue(issueKey, { assignee: { accountId } });
             console.log(`Assigned ${issueKey} to ${assigneeName}`);
-            process.exit(0);
+            return;
           }
 
           default:
-            console.error(`Unknown jira command: ${command}`);
-            console.error('Run: node atlassian-api.cjs jira help');
-            process.exit(1);
+            throw new Error(`Unknown jira command: ${command}. Run: node atlassian-api.cjs jira help`);
         }
       } else if (service === 'confluence') {
         switch (command) {
@@ -413,14 +401,11 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
             const parentId = opts.parent || null;
 
             if (!spaceKey || !title) {
-              console.error('ERROR: --space and --title are required');
-              console.error('Usage: confluence create-page --space TEAM --title "Page Title" [--content "<p>HTML</p>"] [--parent 123456]');
-              process.exit(1);
+              throw new Error('--space and --title are required. Usage: confluence create-page --space CPET --title "Page Title" [--content "<p>HTML</p>"] [--parent 123456]');
             }
 
             result = await confluence.createPage(spaceKey, title, content, parentId);
             const pageId = result.id;
-            const baseUrl = process.env.JIRA_BASE_URL || 'https://yourcompany.atlassian.net';
 
             // Auto-verify the page exists (anti-hallucination)
             try {
@@ -428,23 +413,21 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
               if (verification && verification.id === pageId) {
                 console.log(`Created: ${result.title}`);
                 console.log(`   ID: ${pageId}`);
-                console.log(`   URL: ${baseUrl}/wiki${result._links?.webui || ''}`);
+                console.log(`   URL: https://yourcompany.atlassian.net/wiki${result._links?.webui || ''}`);
                 console.log(`   Verified: Page exists`);
               } else {
-                console.error(`Created page ${pageId} but verification failed - page not found`);
-                process.exit(1);
+                throw new Error(`Created page ${pageId} but verification failed - page not found`);
               }
             } catch (verifyErr) {
-              console.error(`Created page ${pageId} but verification failed: ${verifyErr.message}`);
-              process.exit(1);
+              if (verifyErr.message.includes('verification failed')) throw verifyErr;
+              throw new Error(`Created page ${pageId} but verification failed: ${verifyErr.message}`);
             }
-            process.exit(0);
+            return;
           }
           case 'update-page': {
             const pageId = params[0];
             if (!pageId) {
-              console.error('ERROR: Page ID required');
-              process.exit(1);
+              throw new Error('Page ID required');
             }
             const opts = parseArgs(params.slice(1));
 
@@ -457,26 +440,15 @@ Run 'node atlassian-api.cjs jira help' for Jira commands.
             result = await confluence.updatePage(pageId, title, content, currentVersion);
             console.log(`Updated: ${result.title}`);
             console.log(`   Version: ${result.version?.number}`);
-            process.exit(0);
+            return;
           }
           default:
-            console.error(`Unknown confluence command: ${command}`);
-            process.exit(1);
+            throw new Error(`Unknown confluence command: ${command}`);
         }
       } else {
-        console.error(`Unknown service: ${service}. Use 'jira' or 'confluence'`);
-        process.exit(1);
+        throw new Error(`Unknown service: ${service}. Use 'jira' or 'confluence'`);
       }
 
-      console.log(JSON.stringify(result, null, 2));
-    } catch (error) {
-      console.error('Error:', error.message);
-      if (error.body) {
-        try {
-          console.error('Details:', JSON.stringify(JSON.parse(error.body), null, 2));
-        } catch { console.error('Details:', error.body); }
-      }
-      process.exit(1);
-    }
-  })();
+      console.log(formatOutput(result));
+    });
 }

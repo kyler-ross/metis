@@ -1,40 +1,41 @@
-// PM AI Starter Kit - jira-validator.cjs
-// See scripts/README.md for setup
 /**
  * Jira Ticket Validator
- *
+ * 
  * Enforces ticket quality and structure before creation.
- * Validates summaries, descriptions, labels, components, and issue types.
+ * Implements guardrails from jira-ticket-writer.md agent.
  */
 
 // Valid issue types
 const VALID_ISSUE_TYPES = ['Task', 'Bug', 'Story', 'Epic', 'Sub-task'];
 
-// Valid components - customize for your Jira project
+// Valid components (from jira-components-labels.md)
 const VALID_COMPONENTS = [
-  'Dashboard', 'Extension', 'Mobile', 'Platform', 'Backend', 'Frontend'
+  'Dashboard', 'Extension', 'Mobile', 'Platform', 'MFA', 'Pay', 'Spam Blocker'
 ];
 
-// Valid labels - customize for your Jira project
+// Valid labels (from jira-components-labels.md)
 const VALID_LABELS = [
   // Platform labels
   'Android', 'iOS', 'Mobile', 'Dashboard', 'Extension', 'Platform', 'Infrastructure',
+  // Feature labels
+  'Call_Guard', 'Cloaked_Pay', 'Data_Deletion', 'Discover', 'MFA', 'Passwordless',
+  'Notifications', 'VPN', 'auth', 'autocloak', 'eSIM', 'family_plan', 'identity_monitoring',
   // Process labels
   'cx_concern', 'jira_escalated', 'sentry'
 ];
 
 // Anti-patterns: implementation details that should NOT be in tickets
 const IMPLEMENTATION_ANTI_PATTERNS = [
-  /\.(js|ts|tsx|jsx|swift|kt|py|rb|go|java|cpp|c|h|m|mm)(\s|$|:)/i,
-  /line\s*\d+/i,
-  /function\s+\w+/i,
-  /class\s+\w+/i,
-  /import\s+.*from/i,
-  /const\s+\w+\s*=/i,
-  /use\s+(Redux|React|Vue|Angular)/i,
-  /implement\s+(with|using|in)/i,
-  /create\s+(a\s+)?(hook|component|function|class|service)/i,
-  /in\s+\w+\.(js|ts|swift|kt)/i,
+  /\.(js|ts|tsx|jsx|swift|kt|py|rb|go|java|cpp|c|h|m|mm)(\s|$|:)/i, // File extensions
+  /line\s*\d+/i,                    // Line numbers
+  /function\s+\w+/i,                // Function declarations
+  /class\s+\w+/i,                   // Class declarations
+  /import\s+.*from/i,               // Import statements
+  /const\s+\w+\s*=/i,               // Variable declarations
+  /use\s+(Redux|React|Vue|Angular)/i, // Framework prescriptions
+  /implement\s+(with|using|in)/i,   // Implementation instructions
+  /create\s+(a\s+)?(hook|component|function|class|service)/i, // Code creation
+  /in\s+\w+\.(js|ts|swift|kt)/i,    // "in file.ts" patterns
 ];
 
 // Placeholder patterns that indicate incomplete information
@@ -48,9 +49,9 @@ const PLACEHOLDER_PATTERNS = [
   /\[.*insert.*\]/i,
   /\[.*your.*here.*\]/i,
   /\[.*specify.*\]/i,
-  /\<.*\>/,
-  /___+/,
-  /\.\.\.$/m,
+  /\<.*\>/,                         // <placeholder> style
+  /___+/,                           // Blank lines ___
+  /\.\.\.$/m,                       // Trailing ... indicating incomplete
 ];
 
 // Required sections by issue type
@@ -63,17 +64,17 @@ const REQUIRED_SECTIONS = {
   Task: {
     required: ['objective'],
     recommended: ['success metrics', 'deliverables'],
-    titlePattern: /^[A-Z][a-z]+\s+.+/
+    titlePattern: /^[A-Z][a-z]+\s+.+/ // Starts with verb
   },
   Story: {
     required: ['user story', 'acceptance criteria'],
     recommended: ['designs'],
-    titlePattern: /^[A-Z][a-z]+\s+.+/
+    titlePattern: /^[A-Z][a-z]+\s+.+/ // Starts with verb
   },
   Epic: {
     required: ['objective'],
     recommended: ['success metrics'],
-    titlePattern: /.+/
+    titlePattern: /.+/ // Any non-empty
   }
 };
 
@@ -83,9 +84,9 @@ const REQUIRED_SECTIONS = {
 class ValidationResult {
   constructor() {
     this.valid = true;
-    this.errors = [];
-    this.warnings = [];
-    this.formatted = null;
+    this.errors = [];      // Blocking issues
+    this.warnings = [];    // Non-blocking suggestions
+    this.formatted = null; // Formatted ticket for confirmation
   }
 
   addError(message) {
@@ -100,6 +101,14 @@ class ValidationResult {
 
 /**
  * Validate a ticket before creation
+ * 
+ * @param {Object} ticket - Ticket data
+ * @param {string} ticket.summary - Title/summary
+ * @param {string} ticket.description - Description text
+ * @param {string} ticket.issueType - Issue type (Task, Bug, Story, Epic)
+ * @param {string[]} ticket.labels - Labels array
+ * @param {string[]} ticket.components - Components array
+ * @returns {ValidationResult}
  */
 function validateTicket(ticket) {
   const result = new ValidationResult();
@@ -123,7 +132,7 @@ function validateTicket(ticket) {
     result.addError(`Invalid issue type: ${issueType}. Valid types: ${VALID_ISSUE_TYPES.join(', ')}`);
   }
 
-  // 3. Title format validation
+  // 3. Title format validation (by type)
   const typeRules = REQUIRED_SECTIONS[issueType];
   if (typeRules && typeRules.titlePattern && summary) {
     if (!typeRules.titlePattern.test(summary)) {
@@ -138,9 +147,10 @@ function validateTicket(ticket) {
   // 4. Required sections validation
   if (typeRules && description) {
     const descLower = description.toLowerCase();
-
+    
     for (const section of typeRules.required) {
-      const hasSection = descLower.includes(section) ||
+      // Check for section presence (flexible matching)
+      const hasSection = descLower.includes(section) || 
                         descLower.includes(section.replace(' ', '_')) ||
                         descLower.includes(section.replace(' ', '-'));
       if (!hasSection) {
@@ -158,21 +168,21 @@ function validateTicket(ticket) {
     }
   }
 
-  // 5. Implementation detail detection
+  // 5. Implementation detail detection (CRITICAL)
   if (description) {
     for (const pattern of IMPLEMENTATION_ANTI_PATTERNS) {
       if (pattern.test(description)) {
         result.addError(`Description contains implementation details. Remove: "${description.match(pattern)?.[0]}". Tickets describe WHAT and WHY, not HOW.`);
-        break;
+        break; // One error is enough
       }
     }
   }
 
-  // 5b. Placeholder detection
+  // 5b. Placeholder detection (indicates incomplete interrogation)
   if (description) {
     for (const pattern of PLACEHOLDER_PATTERNS) {
       if (pattern.test(description)) {
-        result.addError(`Description contains placeholder text: "${description.match(pattern)?.[0]}". Get actual details instead of using placeholders.`);
+        result.addError(`Description contains placeholder text: "${description.match(pattern)?.[0]}". Get actual details from user instead of using placeholders.`);
         break;
       }
     }
@@ -180,7 +190,7 @@ function validateTicket(ticket) {
   if (summary) {
     for (const pattern of PLACEHOLDER_PATTERNS) {
       if (pattern.test(summary)) {
-        result.addError(`Title contains placeholder text: "${summary.match(pattern)?.[0]}". Get actual details.`);
+        result.addError(`Title contains placeholder text: "${summary.match(pattern)?.[0]}". Get actual details from user.`);
         break;
       }
     }
@@ -188,7 +198,7 @@ function validateTicket(ticket) {
 
   // 5c. Minimum detail check
   if (description && description.trim().length < 50) {
-    result.addError('Description too short. Tickets need sufficient detail.');
+    result.addError('Description too short. Tickets need sufficient detail. Did you ask the user clarifying questions?');
   }
 
   // 6. Label validation
@@ -226,41 +236,59 @@ function validateTicket(ticket) {
  */
 function formatTicketPreview(ticket, validationResult) {
   const { summary, description, issueType = 'Task', labels = [], components = [], priority } = ticket;
-
+  
   let preview = `
-Type: ${issueType || 'Task'}
-Title: ${(summary || '').substring(0, 80)}
+┌─────────────────────────────────────────────────────────────┐
+│  TICKET PREVIEW                                             │
+├─────────────────────────────────────────────────────────────┤
+│  Type: ${(issueType || 'Task').padEnd(52)}│
+│  Title: ${(summary || '').substring(0, 50).padEnd(51)}│
+├─────────────────────────────────────────────────────────────┤
 `;
 
-  if (components.length > 0) preview += `Components: ${components.join(', ')}\n`;
-  if (labels.length > 0) preview += `Labels: ${labels.join(', ')}\n`;
-  if (priority) preview += `Priority: ${priority}\n`;
+  if (components.length > 0) {
+    preview += `│  Components: ${components.join(', ').substring(0, 45).padEnd(45)}│\n`;
+  }
+  if (labels.length > 0) {
+    preview += `│  Labels: ${labels.join(', ').substring(0, 49).padEnd(49)}│\n`;
+  }
+  if (priority) {
+    preview += `│  Priority: ${priority.padEnd(47)}│\n`;
+  }
 
-  preview += `\nDescription:\n`;
+  preview += `├─────────────────────────────────────────────────────────────┤
+│  Description:                                               │
+`;
+
+  // Add description lines (truncated)
   const descLines = (description || '').split('\n').slice(0, 10);
   for (const line of descLines) {
-    preview += `  ${line.substring(0, 80)}\n`;
+    const truncated = line.substring(0, 57);
+    preview += `│  ${truncated.padEnd(57)}│\n`;
   }
   if ((description || '').split('\n').length > 10) {
-    preview += `  ... (truncated)\n`;
+    preview += `│  ... (truncated)                                          │\n`;
   }
 
+  preview += `└─────────────────────────────────────────────────────────────┘`;
+
+  // Add validation status
   if (validationResult.errors.length > 0) {
-    preview += `\nVALIDATION FAILED:\n`;
+    preview += `\n\n❌ VALIDATION FAILED:\n`;
     for (const error of validationResult.errors) {
-      preview += `   - ${error}\n`;
+      preview += `   • ${error}\n`;
     }
   }
 
   if (validationResult.warnings.length > 0) {
-    preview += `\nWARNINGS:\n`;
+    preview += `\n⚠️  WARNINGS:\n`;
     for (const warning of validationResult.warnings) {
-      preview += `   - ${warning}\n`;
+      preview += `   • ${warning}\n`;
     }
   }
 
   if (validationResult.valid) {
-    preview += `\nVALIDATION PASSED - Ready to create`;
+    preview += `\n✅ VALIDATION PASSED - Ready to create`;
   }
 
   return preview;
@@ -276,6 +304,7 @@ function parseDescription(text, issueType) {
   let currentContent = [];
 
   for (const line of lines) {
+    // Detect section headers
     const headerMatch = line.match(/^#+\s*(.+)|^([A-Z][A-Za-z\s]+):\s*$/);
     if (headerMatch) {
       if (currentContent.length > 0) {
@@ -287,7 +316,8 @@ function parseDescription(text, issueType) {
       currentContent.push(line);
     }
   }
-
+  
+  // Save last section
   if (currentContent.length > 0) {
     sections[currentSection] = currentContent.join('\n').trim();
   }
@@ -304,3 +334,4 @@ module.exports = {
   VALID_LABELS,
   ValidationResult
 };
+

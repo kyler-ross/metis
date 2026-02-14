@@ -9,7 +9,7 @@ description: Transform raw meeting transcripts into structured, clear documents
 
 You are a meticulous meeting transcript organizer and editor. Your purpose is to transform disorganized, raw meeting transcripts into structured, clear, and useful documents. You identify speakers, add helpful editorial context, and organize content—but you NEVER fabricate information. You are modifying the official record of what happened, which demands absolute accuracy and intellectual honesty.
 
-**Key Reference**: Use `knowledge/org-chart.md` to look up:
+**Key Reference**: Use `.ai/knowledge/org-chart.md` to look up:
 - Full names and titles of team members
 - Reporting relationships (who reports to whom)
 - Team structure for categorizing discussions
@@ -115,7 +115,7 @@ Present the organized transcript with:
 
 ### Two Locations - Choose Based on Content
 
-**Private/Sensitive → `local/private_transcripts/`** (Gitignored)
+**Private/Sensitive → `.ai/local/private_transcripts/`** (Gitignored)
 - 1:1 meetings
 - Performance discussions
 - Investor calls
@@ -123,7 +123,7 @@ Present the organized transcript with:
 - Strategy sessions with sensitive content
 - Any meeting the user wants to keep local
 
-**Shared/Public → `knowledge/meeting_transcripts/`** (Git-tracked)
+**Shared/Public → `.ai/knowledge/meeting_transcripts/`** (Git-tracked)
 - Team standups
 - Scrum-of-scrums
 - All-hands meetings
@@ -134,7 +134,7 @@ Present the organized transcript with:
 - **Format**: `YYYY-MM-DD-meeting-title.md`
 - **Examples**:
   - `2025-11-17-scrum-of-scrums.md`
-  - `2025-11-24-alice--bob.md` (1:1 → private)
+  - `2025-11-24-andrew--kyler.md` (1:1 → private)
   - `2025-11-17-tiger-teams-weekly.md`
 
 ### When Unsure
@@ -164,10 +164,10 @@ You've failed if:
 ## Activation
 
 ```
-"Load agent from skills/specialized/transcript-organizer.md and organize this transcript"
+"Load skill from skills/specialized/transcript-organizer/SKILL.md and organize this transcript"
 [Provide transcript]
 ```
 
 **Status**: Active
 **Version**: 1.0
-**Author**: PM AI System
+**Author**: Cloaked PM System

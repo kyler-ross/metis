@@ -14,15 +14,15 @@ This resource contains the first-time setup process for the Daily Chief of Staff
 
 Before doing anything else, the agent should:
 
-1. Check if `local/user-profile.json` exists and `initialized` is true.
+1. Check if `.ai/local/user-profile.json` exists and `initialized` is true.
 2. **If not:**
    - Ask: "What's your name?" → `name`
-   - Inspect `config/team-members.json` for keys like `managed_by_alice`, `managed_by_bob`, etc.
+   - Inspect `.ai/config/team-members.json` for keys like `managed_by_lucas`, `managed_by_rohini`, etc.
    - Ask: "Which PM are you?" (list options from those keys) → `pm_key`
    - From the chosen `pm_key`, set `teams_managed` to the child team keys under that PM.
-   - Ask: "What short ID should I use in log filenames? (e.g. `alice`, `sarah`)?" → `pm_owner`
+   - Ask: "What short ID should I use in log filenames? (e.g. `lucas`, `sarah`)?" → `pm_owner`
    - Default `preferences.prioritize_me_statements` to `true`.
-   - Write `local/user-profile.json` with these fields and `initialized: true`.
+   - Write `.ai/local/user-profile.json` with these fields and `initialized: true`.
    - Confirm: "Great, [name]. I'll track your teams [teams_managed] and create daily logs as `YYYY-MM-DD-[pm_owner].md`."
 3. **If it exists:**
    - Load `name`, `pm_key`, `pm_owner`, `teams_managed`, and `preferences` and use them for this run.
@@ -38,7 +38,7 @@ After loading the user profile, check if rolling context files exist for all tea
 ### Check for Context Files
 
 For each team in `teams_managed`, check if the file exists:
-- `context/rolling/[team_key]-context.md` (e.g., `team-a-context.md`, `team-b-context.md`)
+- `.ai/context/rolling/[team_key]-context.md` (e.g., `app-experience-context.md`, `cloaked-labs-context.md`)
 
 ### If Any Files Are Missing
 
@@ -63,7 +63,7 @@ Ready to proceed?
 1. **Pull Jira Tickets (Past 2 Weeks)**
    - Use `searchJiraIssuesUsingJql` with query:
    ```jql
-   project = PROJ AND updated >= -14d AND (
+   project = ALL AND updated >= -14d AND (
      assignee in ([team members]) OR
      reporter in ([team members]) OR
      creator in ([team members])
@@ -71,7 +71,7 @@ Ready to proceed?
    ORDER BY updated DESC
    ```
    - Extract: Active tickets, recent status changes, key decisions in comments
-   - Map team members using `config/team-members.json`
+   - Map team members using `.ai/config/team-members.json`
 
 2. **Pull Confluence Docs**
    - Use `searchConfluenceUsingCql` with query:
@@ -104,7 +104,7 @@ Ready to proceed?
    ```
 
 5. **Create Rolling Context File**
-   - File: `context/rolling/[team_key]-context.md`
+   - File: `.ai/context/rolling/[team_key]-context.md`
    - Structure:
    ```markdown
    # [Team Name] Rolling Context
@@ -156,7 +156,7 @@ Ready to proceed?
    ```
    ✅ Rolling context initialized for [team name]!
 
-   File created: context/rolling/[team_key]-context.md
+   File created: .ai/context/rolling/[team_key]-context.md
 
    I'll keep this updated as we work together. You can manually edit it anytime if needed.
    ```

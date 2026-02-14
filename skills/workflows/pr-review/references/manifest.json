@@ -1,7 +1,7 @@
 {
   "name": "pr-review",
-  "version": "1.0.0",
-  "description": "Multi-dimensional PR review with parallel analysis agents (security, quality, tests, docs, edge cases)",
+  "version": "2.0.0",
+  "description": "Dynamic Dream Team PR review - triages changes, maps files to domains, assembles 3-8 agents with full codebase access, scales context strategy by PR size",
   "category": "workflows",
   "routing_keywords": [
     "review pr",
@@ -14,11 +14,12 @@
     "code-review",
     "pull-request",
     "security-audit",
-    "quality-check",
-    "parallel-review"
+    "dynamic-team",
+    "parallel-review",
+    "triage-driven"
   ],
   "mcp_tools": ["github"],
-  "estimated_tokens": 3500,
+  "estimated_tokens": 8000,
   "required_context": [],
   "triggers": [
     "review PR",

@@ -1,4 +1,3 @@
-// PM AI Starter Kit - google-drive-api.js
 #!/usr/bin/env node
 /**
  * Google Drive API CLI
@@ -29,10 +28,15 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import dotenv from 'dotenv';
-import driveClient from './lib/drive-client.cjs';
+import driveClient from '../tools/lib/drive-client.cjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Use createRequire for CommonJS telemetry module
+const require = createRequire(import.meta.url);
+const { run } = require('./lib/script-runner.cjs');
+const { track } = require('./lib/telemetry.cjs');
 
 // Load environment variables
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -95,7 +99,11 @@ function formatDate(isoDate) {
 }
 
 // Main execution
-async function main() {
+run({
+  name: 'google-drive-api',
+  mode: 'operational',
+  services: ['google'],
+}, async (ctx) => {
   try {
     switch (command) {
       case 'list': {
@@ -121,8 +129,7 @@ async function main() {
 
       case 'search': {
         if (!args[0]) {
-          console.error('ERROR: search text is required');
-          process.exit(1);
+          throw new Error('search text is required');
         }
         const files = await driveClient.searchFiles(args[0]);
         if (files.length === 0) {
@@ -138,8 +145,7 @@ async function main() {
 
       case 'info': {
         if (!args[0]) {
-          console.error('ERROR: fileId is required');
-          process.exit(1);
+          throw new Error('fileId is required');
         }
         const metadata = await driveClient.getFileMetadata(args[0]);
         console.log(`File: ${metadata.name}`);
@@ -162,20 +168,19 @@ async function main() {
 
       case 'download': {
         if (!args[0] || !args[1]) {
-          console.error('ERROR: fileId and destination path are required');
-          process.exit(1);
+          throw new Error('fileId and destination path are required');
         }
         const destPath = path.resolve(args[1]);
         console.log(`Downloading to ${destPath}...`);
         await driveClient.downloadFile(args[0], destPath);
+        track('drive_download', {});
         console.log(`Downloaded: ${destPath}`);
         break;
       }
 
       case 'upload': {
         if (!args[0]) {
-          console.error('ERROR: file path is required');
-          process.exit(1);
+          throw new Error('file path is required');
         }
         const filePath = path.resolve(args[0]);
         const name = args[1] || path.basename(filePath);
@@ -185,6 +190,7 @@ async function main() {
         }
         console.log(`Uploading ${filePath}...`);
         const file = await driveClient.uploadFile(name, filePath, options);
+        track('drive_upload', { has_folder: !!args[2] });
         console.log(`Uploaded: ${file.name}`);
         console.log(`ID: ${file.id}`);
         if (file.webViewLink) {
@@ -195,8 +201,7 @@ async function main() {
 
       case 'mkdir': {
         if (!args[0]) {
-          console.error('ERROR: folder name is required');
-          process.exit(1);
+          throw new Error('folder name is required');
         }
         const folder = await driveClient.createFolder(args[0], args[1] || null);
         console.log(`Created folder: ${folder.name}`);
@@ -209,8 +214,7 @@ async function main() {
 
       case 'mv': {
         if (!args[0] || !args[1]) {
-          console.error('ERROR: fileId and folderId are required');
-          process.exit(1);
+          throw new Error('fileId and folderId are required');
         }
         const file = await driveClient.moveFile(args[0], args[1]);
         console.log(`Moved: ${file.name}`);
@@ -220,8 +224,7 @@ async function main() {
 
       case 'cp': {
         if (!args[0]) {
-          console.error('ERROR: fileId is required');
-          process.exit(1);
+          throw new Error('fileId is required');
         }
         const file = await driveClient.copyFile(args[0], args[1] || null, args[2] || null);
         console.log(`Copied: ${file.name}`);
@@ -234,8 +237,7 @@ async function main() {
 
       case 'rm': {
         if (!args[0]) {
-          console.error('ERROR: fileId is required');
-          process.exit(1);
+          throw new Error('fileId is required');
         }
         await driveClient.deleteFile(args[0]);
         console.log(`Moved to trash: ${args[0]}`);
@@ -244,8 +246,7 @@ async function main() {
 
       case 'cat': {
         if (!args[0]) {
-          console.error('ERROR: fileId is required');
-          process.exit(1);
+          throw new Error('fileId is required');
         }
         const content = await driveClient.getFileContent(args[0]);
         console.log(content);
@@ -254,8 +255,7 @@ async function main() {
 
       case 'ls': {
         if (!args[0]) {
-          console.error('ERROR: folderId is required');
-          process.exit(1);
+          throw new Error('folderId is required');
         }
         const files = await driveClient.listFolder(args[0]);
         if (files.length === 0) {
@@ -286,15 +286,15 @@ async function main() {
           console.error(`Unknown command: ${command}`);
         }
         showHelp();
-        process.exit(command ? 1 : 0);
+        if (command) throw new Error(`Unknown command: ${command}`);
+        return;
     }
+
   } catch (error) {
     console.error(`\nError: ${error.message}`);
     if (error.errors) {
       console.error('Details:', JSON.stringify(error.errors, null, 2));
     }
-    process.exit(1);
+    throw error;
   }
-}
-
-main();
+});

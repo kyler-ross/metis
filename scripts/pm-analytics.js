@@ -1,4 +1,3 @@
-// PM AI Starter Kit - pm-analytics.js
 #!/usr/bin/env node
 
 /**
@@ -6,28 +5,31 @@
  *
  * Unified analytics for Cursor and Claude Code usage.
  *
- * NOTE: This script requires library modules that are not included in the
- * starter kit (analytics-db/sync.js, analytics-db/query.js). It is provided
- * as a reference architecture for building your own analytics system.
- *
- * To use this script, implement:
- *   - lib/analytics-db/sync.js (database initialization and syncing)
- *   - lib/analytics-db/query.js (statistics and session queries)
- *
  * Usage:
- *   node scripts/pm-analytics.js init     # Initialize database
- *   node scripts/pm-analytics.js sync     # Sync all sources
- *   node scripts/pm-analytics.js stats    # Show statistics
- *   node scripts/pm-analytics.js stats --json  # JSON output
+ *   node .ai/scripts/pm-analytics.js init     # Initialize database
+ *   node .ai/scripts/pm-analytics.js sync     # Sync all sources
+ *   node .ai/scripts/pm-analytics.js stats    # Show statistics
+ *   node .ai/scripts/pm-analytics.js stats --json  # JSON output
  */
 
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const { track, trackComplete, trackError, flush } = require('./lib/telemetry.cjs');
+const { run } = require('./lib/script-runner.cjs');
+const { track } = require('./lib/telemetry.cjs');
 
-const args = process.argv.slice(2);
-const command = args[0];
-const flags = args.slice(1);
+import {
+  initDatabase,
+  syncAll,
+  syncCursor,
+  syncClaude,
+  updateDailyStats
+} from '../tools/lib/analytics-db/sync.js';
+
+import {
+  getStats,
+  getRecentSessions,
+  getDailyStats
+} from '../tools/lib/analytics-db/query.js';
 
 function printHelp() {
   console.log(`
@@ -50,10 +52,10 @@ Options:
   --limit=N     Number of recent sessions (default: 20)
 
 Examples:
-  node scripts/pm-analytics.js init
-  node scripts/pm-analytics.js sync
-  node scripts/pm-analytics.js stats --json
-  node scripts/pm-analytics.js recent --limit=10
+  node .ai/scripts/pm-analytics.js init
+  node .ai/scripts/pm-analytics.js sync
+  node .ai/scripts/pm-analytics.js stats --json
+  node .ai/scripts/pm-analytics.js recent --limit=10
 `);
 }
 
@@ -73,7 +75,7 @@ function formatDate(dateStr) {
   return d.toLocaleString();
 }
 
-async function main() {
+async function main(command, flags) {
   const startTime = Date.now();
   const jsonOutput = flags.includes('--json');
   const daysFlag = flags.find(f => f.startsWith('--days='));
@@ -83,72 +85,116 @@ async function main() {
 
   track('pm_ai_analytics_start', { command, json_output: jsonOutput });
 
-  // NOTE: The analytics database modules are not included in the starter kit.
-  // This script serves as a reference. Replace the imports below with your own
-  // analytics database implementation.
-  console.log('NOTE: Analytics database modules not included in starter kit.');
-  console.log('This script serves as a reference architecture.');
-  console.log('Implement lib/analytics-db/sync.js and lib/analytics-db/query.js to use.');
-  console.log('');
-
   switch (command) {
     case 'init': {
-      console.log('Would initialize PM AI Analytics database...');
-      console.log('[+] Database would be created at: ~/.pm-ai/analytics.db');
+      console.log('Initializing PM AI Analytics database...');
+      const dbPath = initDatabase();
+      console.log(`✓ Database created at: ${dbPath}`);
       break;
     }
 
     case 'sync': {
-      console.log('Would sync all data sources...');
-      console.log('  Sources: Cursor sessions, Claude Code sessions');
+      console.log('Syncing all data sources...');
+      const result = await syncAll();
+      
+      if (jsonOutput) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(`\n✓ Sync complete:`);
+        console.log(`  Cursor sessions: ${result.cursor.synced}`);
+        console.log(`  Claude sessions: ${result.claude.synced}`);
+      }
       break;
     }
 
     case 'sync-cursor': {
-      console.log('Would sync Cursor sessions...');
+      console.log('Syncing Cursor sessions...');
+      const result = await syncCursor();
+      updateDailyStats();
+      
+      if (jsonOutput) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(`✓ Synced ${result.synced} Cursor sessions`);
+      }
       break;
     }
 
     case 'sync-claude': {
-      console.log('Would sync Claude Code sessions...');
+      console.log('Syncing Claude Code sessions...');
+      const result = await syncClaude();
+      updateDailyStats();
+      
+      if (jsonOutput) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(`✓ Synced ${result.synced} Claude Code sessions`);
+      }
       break;
     }
 
     case 'stats': {
+      const stats = getStats();
+      const daily = getDailyStats(days);
+      
       if (jsonOutput) {
-        console.log(JSON.stringify({
-          note: 'Analytics database not initialized. Run init first.',
-          totals: { total_sessions: 0, cursor_sessions: 0, claude_sessions: 0 }
-        }, null, 2));
+        console.log(JSON.stringify({ stats, daily }, null, 2));
       } else {
-        console.log('\n=========================================');
+        console.log('\n═══════════════════════════════════════');
         console.log('           PM AI Analytics              ');
-        console.log('=========================================\n');
+        console.log('═══════════════════════════════════════\n');
 
         console.log('TOTALS');
-        console.log('-----------------------------------------');
-        console.log('  Total Sessions:     0');
-        console.log('  Cursor Sessions:    0');
-        console.log('  Claude Sessions:    0');
-        console.log('  Claude Tokens:      0');
-        console.log('  Claude Cost:        $0.0000');
+        console.log('───────────────────────────────────────');
+        console.log(`  Total Sessions:     ${formatNumber(stats.totals.total_sessions)}`);
+        console.log(`  Cursor Sessions:    ${formatNumber(stats.totals.cursor_sessions)}`);
+        console.log(`  Claude Sessions:    ${formatNumber(stats.totals.claude_sessions)}`);
+        console.log(`  Claude Tokens:      ${formatNumber(stats.totals.claude_tokens)}`);
+        console.log(`  Claude Cost:        ${formatCost(stats.totals.claude_cost)}`);
+
+        console.log('\nLAST 24 HOURS');
+        console.log('───────────────────────────────────────');
+        console.log(`  Sessions:           ${formatNumber(stats.last24h.sessions)}`);
+        console.log(`  Cursor Messages:    ${formatNumber(stats.last24h.cursor_messages)}`);
+        console.log(`  Claude Tokens:      ${formatNumber(stats.last24h.claude_tokens)}`);
 
         console.log('\nSYNC STATUS');
-        console.log('-----------------------------------------');
-        console.log('  No data synced yet. Run: node scripts/pm-analytics.js sync');
+        console.log('───────────────────────────────────────');
+        for (const [source, state] of Object.entries(stats.syncState)) {
+          console.log(`  ${source}: ${formatDate(state.lastSync)} (${state.records} records)`);
+        }
 
-        console.log('\n=========================================\n');
+        if (daily.length > 0) {
+          console.log('\nDAILY ACTIVITY (Last 7 days)');
+          console.log('───────────────────────────────────────');
+          for (const day of daily) {
+            const total = (day.cursor_sessions || 0) + (day.claude_sessions || 0);
+            console.log(`  ${day.date}: ${total} sessions`);
+          }
+        }
+
+        console.log('\n═══════════════════════════════════════\n');
       }
       break;
     }
 
     case 'recent': {
+      const sessions = getRecentSessions(limit);
+      
       if (jsonOutput) {
-        console.log(JSON.stringify([], null, 2));
+        console.log(JSON.stringify(sessions, null, 2));
       } else {
         console.log('\nRECENT SESSIONS');
-        console.log('=========================================\n');
-        console.log('  No sessions found. Run sync first.');
+        console.log('═══════════════════════════════════════\n');
+        
+        for (const s of sessions) {
+          const name = (s.name || 'Untitled').substring(0, 50);
+          const time = s.updated_at ? new Date(s.updated_at).toLocaleString() : 'N/A';
+          const badge = s.source === 'cursor' ? '🖱️' : '🤖';
+          console.log(`${badge} ${name}`);
+          console.log(`   ${s.type || 'unknown'} | ${time}`);
+          console.log('');
+        }
       }
       break;
     }
@@ -164,15 +210,18 @@ async function main() {
         console.error(`Unknown command: ${command}`);
       }
       printHelp();
-      process.exit(1);
+      throw new Error(command ? `Unknown command: ${command}` : 'No command provided');
   }
 }
 
-main().then(async () => {
-  await flush();
-}).catch(async err => {
-  trackError('pm_ai_analytics_error', err, { command });
-  await flush();
-  console.error('Error:', err.message);
-  process.exit(1);
+run({
+  name: 'pm-analytics',
+  mode: 'operational',
+  services: [],
+}, async (ctx) => {
+  const command = ctx.args.positional[0];
+  const flags = ctx.args.raw.slice(1);
+  await main(command, flags);
 });
+
+

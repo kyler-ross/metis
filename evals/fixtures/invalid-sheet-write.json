@@ -1,0 +1,10 @@
+{
+  "sheetId": "invalid-id",
+  "range": "InvalidRange",
+  "type": "write",
+  "data": [
+    ["Name", "Formula"],
+    ["Alice", "=1+1"],
+    ["Bob"]
+  ]
+}

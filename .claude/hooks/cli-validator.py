@@ -79,27 +79,27 @@ CLI_SCHEMAS = {
                 "get": {
                     "args": ["ticket_key"],
                     "required": ["ticket_key"],
-                    "example": "jira get PROJ-1234"
+                    "example": "jira get ALL-1234"
                 },
                 "search": {
                     "args": ["jql"],
                     "required": ["jql"],
-                    "example": 'jira search "project=PROJ AND status=Open"'
+                    "example": 'jira search "project=ALL AND status=Open"'
                 },
                 "create-ticket": {
                     "args": ["--project", "--type", "--summary", "--description?"],
                     "required": ["--project", "--type", "--summary"],
-                    "example": 'jira create-ticket --project PROJ --type Story --summary "Title"'
+                    "example": 'jira create-ticket --project ALL --type Story --summary "Title"'
                 },
                 "update": {
                     "args": ["ticket_key", "field", "value"],
                     "required": ["ticket_key", "field", "value"],
-                    "example": 'jira update PROJ-1234 summary "New title"'
+                    "example": 'jira update ALL-1234 summary "New title"'
                 },
                 "comment": {
                     "args": ["ticket_key", "comment_text"],
                     "required": ["ticket_key", "comment_text"],
-                    "example": 'jira comment PROJ-1234 "This is a comment"'
+                    "example": 'jira comment ALL-1234 "This is a comment"'
                 },
             }
         },
@@ -154,25 +154,25 @@ def detect_wiki_markup_in_jira(command: str) -> list[str]:
             issues.append(f"Wiki markup detected in Jira description: {message}")
 
     if issues:
-        issues.append("Jira requires ADF format. See: knowledge/jira-adf-formatting.md")
+        issues.append("Jira requires ADF format. See: .ai/knowledge/jira-adf-formatting.md")
 
     return issues
 
 
 # Common mistakes and their fixes
 COMMON_MISTAKES = [
-    # GitHub: when searching issues/PRs across repos, scope to your org first
+    # GitHub: when searching issues/PRs across repos, search your-org first
     # But allow local repo operations (pr create, pr view, pr list without --repo)
     {
         "pattern": r"gh\s+search\s+(issues|prs|repos)",
         "check": lambda cmd: "--owner=your-org" not in cmd.lower() and "your-org" not in cmd.lower(),
-        "message": "When searching GitHub, include your org. Use: gh search prs --owner=your-org 'query'"
+        "message": "When searching GitHub, include your-org. Use: gh search prs --owner=your-org 'query'"
     },
     # GitHub: prevent creating PRs to wrong repo (only if --repo flag points elsewhere)
     {
         "pattern": r"gh\s+pr\s+create\s+.*--repo\s+",
         "check": lambda cmd: "--repo" in cmd and "your-org" not in cmd.lower(),
-        "message": "PR target repo should be your org. Use: gh pr create --repo your-org/repo or omit --repo for current repo"
+        "message": "PR target repo should be your-org. Use: gh pr create --repo your-org/your-repo or omit --repo for current repo"
     },
     # Sheets: missing spreadsheet ID
     {
@@ -192,11 +192,21 @@ COMMON_MISTAKES = [
         "check": lambda cmd: True,
         "message": "Missing file_id. Get ID from URL or use: google-drive-api.cjs list"
     },
+    # NOTE: Removed strict "first arg must be jira/confluence" check
+    # The CLI now supports desire paths - agents can use shortcuts like:
+    #   atlassian-api.cjs search "query"  → routes to jira search
+    #   atlassian-api.cjs ALL-123         → routes to jira get ALL-123
     # Atlassian: MCP instead of CLI
     {
         "pattern": r"mcp.*atlassian|mcp.*jira|mcp.*confluence",
         "check": lambda cmd: True,
-        "message": "Use CLI instead of MCP for Jira/Confluence (MCP 404s). Use: node scripts/atlassian-api.cjs jira ..."
+        "message": "Use CLI instead of MCP for Jira/Confluence (MCP 404s). Use: node .ai/scripts/atlassian-api.cjs jira ..."
+    },
+    # Granola: granola-helper.py sync only gets notes, NOT full transcripts
+    {
+        "pattern": r"granola-helper\.py\s+sync",
+        "check": lambda cmd: True,
+        "message": "STOP: granola-helper.py sync only syncs AI NOTES, not full transcripts. Use: python3 .ai/scripts/granola-auto-extract-all.py --since YYYY-MM-DD"
     },
 ]
 
@@ -397,7 +407,7 @@ def main():
     if cred_issues:
         print("CREDENTIAL LEAK BLOCKED:", file=sys.stderr)
         for issue in cred_issues:
-            print(f"  - {issue}", file=sys.stderr)
+            print(f"  • {issue}", file=sys.stderr)
         sys.exit(2)
 
     # Skip if not a PM AI CLI command or GitHub command
@@ -412,7 +422,7 @@ def main():
     if issues:
         print("CLI VALIDATION FAILED:", file=sys.stderr)
         for issue in issues:
-            print(f"  - {issue}", file=sys.stderr)
+            print(f"  • {issue}", file=sys.stderr)
         # Exit 2 blocks tool call, stderr shown to Claude
         sys.exit(2)
 

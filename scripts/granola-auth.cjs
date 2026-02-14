@@ -1,4 +1,3 @@
-// PM AI Starter Kit - granola-auth.cjs
 #!/usr/bin/env node
 /**
  * granola-auth.cjs - Manage independent Granola API tokens.
@@ -6,16 +5,13 @@
  * Creates and maintains a separate auth session from the Granola desktop app,
  * so token refreshes don't conflict with each other.
  *
- * Required environment variables:
- *   None (uses WorkOS OAuth flow)
- *
  * Usage:
- *   node scripts/granola-auth.cjs login     [--user=<id>]  # One-time: authenticate via browser
- *   node scripts/granola-auth.cjs refresh   [--user=<id>]  # Refresh access token (for cron/scheduler)
- *   node scripts/granola-auth.cjs status    [--user=<id>]  # Check token status
- *   node scripts/granola-auth.cjs push-gha  [--user=<id>]  # Refresh + push to GHA secret
+ *   node .ai/scripts/granola-auth.cjs login     [--user=<id>]  # One-time: authenticate via browser
+ *   node .ai/scripts/granola-auth.cjs refresh   [--user=<id>]  # Refresh access token (for cron/scheduler)
+ *   node .ai/scripts/granola-auth.cjs status    [--user=<id>]  # Check token status
+ *   node .ai/scripts/granola-auth.cjs push-gha  [--user=<id>]  # Refresh + push to GHA secret
  *
- * Tokens stored at: local/granola-tokens-{userId}.json (gitignored)
+ * Tokens stored at: .ai/local/granola-tokens-{userId}.json (gitignored)
  */
 'use strict';
 
@@ -25,47 +21,29 @@ const { spawnSync, spawn } = require('child_process');
 const http = require('http');
 const { URL } = require('url');
 const crypto = require('crypto');
+const { run } = require('./lib/script-runner.cjs');
+const { resolveUserId, DEFAULT_USER } = require('./lib/user-context.cjs');
 
-// WorkOS client configuration for Granola
 const CLIENT_ID = 'client_01JZJ0XBDAT8PHJWQY09Y0VD61';
 const WORKOS_BASE = 'https://api.workos.com';
 const SUPABASE_PATH = join(require('os').homedir(), 'Library', 'Application Support', 'Granola', 'supabase.json');
 
-// Resolve user from --user= flag
-const DEFAULT_USER = process.env.PM_AI_DEFAULT_USER || 'default';
-function resolveUserId() {
-  const userArg = process.argv.find(a => a.startsWith('--user='));
-  return userArg ? userArg.split('=')[1] : DEFAULT_USER;
-}
-
+// Resolve user from --user= flag (default: kyler)
 const userId = resolveUserId();
 const TOKEN_PATH = join(__dirname, '..', 'local', `granola-tokens-${userId}.json`);
 const LEGACY_TOKEN_PATH = join(__dirname, '..', 'local', 'granola-tokens.json');
 
-// Detect repo for GHA secret push
-function detectRepo() {
-  try {
-    const result = spawnSync('gh', ['repo', 'view', '--json', 'nameWithOwner', '-q', '.nameWithOwner'], {
-      encoding: 'utf-8',
-      timeout: 5000,
-    });
-    if (result.status === 0 && result.stdout.trim()) {
-      return result.stdout.trim();
-    }
-  } catch {}
-  return process.env.GITHUB_REPOSITORY || 'your-org/your-repo';
-}
-
+const { detectRepo } = require('./lib/repo-utils.cjs');
 const REPO = detectRepo();
 
-// Ensure local/ exists
+// Ensure .ai/local/ exists
 const localDir = join(__dirname, '..', 'local');
 if (!existsSync(localDir)) mkdirSync(localDir, { recursive: true });
 
 function loadTokens() {
   // Try per-user path first, fall back to legacy path for backward compat
   const paths = [TOKEN_PATH];
-  if (userId === DEFAULT_USER && !existsSync(TOKEN_PATH) && existsSync(LEGACY_TOKEN_PATH)) {
+  if (userId === 'kyler' && !existsSync(TOKEN_PATH) && existsSync(LEGACY_TOKEN_PATH)) {
     paths.push(LEGACY_TOKEN_PATH);
   }
   for (const p of paths) {
@@ -246,7 +224,7 @@ async function loginWithPKCE() {
 
 async function refreshTokens() {
   const tokens = loadTokens();
-  if (!tokens?.refresh_token) throw new Error('No refresh token found. Run: node scripts/granola-auth.cjs login');
+  if (!tokens?.refresh_token) throw new Error('No refresh token found. Run: node .ai/scripts/granola-auth.cjs login');
 
   const resp = await fetch(`${WORKOS_BASE}/user_management/authenticate`, {
     method: 'POST',
@@ -260,7 +238,7 @@ async function refreshTokens() {
 
   if (!resp.ok) {
     const body = await resp.text();
-    throw new Error(`Token refresh failed (${resp.status}): ${body.substring(0, 200)}. May need to re-login: node scripts/granola-auth.cjs login`);
+    throw new Error(`Token refresh failed (${resp.status}): ${body.substring(0, 200)}. May need to re-login: node .ai/scripts/granola-auth.cjs login`);
   }
 
   const data = await resp.json();
@@ -311,6 +289,22 @@ function pushToGHA(tokens) {
     console.log(`PM_USER_CREDENTIALS secret updated (user: ${userId})`);
   } catch (err) {
     throw new Error(`Failed to push PM_USER_CREDENTIALS to GHA: ${err.message}`);
+  }
+
+  // Also update legacy GRANOLA_AUTH_JSON for backward compat (default user only)
+  if (userId === DEFAULT_USER) {
+    try {
+      const legacyResult = spawnSync('gh', ['secret', 'set', 'GRANOLA_AUTH_JSON', '-R', REPO], {
+        input: supabaseJson,
+        stdio: ['pipe', 'inherit', 'inherit'],
+        timeout: 15000,
+      });
+      if (legacyResult.error) throw legacyResult.error;
+      if (legacyResult.status !== 0) throw new Error('gh secret set failed');
+      console.log('GRANOLA_AUTH_JSON secret updated (legacy, default user)');
+    } catch (err) {
+      console.warn(`Warning: Failed to update legacy GRANOLA_AUTH_JSON: ${err.message}`);
+    }
   }
 }
 
@@ -363,7 +357,7 @@ async function main() {
         console.log(`User: ${tokens?.user?.email || 'unknown'}`);
       } else {
         console.log(`Token invalid: ${status.reason}`);
-        console.log('Run: node scripts/granola-auth.cjs login');
+        console.log('Run: node .ai/scripts/granola-auth.cjs login');
       }
       break;
     }
@@ -386,22 +380,15 @@ async function main() {
     }
 
     default:
-      console.error(`Usage: node granola-auth.cjs <login|refresh|status|push-gha> [--user=<id>]
-
-Commands:
-  login      Authenticate via browser (one-time setup)
-  refresh    Refresh access token (for cron/scheduler)
-  status     Check token status
-  push-gha   Refresh + push to GitHub Actions secret
-
-Options:
-  --user=<id>   Specify user ID (default: ${DEFAULT_USER})
-`);
-      process.exit(1);
+      console.error('Usage: node granola-auth.cjs <login|refresh|status|push-gha>');
+      throw new Error('Unknown command. Usage: node granola-auth.cjs <login|refresh|status|push-gha>');
   }
 }
 
-main().catch(err => {
-  console.error('Error:', err.message);
-  process.exit(1);
+run({
+  name: 'granola-auth',
+  mode: 'operational',
+  services: ['granola'],
+}, async (ctx) => {
+  await main();
 });

@@ -1,0 +1,100 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-01-01T00:00:00.000Z",
+  "facts": {
+    "personal": {
+      "fact_001": {
+        "fact_id": "fact_001",
+        "content": "Kyler prefers data-driven decision making",
+        "category": "work-style",
+        "confidence": 0.85,
+        "first_observed": "2026-01-10T10:00:00.000Z",
+        "last_confirmed": "2026-01-15T14:00:00.000Z",
+        "source_count": 3,
+        "sources": [
+          {
+            "id": "transcript_2026-01-10",
+            "type": "transcript",
+            "evidence": "I think we should look at the data before making this decision",
+            "speaker": "Kyler"
+          }
+        ]
+      },
+      "fact_002": {
+        "fact_id": "fact_002",
+        "content": "Kyler values quick iteration over perfect planning",
+        "category": "values",
+        "confidence": 0.75,
+        "first_observed": "2026-01-12T09:00:00.000Z",
+        "sources": [
+          {
+            "id": "transcript_2026-01-12",
+            "type": "transcript",
+            "evidence": "Let's ship it and learn from user feedback",
+            "speaker": "Kyler"
+          }
+        ]
+      }
+    },
+    "company": {
+      "fact_003": {
+        "fact_id": "fact_003",
+        "content": "Cloaked is focusing on data removal as the primary value driver",
+        "category": "strategy",
+        "confidence": 0.9,
+        "first_observed": "2026-01-05T11:00:00.000Z",
+        "sources": [
+          {
+            "id": "transcript_2026-01-05",
+            "type": "transcript",
+            "evidence": "95% of our users come for data removal",
+            "speaker": "CEO"
+          }
+        ]
+      }
+    },
+    "knowledge": {
+      "fact_004": {
+        "fact_id": "fact_004",
+        "content": "Q1 roadmap includes feed redesign and call guard improvements",
+        "category": "goals",
+        "confidence": 0.95,
+        "first_observed": "2026-01-08T15:00:00.000Z",
+        "sources": [
+          {
+            "id": "transcript_2026-01-08",
+            "type": "transcript",
+            "evidence": "For Q1, we're prioritizing feed redesign and call guard",
+            "speaker": "Kyler"
+          }
+        ]
+      }
+    }
+  },
+  "processed_sources": {
+    "2026-01-05-all-hands.md": {
+      "processed_at": "2026-01-05T12:00:00.000Z",
+      "fact_count": 1,
+      "source_type": "transcript"
+    },
+    "2026-01-08-roadmap-review.md": {
+      "processed_at": "2026-01-08T16:00:00.000Z",
+      "fact_count": 1,
+      "source_type": "transcript"
+    },
+    "2026-01-10-product-sync.md": {
+      "processed_at": "2026-01-10T11:00:00.000Z",
+      "fact_count": 1,
+      "source_type": "transcript"
+    },
+    "2026-01-12-standup.md": {
+      "processed_at": "2026-01-12T10:00:00.000Z",
+      "fact_count": 1,
+      "source_type": "transcript"
+    }
+  },
+  "stats": {
+    "transcripts_processed": 4,
+    "total_facts": 4
+  }
+}

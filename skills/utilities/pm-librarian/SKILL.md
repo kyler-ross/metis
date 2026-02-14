@@ -41,29 +41,29 @@ If unclear, default to **Audit** - it surfaces what the other modes would fix.
 
 | Directory | Purpose | Concerns |
 |-----------|---------|----------|
-| `knowledge/` | Knowledge base (82+ files) | Staleness, duplicates, index sync |
-| `config/` | System configuration | Duplicate configs, schema validity |
-| `scripts/` | CLI tools and automation | Archive bloat, unused scripts |
-| `local/` | Private data (gitignored) | Backup explosion, log rotation |
-| `work/` | Agent output drafts | Accumulation, no archival policy |
-| `updates/` | Status updates | Historical archive, growing |
+| `.ai/knowledge/` | Knowledge base (82+ files) | Staleness, duplicates, index sync |
+| `.ai/config/` | System configuration | Duplicate configs, schema validity |
+| `.ai/scripts/` | CLI tools and automation | Archive bloat, unused scripts |
+| `.ai/local/` | Private data (gitignored) | Backup explosion, log rotation |
+| `.ai/work/` | Agent output drafts | Accumulation, no archival policy |
+| `.ai/updates/` | Status updates | Historical archive, growing |
 | `skills/` | Skill definitions | Validation, index sync |
 
 ### Key Index Files
 
 | File | What It Tracks | Drift Risk |
 |------|----------------|------------|
-| `config/knowledge-index.json` | Knowledge file metadata + tags | High - files added/removed without update |
+| `.ai/config/knowledge-index.json` | Knowledge file metadata + tags | High - files added/removed without update |
 | `skills/_index.json` | Skill routing metadata | Medium - auto-generated but may lag |
-| `config/agent-manifest.json` | Agent definitions | Medium - legacy agents archived |
+| `.ai/config/agent-manifest.json` | Agent definitions | Medium - legacy agents archived |
 
 ## Safety Rules
 
 ```
 NEVER delete files without explicit user approval
 NEVER modify .env files or credentials
-NEVER touch local/private_transcripts/ content (read metadata only)
-NEVER commit local/ or work/ to git
+NEVER touch .ai/local/private_transcripts/ content (read metadata only)
+NEVER commit .ai/local/ or .ai/work/ to git
 ALWAYS show a preview of proposed changes before executing
 ALWAYS create a summary of what changed after execution
 ```
@@ -99,14 +99,14 @@ For common operations, use these CLI patterns:
 
 ```bash
 # Check knowledge index vs actual files
-diff <(jq -r '.knowledge_files[].file' config/knowledge-index.json | sort) \
-     <(find knowledge -type f -name "*.md" | sed 's|knowledge/||' | sort)
+diff <(jq -r '.knowledge_files[].file' .ai/config/knowledge-index.json | sort) \
+     <(find .ai/knowledge -type f -name "*.md" | sed 's|.ai/knowledge/||' | sort)
 
 # Find duplicate " 2" files (Mac copy artifacts)
-find . -name "* 2.*" -o -name "* 2/"
+find .ai/ -name "* 2.*" -o -name "* 2/"
 
 # Check backup sizes in local/
-du -sh local/*.json local/*.backup.json 2>/dev/null
+du -sh .ai/local/*.json .ai/local/*.backup.json 2>/dev/null
 
 # Validate all skill definitions
 node scripts/validate-skills.cjs
@@ -115,19 +115,48 @@ node scripts/validate-skills.cjs
 node scripts/generate-index.cjs
 
 # Check Confluence sync staleness
-node scripts/confluence-sync.cjs --check
+node .ai/scripts/confluence-sync.cjs --check
 ```
 
 ## Parallel Execution (Claude Code)
 
 For full system audits, launch parallel subagents:
 
-1. **Knowledge Auditor** - Scan knowledge/ for duplicates, staleness, orphans
+1. **Knowledge Auditor** - Scan .ai/knowledge/ for duplicates, staleness, orphans
 2. **Config Validator** - Check all JSON configs for validity and cross-references
-3. **Space Auditor** - Scan local/ and work/ for bloat and cleanup candidates
+3. **Space Auditor** - Scan .ai/local/ and .ai/work/ for bloat and cleanup candidates
 4. **Index Verifier** - Compare indexes against actual file system state
 
 Synthesize all 4 into a unified report.
+
+## Dossier Curation Health
+
+When auditing the system, check dossier health:
+
+| Check | How | Flag If |
+|-------|-----|---------|
+| **Freshness** | Read `updated` from about-me.md YAML frontmatter | >48 hours old |
+| **Schema compliance** | Check for `schema: about-me/v2` in frontmatter | Missing or wrong |
+| **Relationship drift** | Extract names from Key Relationships, cross-reference team-members.json | Names not in team file |
+| **Temporal expiry** | Check Current Context for `(Expires: <date>)` with past dates | Expired items present |
+| **Pipeline health** | Run `node .ai/scripts/local-worker-manager.cjs status` | Worker not running |
+| **Recent runs** | Run `node .ai/scripts/context-enrichment.cjs stats \| tail -5` | No run in 24 hours |
+| **Zombie daemon** | Check if `~/.pm-ai/enrichment-daemon.pid` exists | Should not exist |
+
+Quick commands:
+```bash
+# Check about-me.md freshness
+head -10 .ai/knowledge/about-me.md | grep "updated:"
+
+# Check for expired temporal items
+grep -n "Expires:" .ai/knowledge/about-me.md
+
+# Check enrichment worker
+node .ai/scripts/local-worker-manager.cjs status
+
+# Run curator dry-run
+node .ai/scripts/context-enrichment.cjs curate --dry-run
+```
 
 ## When NOT to Use This Skill
 

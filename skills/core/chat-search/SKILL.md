@@ -29,7 +29,7 @@ Before any search, classify the query into one or more dimensions:
 | **Temporal** | "yesterday", "last week", "January", "recent", "old" | SQL date filters | Don't use FTS for dates |
 | **Magnitude** | "big", "huge", "long", "100k lines", "massive diff", "marathon session" | git stats, turn_count, PR metrics via `gh` | Don't search "big" as a keyword |
 | **Artifact** | "created PR", "wrote the doc", "made a ticket", "deleted", "added", "built a doc", "Google Doc" | `gh pr list`, `gh issue list`, git log, grep JSONL for URLs | Don't search "PR" in FTS |
-| **Identity** | "with Mike", "the Jira ticket PROJ-XXX", "about the electron app" | Metadata fields, external IDs, project paths | - |
+| **Identity** | "with Mike", "the Jira ticket ALL-123", "about the desktop app" | Metadata fields, external IDs, project paths | - |
 | **Outcome** | "fixed", "broke", "failed", "succeeded", "solved" | outcome field + context | - |
 
 **Multi-dimensional queries**: Many queries span dimensions. "The long session where I fixed the auth bug" = Magnitude + Outcome + Content. Query each dimension's data source, then intersect.
@@ -95,7 +95,7 @@ For each result, provide:
 
 ```
 **Jan 12** (`468d0a2b`)
-- **Topic**: Bootstrap Electron App for New Users
+- **Topic**: Bootstrap PMDesktop App for New Users
 - **Details**: Massive cleanup - removed MenuBarApp, prototype agents, webapp components
 - **Signal**: 107,863 lines deleted | PR #103 | 599 turns
 - **Resume**: `claude --resume 468d0a2b-ba90-4b95-a0a2-544739be8442`

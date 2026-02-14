@@ -54,7 +54,7 @@
   },
   "required_context": [
     "about-me.md",
-    "about-company.md",
+    "about-cloaked.md",
     "team-glossary.md",
     "pm-workflow-context.md",
     "meeting_transcripts/",
@@ -79,10 +79,10 @@
     }
   },
   "meta": {
-    "author": "alice",
+    "author": "lucas",
     "version": "2.0",
     "status": "active",
-    "migrated_from": "legacy",
+    "migrated_from": ".ai/agents/core/daily-chief-of-staff.md",
     "migration_date": "2026-02-02"
   }
 }
